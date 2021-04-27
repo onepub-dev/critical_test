@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dcli/dcli.dart';
 
@@ -234,7 +235,17 @@ void clearFailedTracker() {
 List<String> lines = <String>[];
 
 void showProgress(String message) {
-  final progress = '${green('$successes')}:${orange('$failures')}:'
+  final columns = stdout.terminalColumns;
+
+  /// print(columns);
+
+  /// We allow 20 chars for the counts.
+  if (message.length > columns - 24) {
+    /// print('progess: ${message.length}');
+    message = message.substring(0, columns - 24) + '...';
+  }
+
+  var progress = '${green('$successes')}:${orange('$failures')}:'
       '${red('$errors')}:'
       '${blue('$skipped')} $message';
 
@@ -248,6 +259,7 @@ void showProgress(String message) {
     term
       ..clearLine()
       ..startOfLine();
+
     echo(progress);
   } else {
     print(progress);
