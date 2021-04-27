@@ -38,9 +38,8 @@ void runTest(
         '-j1',
         '-r',
         'json',
+        '--coverage=${join(pathToPackageRoot, 'coverage')}',
         testScript,
-        '--coverage',
-        join(pathToPackageRoot, 'coverage')
       ],
       workingDirectory: pathToPackageRoot,
       nothrow: true,
