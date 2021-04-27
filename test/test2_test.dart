@@ -9,7 +9,9 @@ void main() {
       expect(1, equals(1));
     });
 
-    test('2nd Intentional fail', () {
+    test(
+        '2nd Intentional fail  - with a very very very very very very very very very very very very very very very very very very very very very long name',
+        () {
       fail('intentionally failed');
     });
 
