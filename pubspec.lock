@@ -102,9 +102,9 @@ packages:
   dcli:
     dependency: "direct main"
     description:
-      name: dcli
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "../dcli"
+      relative: true
+    source: path
     version: "1.0.4"
   equatable:
     dependency: transitive
