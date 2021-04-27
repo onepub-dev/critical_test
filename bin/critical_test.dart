@@ -66,7 +66,7 @@ void main(List<String> args) {
     logPath = truepath(parsed['logTo'] as String);
   }
 
-  final pathToProjectRoot = Script.current.pathToProjectRoot;
+  final pathToProjectRoot = DartProject.fromPath(pwd).pathToProjectRoot;
 
   if (parsed.wasParsed('single')) {
     var pathToScript = parsed['single'] as String;
