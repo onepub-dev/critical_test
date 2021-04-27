@@ -14,9 +14,9 @@ Critical Test then lets you run-run individual failed tests or re-run all failed
 
 Critical Tests also provides an enhanced view of failed unit tests making it easier to review those tests.
 
-Another Dart tool by Noojee
+# Another Dart tool by Noojee
 
-![Noojee](https://github.com/[bsutton]/[critical_test]/blob/[main]/images/noojee-logo.png?raw=true)
+![Noojee](https://github.com/bsutton/critical_test/blob/main/images/noojee-logo.png?raw=true)
 
 
 # Run a single test
