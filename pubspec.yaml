@@ -18,4 +18,4 @@ dependency_overrides:
 
 
 executables:
-  critical_test
+  critical_test : critical_test
