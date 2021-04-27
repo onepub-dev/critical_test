@@ -1,6 +1,6 @@
 # Critical Test
 
-Critical Test is a cli tool designed to simplify the process of fixing broken unit tests.
+Critical Test is a cli tool designed provide an enhanced cli experience when running Dart unit tests.
 
 Fixing broken unit tests is an ongoing job in any active project.
 
@@ -11,6 +11,8 @@ Critial Test runs your unit tests from the cli and makes it easy to identify bro
 By default Critical Test supresses the output of any tests that succeed so you can focus on the failed test.
 
 Critical Test then lets you run-run individual failed tests or re-run all failed tests.
+
+Critical Tests also provides an enhanced view of failed unit tests making it easier to review those tests.
 
 
 # Run a single test
