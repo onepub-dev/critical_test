@@ -8,7 +8,7 @@ Critical Test runs your unit tests from the cli and makes it easy to identify br
 
 By default Critical Test suppresses the output of any tests that succeed so you can focus on those critical failed test.
 
-Critical Test then lets you run-run individual failed tests or re-run all failed tests.
+Critical Test then lets you re-run individual failed tests or re-run all failed tests.
 
 Critical Tests also provides an enhanced view of failed unit tests making it easier to review those tests.
 
