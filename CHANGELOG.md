@@ -1,3 +1,6 @@
+# 1.0.5
+Improvements to the readme.
+
 # 1.0.4
 Changed the run_failed switch to runfailed.
 spelling in the readme.
