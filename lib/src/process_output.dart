@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dcli/dcli.dart';
+import 'package:meta/meta.dart';
 
 import 'json/test.dart';
 
@@ -47,8 +48,11 @@ void runTest(
       progress: Progress(processOutput, stderr: processOutput));
 }
 
+@visibleForTesting
+set logToPath(String logToPath) => _logPath = logToPath;
+
 void processOutput(String line) {
-  var _line = line;
+  var _line = line.trim();
   if (!_line.startsWith('{"')) {
     final embeddedIndex = _line.indexOf('{"');
     if (embeddedIndex == -1) {
@@ -58,6 +62,14 @@ void processOutput(String line) {
     }
 
     _line = _line.substring(embeddedIndex);
+  }
+
+  /// check for and trim raw output from a spawned subprocess
+  var lastBrace = _line.lastIndexOf('}');
+  if (lastBrace + 1 != _line.length) {
+    var tail = _line.substring(lastBrace + 1);
+    lines.add(tail);
+    _line = _line.substring(0, lastBrace + 1);
   }
 
   final map = jsonDecode(_line) as Map<String, dynamic>;
