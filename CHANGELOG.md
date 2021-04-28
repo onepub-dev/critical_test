@@ -1,3 +1,6 @@
+# 1.0.6
+Fixed a bug caused when a child process is spawned which directly prints to stdout. We now strip this out of the json messages to stop json decode problems.
+
 # 1.0.5
 Improvements to the readme.
 
