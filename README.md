@@ -2,13 +2,11 @@
 
 Critical Test is a cli tool designed to provide an enhanced cli experience when running Dart unit tests.
 
-Fixing broken unit tests is an ongoing job in any active project.
-
-Whilst it is usually better to run your unit tests from within your IDE, in some circumstances this isn't possible or convenient.
+Fixing broken unit tests is an ongoing job in any active project. Whilst it is usually better to run your unit tests from within your IDE, in some circumstances this isn't possible or convenient.
 
 Critical Test runs your unit tests from the cli and makes it easy to identify broken tests and re-run those tests.
 
-By default Critical Test suppresses the output of any tests that succeed so you can focus on the failed test.
+By default Critical Test suppresses the output of any tests that succeed so you can focus on those critical failed test.
 
 Critical Test then lets you run-run individual failed tests or re-run all failed tests.
 
@@ -25,7 +23,7 @@ If a test fails, Critical Test outputs instructions on how to re-run that single
 
 You will see a blue line just above the 'END ERROR' line with the instructions.
 
-```bash
+```
 package:test_api           fail
 test/test2_test.dart 13:7  main.<fn>.<fn>
 
@@ -36,16 +34,15 @@ Rerun test via: critical_test --single=test/test2_test.dart
 
 To re-run the failed test:
 
-critical_test --single=test/test2_test.dart
+`critical_test --single=test/test2_test.dart`
 
 # Re-run all failed tests
 Each time you do a test run (except when --single is used) Critical Test tracks each of the failed tests.
 
 You can re-run just the failed tests by running:
 
-```bash
-critical_test --runfailed
-```
+`critical_test --runfailed`
+
 
 ## show
 
@@ -53,20 +50,18 @@ When Critical Test runs it normally suppresses the output of any tests that succ
 
 You can use the `--show` command line switch to run the test showing output from both failed and successful tests.
 
-```bash
-critical_test --show
-```
+`critical_test --show`
+
 
 
 ## logTo
 
-By default critical_tests logs both successful and failed tests to <system temp dir>/critical_test/unit_tests.log
+By default critical_tests logs both successful and failed tests to `<system temp dir>/critical_test/unit_tests.log`.
 
 You can modify the file the unit tests are logged to via:
 
-```bash
-critical_test --logTo=<somepath>
-```
+`critical_test --logTo=<somepath>`
+
 
 # Monitoring progress
 
@@ -84,9 +79,8 @@ Skipped - show in blue
 
 You can also monitor the full output of the unit tests (including successful unit tests) by tailing the log file:
 
-```bash
-tail  -f /<system temp dir>/critical_test/unit_tests.log
-```
+`tail  -f /<system temp dir>/critical_test/unit_tests.log`
+
 
 # Pre/Post test hooks.
 
