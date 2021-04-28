@@ -54,10 +54,10 @@ void main(List<String> args) {
 
   var show = parsed['show'] as bool;
 
-  var runFailed = parsed['run_failed'] as bool;
+  var runFailed = parsed['runfailed'] as bool;
 
   if (runFailed && parsed.wasParsed('single')) {
-    printerr(red('You may only pass one of --single or --run_failed'));
+    printerr(red('You may only pass one of --single or --runfailed'));
     showUsage(parser);
   }
 
