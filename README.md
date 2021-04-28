@@ -44,7 +44,7 @@ Each time you do a test run (except when --single is used) Critical Test tracks 
 You can re-run just the failed tests by running:
 
 ```bash
-critical_test --run_failed
+critical_test --runfailed
 ```
 
 ## show

@@ -40,7 +40,7 @@ void main(List<String> args) {
     ..addOption('single',
         abbr: '1',
         help: 'Allows you to run a single unit tests by passing in its path.')
-    ..addFlag('run_failed',
+    ..addFlag('runfailed',
         abbr: 'f',
         negatable: false,
         help:
@@ -87,7 +87,7 @@ void main(List<String> args) {
 /// Show useage.
 void showUsage(ArgParser parser) {
   print(
-      'Usage: critical_test [--show] [--logTo=<path to log>] [--single=<path to test>|--run_failed] [--no-hooks]');
+      'Usage: critical_test [--show] [--logTo=<path to log>] [--single=<path to test>|--runfailed] [--no-hooks]');
   print(green('Runs unit tests only showing output from failed tests.'));
   print(parser.usage);
   exit(1);
