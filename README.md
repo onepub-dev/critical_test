@@ -17,6 +17,15 @@ Critical Tests also provides an enhanced view of failed unit tests making it eas
 ![Noojee](https://github.com/bsutton/critical_test/blob/main/images/noojee-logo.png?raw=true)
 
 
+# Run all tests
+
+To run all tests simply run `critical_test` from the root of you project.
+
+```bash
+dart pub global activate critical_test
+cd <your project root>
+critcal_test
+```
 # Run a single test
 
 If a test fails, Critical Test outputs instructions on how to re-run that single test.
@@ -72,10 +81,10 @@ Critical Test provides a single updating line that shows progress of the unit te
 
 The firsts four numbers in order are:
 
-Successes - show in green
-Failures - show in orange
-Errors - show in red
-Skipped - show in blue
+* Successes - shown in green
+* Failures - shown in orange
+* Errors - shown in red
+* Skipped - shown in blue
 
 You can also monitor the full output of the unit tests (including successful unit tests) by tailing the log file:
 
@@ -84,14 +93,17 @@ You can also monitor the full output of the unit tests (including successful uni
 
 # Pre/Post test hooks.
 
-When running unit tests you may need to do some preparatory and/or cleanup work when running the unit tests.
+When running unit tests you may need to do some preparatory and/or cleanup work.
 
 Ideally this should be in the `setupAll` and `tearDownAll` methods in your unit tests.
+
 
 If that isn't possible then Critical Test allows you to specify hooks that are run 
 before and after the unit tests are run.
 
-A hook can be any executable such as a DCli or bash script.
+The Critical Test hooks are particularly useful for starting/stopping services (a database, docker container etc) before/after you run your unit tests.
+
+A hook can be any executable such as a DCli or Bash script.
 
 To create a hook, create a critical_test_hook directory under your project's 'tool' directory
 
@@ -112,5 +124,9 @@ chmod +x critical_test_hook/pre-hook/dostuff.sh
 ```
 
 Hooks are sorted alphanumerically so you can prefix the hook's name with a number if you need to control the order the hooks run in.
+
+
+# DCli
+Critical Test was written in Dart using [DCli](https://pub.dev/packages/dcli) to support the [Conduit](https://pub.dev/packages/conduit) project.
 
 
