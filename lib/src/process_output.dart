@@ -202,7 +202,8 @@ void printFailedTest(String error, String stackTrace) {
   var pathToActiveScript = join('test', activeScript);
   trackFailedTest(pathToActiveScript);
   print('');
-  print(red('${'*' * 34} BEGIN ERROR (${failures + 1}) '.padRight(80, '*')));
+  print(red(
+      '${'*' * 34} BEGIN ERROR (${errors + failures + 1}) '.padRight(80, '*')));
   print(orange('Test: ${test.name}'));
   print(red('Error: $error'));
 
@@ -215,7 +216,8 @@ void printFailedTest(String error, String stackTrace) {
   print(orange('${'*' * 34} STACKTRACE '.padRight(80, '*')));
   print(stackTrace);
   print(blue('Rerun test via: critical_test --single=$pathToActiveScript'));
-  print(red('${'*' * 32} END ERROR (${failures + 1}) '.padRight(80, '*')));
+  print(red(
+      '${'*' * 32} END ERROR (${errors + failures + 1}) '.padRight(80, '*')));
 }
 
 final pathToFailedTracker = '.failed_tracker';
