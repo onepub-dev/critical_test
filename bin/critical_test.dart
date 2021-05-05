@@ -32,6 +32,13 @@ void main(List<String> args) {
       abbr: 's',
       help: 'Also show output from successful unit tests.',
     )
+    ..addFlag(
+      'verbose',
+      negatable: false,
+      abbr: 'v',
+      hide: true,
+      help: 'Verbose logging for debugging of critical test.',
+    )
     ..addOption('logTo',
         abbr: 'l',
         help: 'Path to log all output. '
@@ -52,6 +59,9 @@ void main(List<String> args) {
     showUsage(parser);
   }
 
+  var verbose = parsed['verbose'] as bool;
+  Settings().setVerbose(enabled: verbose);
+
   var show = parsed['show'] as bool;
 
   var runFailed = parsed['runfailed'] as bool;
@@ -67,6 +77,8 @@ void main(List<String> args) {
   }
 
   final pathToProjectRoot = DartProject.fromPath(pwd).pathToProjectRoot;
+
+  print('CT using project root: $pathToProjectRoot');
 
   if (parsed.wasParsed('single')) {
     var pathToScript = parsed['single'] as String;
