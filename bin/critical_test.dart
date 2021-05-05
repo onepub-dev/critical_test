@@ -78,8 +78,6 @@ void main(List<String> args) {
 
   final pathToProjectRoot = DartProject.fromPath(pwd).pathToProjectRoot;
 
-  print('CT using project root: $pathToProjectRoot');
-
   if (parsed.wasParsed('single')) {
     var pathToScript = parsed['single'] as String;
     runSingleTest(
