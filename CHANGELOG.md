@@ -1,3 +1,7 @@
+# 1.0.7
+the critical test application now returns -1 if any tests failed.
+Added hidden verbose flag to make diagnostics easier.
+
 # 1.0.6
 Fixed a bug caused when a child process is spawned which directly prints to stdout. We now strip this out of the json messages to stop json decode problems.
 
