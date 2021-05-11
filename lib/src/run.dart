@@ -15,7 +15,8 @@ late String hookPath =
 late String prehookPath = join(hookPath, 'pre_test_hook');
 late String posthookPath = join(hookPath, 'post_test_hook');
 
-void runTests(
+/// returns true if all tests passed.
+bool runTests(
     {required String pathToProjectRoot, String? logPath, bool show = false}) {
   if (logPath != null) {
     _logPath = logPath;
@@ -33,28 +34,36 @@ void runTests(
   prepareLog();
   runPreHooks();
 
-  _runAllTests(pathToProjectRoot);
+  var allPassed = _runAllTests(pathToProjectRoot);
 
   print('');
 
   runPostHooks();
+
+  return allPassed;
 }
 
 /// Find an run each unit test file.
-void _runAllTests(String pathToPackageRoot) {
+/// returns true if all tests passed.
+bool _runAllTests(String pathToPackageRoot) {
   final pathToTestRoot = join(pathToPackageRoot, 'test');
-  print('Running unit tests from $pathToTestRoot');
+  print('Running unit tests for $pathToPackageRoot');
+
+  var passed = true;
 
   find('*_test.dart', workingDirectory: pathToTestRoot).forEach((testScript) {
-    runTest(
+    passed &= runTest(
         testScript: testScript,
         pathToPackageRoot: pathToPackageRoot,
         show: _show,
         logPath: _logPath);
   });
+
+  return passed;
 }
 
-void runSingleTest(
+/// returns true if the test passed.
+bool runSingleTest(
     {required String testScript,
     required String pathToProjectRoot,
     String? logPath,
@@ -73,7 +82,7 @@ void runSingleTest(
   prepareLog();
   runPreHooks();
 
-  runTest(
+  var passed = runTest(
       testScript: testScript,
       pathToPackageRoot: pathToProjectRoot,
       show: _show,
@@ -82,9 +91,12 @@ void runSingleTest(
   print('');
 
   runPostHooks();
+
+  return passed;
 }
 
-void runFailedTests(
+/// returns true if all tests passed.
+bool runFailedTests(
     {required String pathToProjectRoot, String? logPath, bool show = false}) {
   if (logPath != null) {
     _logPath = logPath;
@@ -104,8 +116,9 @@ void runFailedTests(
   prepareLog();
   runPreHooks();
 
+  var passed = true;
   for (final failedTest in failedTests) {
-    runTest(
+    passed &= runTest(
         testScript: failedTest,
         pathToPackageRoot: pathToProjectRoot,
         show: _show,
@@ -115,6 +128,7 @@ void runFailedTests(
   print('');
 
   runPostHooks();
+  return passed;
 }
 
 void runPreHooks() => runHooks(prehookPath, 'pre-hook');

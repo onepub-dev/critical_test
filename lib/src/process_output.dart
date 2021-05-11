@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:dcli/dcli.dart';
 import 'package:meta/meta.dart';
@@ -21,7 +20,8 @@ int? total;
 
 late String _logPath;
 
-void runTest(
+/// returns true if all tests passed.
+bool runTest(
     {required String testScript,
     required String pathToPackageRoot,
     required String logPath,
@@ -29,23 +29,32 @@ void runTest(
   _logPath = logPath;
   show = show;
 
+  var passed = true;
+
   final pathToTestRoot = join(pathToPackageRoot, 'test');
   activeScript = relative(testScript, from: pathToTestRoot);
 
-  /// print('running $testScript ');
-  DartSdk().runPub(
-      args: [
-        'run',
-        'test',
-        '-j1',
-        '-r',
-        'json',
-        '--coverage=${join(pathToPackageRoot, 'coverage')}',
-        testScript,
-      ],
-      workingDirectory: pathToPackageRoot,
-      nothrow: true,
-      progress: Progress(processOutput, stderr: processOutput));
+  try {
+    final progress = DartSdk().runPub(
+        args: [
+          'run',
+          'test',
+          '-j1',
+          '-r',
+          'json',
+          '--coverage=${join(pathToPackageRoot, 'coverage')}',
+          testScript,
+        ],
+        workingDirectory: pathToPackageRoot,
+        nothrow: true,
+        progress: Progress(processOutput, stderr: processOutput));
+    passed &= progress.exitCode == 0;
+  } catch (e, st) {
+    print('Error ${e.toString()}, st: $st');
+    passed = false;
+  }
+
+  return passed;
 }
 
 @visibleForTesting
@@ -249,7 +258,7 @@ void clearFailedTracker() {
 List<String> lines = <String>[];
 
 void showProgress(String message) {
-  final columns = stdout.terminalColumns;
+  final columns = Terminal().columns;
 
   /// print(columns);
 

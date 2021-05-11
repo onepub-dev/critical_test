@@ -78,20 +78,23 @@ void main(List<String> args) {
 
   final pathToProjectRoot = DartProject.fromPath(pwd).pathToProjectRoot;
 
+  var passed = false;
   if (parsed.wasParsed('single')) {
     var pathToScript = parsed['single'] as String;
-    runSingleTest(
+    passed = runSingleTest(
         testScript: pathToScript,
         pathToProjectRoot: pathToProjectRoot,
         logPath: logPath,
         show: show);
   } else if (runFailed) {
-    runFailedTests(
+    passed = runFailedTests(
         pathToProjectRoot: pathToProjectRoot, logPath: logPath, show: show);
   } else {
-    runTests(
+    passed = runTests(
         pathToProjectRoot: pathToProjectRoot, logPath: logPath, show: show);
   }
+
+  if (!passed) exit(-1);
 }
 
 /// Show useage.
