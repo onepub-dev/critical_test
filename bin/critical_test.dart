@@ -91,7 +91,7 @@ void main(List<String> args) {
 
   String? excludeTags;
   if (parsed.wasParsed('exclude-tags')) {
-    tags = parsed['exclude-tags'] as String;
+    excludeTags = parsed['exclude-tags'] as String;
   }
 
   final pathToProjectRoot = DartProject.fromPath(pwd).pathToProjectRoot;
