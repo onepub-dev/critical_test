@@ -38,7 +38,7 @@ bool runTest({
   activeScript = relative(testScript, from: pathToTestRoot);
 
   try {
-    final progress = DartSdk().runPub(
+    final progress = DartSdk().run(
         args: [
           'run',
           'test',
@@ -115,6 +115,7 @@ void processOutput(String line) {
       processError(map);
       break;
 
+    /// all tests are complete
     case 'done':
       processDone(map);
       break;
@@ -179,25 +180,36 @@ void processTestStart(Map<String, dynamic> map) {
 void processTestDone(Map<String, dynamic> map) {
   final result = map['result'] as String;
 
-  switch (result) {
-    case 'success':
-      successes++;
-      break;
-
-    /// if the test had a TestFailure but no other errors.
-    case 'failure':
-      failures++;
-      break;
-
-    /// if the test had an error other than a TestFailure.
-    case 'error':
-      errors++;
-      break;
+  if (map['hidden'] == true) {
+    return;
   }
-
+  // skipped is when the 'skipped' parameter is used
+  // hidden is when tags/exclude-tags is used.
+  // we treat them the same.
   if (map['skipped'] == 'true') {
     skipped++;
+    print('skipping: ${test.name}');
+
+    /// even though it didn't run the result tag should be success
+    assert(result == 'success');
+  } else {
+    switch (result) {
+      case 'success':
+        successes++;
+        break;
+
+      /// if the test had a TestFailure but no other errors.
+      case 'failure':
+        failures++;
+        break;
+
+      /// if the test had an error other than a TestFailure.
+      case 'error':
+        errors++;
+        break;
+    }
   }
+
   showProgress('$activeScript: Completed ${test.name}');
   lines.clear();
 }
