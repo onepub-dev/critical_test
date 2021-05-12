@@ -29,6 +29,7 @@ bool runTests(
 
   clearFailedTracker();
 
+  print(green('Running unit tests for ${DartProject.fromPath(pwd).pubSpec.name}'));
   print('Logging all output to $_logPath.');
 
   // ignore: missing_whitespace_between_adjacent_strings
@@ -48,12 +49,11 @@ bool runTests(
   return allPassed;
 }
 
-/// Find an run each unit test file.
-/// returns true if all tests passed.
+/// Find and run each unit test file.
+/// Returns true if all tests passed.
 bool _runAllTests(String pathToPackageRoot,
     {required String? tags, required String? excludeTags}) {
   final pathToTestRoot = join(pathToPackageRoot, 'test');
-  print('Running unit tests for $pathToPackageRoot');
 
   var passed = true;
 
