@@ -21,11 +21,14 @@ int? total;
 late String _logPath;
 
 /// returns true if all tests passed.
-bool runTest(
-    {required String testScript,
-    required String pathToPackageRoot,
-    required String logPath,
-    bool show = false}) {
+bool runTest({
+  required String testScript,
+  required String pathToPackageRoot,
+  required String logPath,
+  required String? tags,
+  required String? excludeTags,
+  bool show = false,
+}) {
   _logPath = logPath;
   show = show;
 
@@ -43,6 +46,8 @@ bool runTest(
           '-r',
           'json',
           '--coverage=${join(pathToPackageRoot, 'coverage')}',
+          if (tags != null) '--tags="$tags"',
+          if (excludeTags != null) '--exclude-tags="$excludeTags"',
           testScript,
         ],
         workingDirectory: pathToPackageRoot,

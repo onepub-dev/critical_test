@@ -61,6 +61,20 @@ You can use the `--show` command line switch to run the test showing output from
 
 `critical_test --show`
 
+## Selecting tests to run
+Critical Test takes two commandline arguments that allow you to control which tests are run:
+
+* --tags=`<tag expression>`
+* --exclude-tags=`<tag expression>`
+
+
+Both of these flags are passed directly to the unit test package and so must conform to the documented [tag expression](https://pub.dev/packages/test#tagging-tests) syntax.
+
+e.g.
+--tags="(chrome || firefox) && !slow"
+--exclude-tags=slow
+
+
 
 
 ## logTo

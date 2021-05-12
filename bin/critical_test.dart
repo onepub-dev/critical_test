@@ -51,7 +51,15 @@ void main(List<String> args) {
         abbr: 'f',
         negatable: false,
         help:
-            'Re-runs only those tests that failed during the last run of critical_test.');
+            'Re-runs only those tests that failed during the last run of critical_test.')
+    ..addOption('tags',
+        abbr: 't',
+        help:
+            'Select  unit tests to run via their tags. The syntax must confirm to the --tags option in the test package.')
+    ..addOption('exclude-tags',
+        abbr: 'x',
+        help:
+            'Select unit tests to exclude via their tags. The syntax must confirm to the --exclude-tags option in the test package.');
 
   final parsed = parser.parse(args);
 
@@ -76,6 +84,16 @@ void main(List<String> args) {
     logPath = truepath(parsed['logTo'] as String);
   }
 
+  String? tags;
+  if (parsed.wasParsed('tags')) {
+    tags = parsed['tags'] as String;
+  }
+
+  String? excludeTags;
+  if (parsed.wasParsed('exclude-tags')) {
+    tags = parsed['exclude-tags'] as String;
+  }
+
   final pathToProjectRoot = DartProject.fromPath(pwd).pathToProjectRoot;
 
   var passed = false;
@@ -85,13 +103,23 @@ void main(List<String> args) {
         testScript: pathToScript,
         pathToProjectRoot: pathToProjectRoot,
         logPath: logPath,
-        show: show);
+        show: show,
+        tags: tags,
+        excludeTags: excludeTags);
   } else if (runFailed) {
     passed = runFailedTests(
-        pathToProjectRoot: pathToProjectRoot, logPath: logPath, show: show);
+        pathToProjectRoot: pathToProjectRoot,
+        logPath: logPath,
+        show: show,
+        tags: tags,
+        excludeTags: excludeTags);
   } else {
     passed = runTests(
-        pathToProjectRoot: pathToProjectRoot, logPath: logPath, show: show);
+        pathToProjectRoot: pathToProjectRoot,
+        logPath: logPath,
+        show: show,
+        tags: tags,
+        excludeTags: excludeTags);
   }
 
   if (!passed) exit(-1);

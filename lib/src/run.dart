@@ -17,7 +17,11 @@ late String posthookPath = join(hookPath, 'post_test_hook');
 
 /// returns true if all tests passed.
 bool runTests(
-    {required String pathToProjectRoot, String? logPath, bool show = false}) {
+    {required String pathToProjectRoot,
+    String? logPath,
+    bool show = false,
+    required String? tags,
+    required String? excludeTags}) {
   if (logPath != null) {
     _logPath = logPath;
   }
@@ -34,7 +38,8 @@ bool runTests(
   prepareLog();
   runPreHooks();
 
-  var allPassed = _runAllTests(pathToProjectRoot);
+  var allPassed =
+      _runAllTests(pathToProjectRoot, tags: tags, excludeTags: excludeTags);
 
   print('');
 
@@ -45,7 +50,8 @@ bool runTests(
 
 /// Find an run each unit test file.
 /// returns true if all tests passed.
-bool _runAllTests(String pathToPackageRoot) {
+bool _runAllTests(String pathToPackageRoot,
+    {required String? tags, required String? excludeTags}) {
   final pathToTestRoot = join(pathToPackageRoot, 'test');
   print('Running unit tests for $pathToPackageRoot');
 
@@ -56,7 +62,9 @@ bool _runAllTests(String pathToPackageRoot) {
         testScript: testScript,
         pathToPackageRoot: pathToPackageRoot,
         show: _show,
-        logPath: _logPath);
+        logPath: _logPath,
+        tags: tags,
+        excludeTags: excludeTags);
   });
 
   return passed;
@@ -67,7 +75,9 @@ bool runSingleTest(
     {required String testScript,
     required String pathToProjectRoot,
     String? logPath,
-    bool show = false}) {
+    bool show = false,
+    String? tags,
+    String? excludeTags}) {
   if (logPath != null) {
     _logPath = logPath;
   }
@@ -86,7 +96,9 @@ bool runSingleTest(
       testScript: testScript,
       pathToPackageRoot: pathToProjectRoot,
       show: _show,
-      logPath: _logPath);
+      logPath: _logPath,
+      tags: tags,
+      excludeTags: excludeTags);
 
   print('');
 
@@ -97,7 +109,11 @@ bool runSingleTest(
 
 /// returns true if all tests passed.
 bool runFailedTests(
-    {required String pathToProjectRoot, String? logPath, bool show = false}) {
+    {required String pathToProjectRoot,
+    String? logPath,
+    bool show = false,
+    String? tags,
+    String? excludeTags}) {
   if (logPath != null) {
     _logPath = logPath;
   }
@@ -122,7 +138,9 @@ bool runFailedTests(
         testScript: failedTest,
         pathToPackageRoot: pathToProjectRoot,
         show: _show,
-        logPath: _logPath);
+        logPath: _logPath,
+        tags: tags,
+        excludeTags: excludeTags);
   }
 
   print('');
