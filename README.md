@@ -1,16 +1,10 @@
-# Overview
+# README
 
 ## Critical Test
 
 Critical Test is a cli tool designed to provide an enhanced cli experience when running Dart unit tests.
 
 Fixing broken unit tests is an ongoing job in any active project. Whilst it is usually better to run your unit tests from within your IDE, in some circumstances this isn't possible or convenient.
-
-Critical Test is designed to allow you to do casual unit testing as well as being a part of your release process.
-
-{% hint style="info" %}
-For full automation of your release process from the cli, see [pub\_release](https://pub.dev/packages/pub_release) which works with critical test
-{% endhint %}
 
 Critical Test runs your unit tests from the cli and makes it easy to identify broken tests and re-run those tests.
 
@@ -51,9 +45,7 @@ Rerun test via: critical_test --single=test/test2_test.dart
 
 To re-run the failed test:
 
-```text
-critical_test --single=test/test2_test.dart
-```
+`critical_test --single=test/test2_test.dart`
 
 ## Re-run all failed tests
 
@@ -61,32 +53,15 @@ Each time you do a test run \(except when --single is used\) Critical Test track
 
 You can re-run just the failed tests by running:
 
-```text
-critical_test --runfailed
-```
+`critical_test --runfailed`
 
 ### show
 
 When Critical Test runs it normally suppresses the output of any tests that succeed.
 
-You can use the `--show` switch to run the tests showing output from both failed and successful tests.
+You can use the `--show` command line switch to run the test showing output from both failed and successful tests.
 
-```text
-critical_test --show
-```
-
-### Selecting tests to run
-
-Critical Test takes two command line arguments that allow you to control which tests are run:
-
-* --tags=`<tag expression>`
-* --exclude-tags=`<tag expression>`
-
-Both of these flags are passed directly to the unit test package and so must conform to the documented [tag expression](https://pub.dev/packages/test#tagging-tests) syntax.
-
-```text
-critical_test --tags="(chrome || firefox) && !slow" --exclude-tags=db_required
-```
+`critical_test --show`
 
 ### logTo
 
@@ -94,9 +69,7 @@ By default critical\_tests logs both successful and failed tests to `<system tem
 
 You can modify the file the unit tests are logged to via:
 
-```text
-critical_test --logTo=<somepath>
-```
+`critical_test --logTo=<somepath>`
 
 ## Monitoring progress
 
@@ -127,7 +100,7 @@ If that isn't possible then Critical Test allows you to specify hooks that are r
 
 The Critical Test hooks are particularly useful for starting/stopping services \(a database, docker container etc\) before/after you run your unit tests.
 
-A hook can be any executable such as a [DCli](https://pub.dev/packages/dcli) or Bash script.
+A hook can be any executable such as a DCli or Bash script.
 
 To create a hook, create a critical\_test\_hook directory under your project's 'tool' directory
 
@@ -138,15 +111,27 @@ Pre/Post hooks will also run when you use the --single switch.
 You can suppress hooks by passing in the --no-hooks flag.
 
 ```bash
-cd <myproject>
-mkdir tool/critical_test_hook
-mkdir tool/critical_test_hook/pre-hook
-mkdir tool/critical_test_hook/post-hook
-touch tool/critical_test_hook/pre-hook/start_db.dart
-chmod +x tool/critical_test_hook/pre-hook/start_db.dart
+cd <myproject>/tool
+mkdir critical_test_hook
+mkdir critical_test_hook/pre-hook
+mkdir critical_test_hook/post-hook
+touch critical_test_hook/pre-hook/dostuff.sh
+chmod +x critical_test_hook/pre-hook/dostuff.sh
 ```
 
 Hooks are sorted alphanumerically so you can prefix the hook's name with a number if you need to control the order the hooks run in.
+
+### Coverage
+
+Critical Test makes it easy to collect coverage data when running your unit tests.
+
+```text
+critical_test --coverage
+```
+
+Coverage data is written to the 'coverage' directory under you project's root.
+
+
 
 ## DCli
 
