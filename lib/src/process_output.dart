@@ -315,7 +315,7 @@ void showProgress(String message) {
 
   final term = Terminal();
   term.overwriteLine(progress);
-  log(Ansi.strip(progress));
+  log(progress);
 }
 
 void log(String line) {
