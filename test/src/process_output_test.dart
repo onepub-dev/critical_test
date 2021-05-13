@@ -6,7 +6,10 @@ void main() {
   test('process output ...', () async {
     /// we must set a log path.
     var logPath = join(createTempDir(), 'logfile.log');
+    print('logging to $logPath');
     logToPath = logPath;
+    activeScript = 'testScript';
+
     // logPath.truncate();
     var expectedMessage = 'Hellow world';
     processOutput(
@@ -24,5 +27,10 @@ void main() {
     expect(lines.isNotEmpty, isTrue);
     expect(lines.first, equals(expectedMessage));
     expect(lines[1], equals(crap));
+
+    processOutput(
+        '{"testID":3,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2414}');
+    var log = read(logPath).toList();
+    expect(log[2], equals('1:0:0:0 testScript: Completed '));
   });
 }
