@@ -20,4 +20,6 @@ void main(List<String> args) {
     printerr(e.message);
     exit(-1);
   }
+
+  exit(0);
 }
