@@ -1,3 +1,14 @@
+# 1.0.8
+Fixed bug where the skipped count was reporting 0 when tests had been skipped. 
+Added unit tests to check the counts. 
+Attempts to improve the coverage support but still not writting to the correct directory. 
+If the shelled unit tests fail to start we now print the error output.
+Fixed counting problems by checking for the hidden flag.
+Corrected the syntax of the tag argumetnts when passed to the test package.
+Fixed a bug where exclude-tags flag was passing the arg into the wrong variable.
+Cleaned up the messages. Now logs the package name we are running tests for.
+Added tags and exclude-tags command line options to allow control over what tests are run.
+
 # 1.0.7
 the critical test application now returns -1 if any tests failed.
 Added hidden verbose flag to make diagnostics easier.
