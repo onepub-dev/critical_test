@@ -131,6 +131,8 @@ critical_test --coverage
 
 Coverage data is written to the 'coverage' directory under you project's root.
 
+Note: this is still an experimental feature.
+
 
 
 ## DCli
