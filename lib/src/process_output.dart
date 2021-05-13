@@ -319,5 +319,5 @@ void showProgress(String message) {
 }
 
 void log(String line) {
-  _logPath.append(line);
+  _logPath.append(Ansi.strip(line));
 }
