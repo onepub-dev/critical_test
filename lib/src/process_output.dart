@@ -44,7 +44,9 @@ bool runTest({
   }
 
   try {
-    final progress = DartSdk().run(
+    var savedErrors = errors;
+    var savedFailures = failures;
+    DartSdk().run(
         args: [
           'run',
           'test',
@@ -62,8 +64,14 @@ bool runTest({
         progress: Progress(processOutput,
             stderr: (line) => tee(line, processOutput)));
 
+    /// dart run test returns 1 if any unit tests failed
+    /// The problem is that also returns 1 if no unit tests were run
+    /// so we do this check to see if any errors were generated.
+    if (errors != savedErrors || failures != savedFailures) {
+      passed = false;
+    }
+
     // format_coverage --lcov --in=coverage --out=coverage.lcov --packages=.packages --report-on=lib',
-    passed &= progress.exitCode == 0;
     if (!passed) {
       print(_errors.join('\n'));
     }
