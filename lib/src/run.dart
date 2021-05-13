@@ -21,7 +21,8 @@ bool runTests(
     String? logPath,
     bool show = false,
     required String? tags,
-    required String? excludeTags}) {
+    required String? excludeTags,
+    required bool coverage}) {
   if (logPath != null) {
     _logPath = logPath;
   }
@@ -29,7 +30,8 @@ bool runTests(
 
   clearFailedTracker();
 
-  print(green('Running unit tests for ${DartProject.fromPath(pwd).pubSpec.name}'));
+  print(green(
+      'Running unit tests for ${DartProject.fromPath(pwd).pubSpec.name}'));
   print('Logging all output to $_logPath.');
 
   // ignore: missing_whitespace_between_adjacent_strings
@@ -39,8 +41,8 @@ bool runTests(
   prepareLog();
   runPreHooks();
 
-  var allPassed =
-      _runAllTests(pathToProjectRoot, tags: tags, excludeTags: excludeTags);
+  var allPassed = _runAllTests(pathToProjectRoot,
+      tags: tags, excludeTags: excludeTags, coverage: coverage);
 
   print('');
 
@@ -52,7 +54,9 @@ bool runTests(
 /// Find and run each unit test file.
 /// Returns true if all tests passed.
 bool _runAllTests(String pathToPackageRoot,
-    {required String? tags, required String? excludeTags}) {
+    {required String? tags,
+    required String? excludeTags,
+    required bool coverage}) {
   final pathToTestRoot = join(pathToPackageRoot, 'test');
 
   var passed = true;
@@ -64,7 +68,8 @@ bool _runAllTests(String pathToPackageRoot,
         show: _show,
         logPath: _logPath,
         tags: tags,
-        excludeTags: excludeTags);
+        excludeTags: excludeTags,
+        coverage: coverage);
   });
 
   return passed;
@@ -77,7 +82,8 @@ bool runSingleTest(
     String? logPath,
     bool show = false,
     String? tags,
-    String? excludeTags}) {
+    String? excludeTags,
+    required bool coverage}) {
   if (logPath != null) {
     _logPath = logPath;
   }
@@ -98,7 +104,8 @@ bool runSingleTest(
       show: _show,
       logPath: _logPath,
       tags: tags,
-      excludeTags: excludeTags);
+      excludeTags: excludeTags,
+      coverage: coverage);
 
   print('');
 
@@ -113,7 +120,8 @@ bool runFailedTests(
     String? logPath,
     bool show = false,
     String? tags,
-    String? excludeTags}) {
+    String? excludeTags,
+    required bool coverage}) {
   if (logPath != null) {
     _logPath = logPath;
   }
@@ -140,7 +148,8 @@ bool runFailedTests(
         show: _show,
         logPath: _logPath,
         tags: tags,
-        excludeTags: excludeTags);
+        excludeTags: excludeTags,
+        coverage: coverage);
   }
 
   print('');

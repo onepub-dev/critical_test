@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dcli/dcli.dart';
 import 'package:meta/meta.dart';
 
+import 'exceptions/critical_test_exception.dart';
 import 'json/test.dart';
 
 String suite = '';
@@ -28,14 +29,19 @@ bool runTest({
   required String? tags,
   required String? excludeTags,
   bool show = false,
+  required bool coverage,
 }) {
   _logPath = logPath;
   show = show;
 
   var passed = true;
 
-  final pathToTestRoot = join(pathToPackageRoot, 'test');
-  activeScript = relative(testScript, from: pathToTestRoot);
+  activeScript = relative(testScript, from: pathToPackageRoot);
+
+  if (!exists(activeScript)) {
+    throw CriticalTestException(
+        'The test script ${truepath(activeScript)} does not exist.');
+  }
 
   try {
     final progress = DartSdk().run(
@@ -45,21 +51,34 @@ bool runTest({
           '-j1',
           '-r',
           'json',
-          '--coverage=${join(pathToPackageRoot, 'coverage')}',
+          if (coverage) '--coverage',
+          if (coverage) '${join(pathToPackageRoot, 'coverage')}',
           if (tags != null) ...['--tags', '"$tags"'],
           if (excludeTags != null) ...['--exclude-tags', '"$excludeTags"'],
           testScript,
         ],
         workingDirectory: pathToPackageRoot,
         nothrow: true,
-        progress: Progress(processOutput, stderr: processOutput));
+        progress: Progress(processOutput,
+            stderr: (line) => tee(line, processOutput)));
+
+    // format_coverage --lcov --in=coverage --out=coverage.lcov --packages=.packages --report-on=lib',
     passed &= progress.exitCode == 0;
+    if (!passed) {
+      print(_errors.join('\n'));
+    }
   } catch (e, st) {
     print('Error ${e.toString()}, st: $st');
     passed = false;
   }
 
   return passed;
+}
+
+final _errors = <String>[];
+void tee(String line, void Function(String line) processOutput) {
+  _errors.add(line);
+  processOutput(line);
 }
 
 @visibleForTesting
@@ -186,7 +205,7 @@ void processTestDone(Map<String, dynamic> map) {
   // skipped is when the 'skipped' parameter is used
   // hidden is when tags/exclude-tags is used.
   // we treat them the same.
-  if (map['skipped'] == 'true') {
+  if (map['skipped'] == true) {
     skipped++;
     print('skipping: ${test.name}');
 
@@ -216,15 +235,15 @@ void processTestDone(Map<String, dynamic> map) {
 
 String group = '';
 void processGroup(Map<String, dynamic> map) {
-  group = _getNestedMap(map, 'group')['name'] as String;
+  group = (_getNestedMap(map, 'group')['name'] ?? '') as String;
 }
 
 void processSuite(Map<String, dynamic> map) {
   suite = _getNestedMap(map, 'suite')['path'] as String;
 }
 
-Map<String, dynamic> _getNestedMap(Map<String, dynamic> map, String name) =>
-    map[name] as Map<String, dynamic>;
+Map<String, dynamic> _getNestedMap(Map<String, dynamic> map, String key) =>
+    map[key] as Map<String, dynamic>;
 
 void processTestID(Map<String, dynamic> map) {
   final type = map['type'] as String;
@@ -239,22 +258,22 @@ void processTestID(Map<String, dynamic> map) {
 void printFailedTest(String error, String stackTrace) {
   var pathToActiveScript = join('test', activeScript);
   trackFailedTest(pathToActiveScript);
-  print('');
-  print(red(
+  printerr('');
+  printerr(red(
       '${'*' * 34} BEGIN ERROR (${errors + failures + 1}) '.padRight(80, '*')));
-  print(orange('Test: ${test.name}'));
-  print(red('Error: $error'));
+  printerr(orange('Test: ${test.name}'));
+  printerr(red('Error: $error'));
 
-  print(orange('${'*' * 36} OUTPUT '.padRight(80, '*')));
+  printerr(orange('${'*' * 36} OUTPUT '.padRight(80, '*')));
   if (lines.isEmpty) {
-    print('No output.');
+    printerr('No output.');
   } else {
     lines.forEach(print);
   }
-  print(orange('${'*' * 34} STACKTRACE '.padRight(80, '*')));
-  print(stackTrace);
-  print(blue('Rerun test via: critical_test --single=$pathToActiveScript'));
-  print(red(
+  printerr(orange('${'*' * 34} STACKTRACE '.padRight(80, '*')));
+  printerr(stackTrace);
+  printerr(blue('Rerun test via: critical_test --single=$pathToActiveScript'));
+  printerr(red(
       '${'*' * 32} END ERROR (${errors + failures + 1}) '.padRight(80, '*')));
 }
 
@@ -295,16 +314,8 @@ void showProgress(String message) {
   // }
 
   final term = Terminal();
-  if (term.isAnsi) {
-    term
-      ..clearLine()
-      ..startOfLine();
-
-    echo(progress);
-  } else {
-    print(progress);
-  }
-  log(progress);
+  term.overwriteLine(progress);
+  log(Ansi.strip(progress));
 }
 
 void log(String line) {
