@@ -1,4 +1,5 @@
-import 'package:dcli/dcli.dart';
+@Timeout(Duration(minutes: 2))
+import 'package:dcli/dcli.dart' hide equals;
 import 'package:test/test.dart';
 
 // void main() {
@@ -36,6 +37,7 @@ void main() {
     expect(counts.failure, 2);
     expect(counts.errors, 0);
     expect(counts.skipped, 2);
+    expect(progress.exitCode!, equals(255));
   });
 
   test('check test counts with tags', () async {
@@ -54,6 +56,8 @@ void main() {
     expect(counts.failure, 0);
     expect(counts.errors, 0);
     expect(counts.skipped, 2);
+
+    expect(progress.exitCode!, equals(0));
   });
 
   test('check test counts with exclude-tags', () async {
@@ -72,6 +76,7 @@ void main() {
     expect(counts.failure, 0);
     expect(counts.errors, 0);
     expect(counts.skipped, 2);
+    expect(progress.exitCode!, equals(0));
   });
 }
 
