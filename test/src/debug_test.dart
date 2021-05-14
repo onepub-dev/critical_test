@@ -8,8 +8,6 @@ import 'package:test/test.dart';
 void main() {
   /// test case used when we need to debug.
   test('check test counts', () async {
-    late Progress progress;
-
     // progress = await DCliZone().run(() {
     var counts = Counts();
     try {
