@@ -1,3 +1,8 @@
+# 2.0.0
+Change the flag --logTo to --logPath.
+Changed the exit codes to conform close to what other packages use. 0 - is good, 1 is bad, 5 no test were ran.
+Added new command line arg --[no]-progress to improve the CI pipeline experience.
+
 # 1.0.8
 Fixed bug where the skipped count was reporting 0 when tests had been skipped. 
 Added unit tests to check the counts. 
