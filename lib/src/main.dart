@@ -150,7 +150,7 @@ class CriticalTest {
           'All tests passed. Success: ${counts.success} Skipped: ${counts.skipped}'));
     } else {
       printerr(
-          'Some tests failed! Errors: ${red('${counts.errors}')}, Success: ${green('${counts.success}')}, Skipped: ${blue('${counts.skipped}')}');
+          '${red('Some tests failed!')} Errors: ${red('${counts.errors}')}, Success: ${green('${counts.success}')}, Skipped: ${blue('${counts.skipped}')}');
     }
   }
 

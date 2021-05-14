@@ -39,7 +39,7 @@ void runTests(
 
   if (showProgress) {
     // ignore: missing_whitespace_between_adjacent_strings
-    print('Legend: ${green('Successes')}:${red('Errors')}:${blue('Skipped')}');
+    print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
   }
 
   prepareLog();
@@ -104,7 +104,7 @@ void runSingleTest({
 
   if (showProgress) {
     // ignore: missing_whitespace_between_adjacent_strings
-    print('Legend: ${green('Successes')}:${red('Errors')}:${blue('Skipped')}');
+    print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
   }
   prepareLog();
   runPreHooks();
@@ -145,7 +145,7 @@ void runFailedTests({
 
   if (showProgress) {
     // ignore: missing_whitespace_between_adjacent_strings
-    print('Legend: ${green('Successes')}:${red('Errors')}:${blue('Skipped')}');
+    print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
   }
 
   final failedTests = read(pathToFailedTracker).toList();
