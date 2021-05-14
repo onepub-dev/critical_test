@@ -52,7 +52,21 @@ You can re-run just the failed tests by running:
 
 `critical_test --runfailed`
 
+# exit codes
+You can check how the test ran via the critical test exit code.
 
+0 - all tests passed
+1 - some tests failed
+5 - no tests were run
+
+## progress
+The --[no]-progress flag allows you to control whether the progress messages are output.
+
+By default progress messages are displayed.
+
+When using Critical Test in a CI pipeline we recommend running with --no-progress as this reduces the amount of clutter in your CI's logs.
+
+In this mode you will only get a small intro message and a completion message. If any errors are generated they are still logged to the console in full.
 ## show
 
 When Critical Test runs it normally suppresses the output of any tests that succeed.
@@ -77,13 +91,13 @@ e.g.
 
 
 
-## logTo
+## logPath
 
 By default critical_tests logs both successful and failed tests to `<system temp dir>/critical_test/unit_tests.log`.
 
 You can modify the file the unit tests are logged to via:
 
-`critical_test --logTo=<somepath>`
+`critical_test --logPath=<somepath>`
 
 
 # Monitoring progress
