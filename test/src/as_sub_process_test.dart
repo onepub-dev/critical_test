@@ -4,6 +4,7 @@ import 'package:test/test.dart';
 
 void main() {
   test('Run critical_test as a spawned process', () {
-    'critical_test --tags="bad"'.start(workingDirectory: pwd, nothrow: true);
+    'critical_test --logPath=/dev/null --tags="bad,debug"'.start(
+        workingDirectory: pwd, nothrow: true, progress: Progress.devNull());
   });
 }

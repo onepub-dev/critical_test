@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
 
 void main() {
-  group('Group ##1', () {
+  group('Group ##2', () {
     test('Intentional fail', () {
       fail('intentionally failed');
     }, tags: ['bad']);

@@ -5,15 +5,12 @@ import 'package:meta/meta.dart';
 
 import 'exceptions/critical_test_exception.dart';
 import 'json/test.dart';
+import 'util/counts.dart';
 
 String suite = '';
 
 late String activeScript;
 Test test = Test.empty();
-int successes = 0;
-int failures = 0;
-int errors = 0;
-int skipped = 0;
 bool show = false;
 
 /// Total tests to be processed.
@@ -21,8 +18,15 @@ int? total;
 
 late String _logPath;
 
+bool _showProgress = false;
+
+/// gets replaced when runTest is called.
+/// We just init it here so its nnbd.
+Counts _counts = Counts();
+
 /// returns true if all tests passed.
-bool runTest({
+void runTest({
+  required Counts counts,
   required String testScript,
   required String pathToPackageRoot,
   required String logPath,
@@ -30,11 +34,12 @@ bool runTest({
   required String? excludeTags,
   bool show = false,
   required bool coverage,
+  required bool showProgress,
 }) {
+  _counts = counts;
   _logPath = logPath;
   show = show;
-
-  var passed = true;
+  _showProgress = showProgress;
 
   activeScript = relative(testScript, from: pathToPackageRoot);
 
@@ -44,8 +49,7 @@ bool runTest({
   }
 
   try {
-    var savedErrors = errors;
-    var savedFailures = failures;
+    var saved = Counts.copyFrom(_counts);
     DartSdk().run(
         args: [
           'run',
@@ -64,23 +68,17 @@ bool runTest({
         progress: Progress(processOutput,
             stderr: (line) => tee(line, processOutput)));
 
+    // format_coverage --lcov --in=coverage --out=coverage.lcov --packages=.packages --report-on=lib',
+
     /// dart run test returns 1 if any unit tests failed
     /// The problem is that also returns 1 if no unit tests were run
     /// so we do this check to see if any errors were generated.
-    if (errors != savedErrors || failures != savedFailures) {
-      passed = false;
-    }
-
-    // format_coverage --lcov --in=coverage --out=coverage.lcov --packages=.packages --report-on=lib',
-    if (!passed) {
-      print(_errors.join('\n'));
+    if (_counts.errors != saved.errors) {
+      printerr(_errors.join('\n'));
     }
   } catch (e, st) {
-    print('Error ${e.toString()}, st: $st');
-    passed = false;
+    printerr('Error ${e.toString()}, st: $st');
   }
-
-  return passed;
 }
 
 final _errors = <String>[];
@@ -90,7 +88,7 @@ void tee(String line, void Function(String line) processOutput) {
 }
 
 @visibleForTesting
-set logToPath(String logToPath) => _logPath = logToPath;
+set logPath(String logPath) => _logPath = logPath;
 
 void processOutput(String line) {
   var _line = line.trim();
@@ -156,7 +154,7 @@ void processOutput(String line) {
       // ignored
       break;
     default:
-      print(red('Unexpected line $line'));
+      printerr(red('Unexpected line $line'));
   }
 
   // if (map.containsKey('testID')) {
@@ -214,25 +212,24 @@ void processTestDone(Map<String, dynamic> map) {
   // hidden is when tags/exclude-tags is used.
   // we treat them the same.
   if (map['skipped'] == true) {
-    skipped++;
-    print('skipping: ${test.name}');
+    _counts.incSkipped();
 
     /// even though it didn't run the result tag should be success
     assert(result == 'success');
   } else {
     switch (result) {
       case 'success':
-        successes++;
+        _counts.success++;
         break;
 
       /// if the test had a TestFailure but no other errors.
       case 'failure':
-        failures++;
+        _counts.errors++;
         break;
 
       /// if the test had an error other than a TestFailure.
       case 'error':
-        errors++;
+        _counts.errors++;
         break;
     }
   }
@@ -258,7 +255,7 @@ void processTestID(Map<String, dynamic> map) {
   // print('map type: $type');
   switch (type) {
     default:
-      print('unexpected type: $type');
+      printerr('unexpected type: $type');
       break;
   }
 }
@@ -268,7 +265,7 @@ void printFailedTest(String error, String stackTrace) {
   trackFailedTest(pathToActiveScript);
   printerr('');
   printerr(red(
-      '${'*' * 34} BEGIN ERROR (${errors + failures + 1}) '.padRight(80, '*')));
+      '${'*' * 34} BEGIN ERROR (${_counts.errors + 1}) '.padRight(80, '*')));
   printerr(orange('Test: ${test.name}'));
   printerr(red('Error: $error'));
 
@@ -281,8 +278,8 @@ void printFailedTest(String error, String stackTrace) {
   printerr(orange('${'*' * 34} STACKTRACE '.padRight(80, '*')));
   printerr(stackTrace);
   printerr(blue('Rerun test via: critical_test --single=$pathToActiveScript'));
-  printerr(red(
-      '${'*' * 32} END ERROR (${errors + failures + 1}) '.padRight(80, '*')));
+  printerr(
+      red('${'*' * 32} END ERROR (${_counts.errors + 1}) '.padRight(80, '*')));
 }
 
 final pathToFailedTracker = '.failed_tracker';
@@ -312,17 +309,19 @@ void showProgress(String message) {
     message = message.substring(0, columns - 24) + '...';
   }
 
-  var progress = '${green('$successes')}:${orange('$failures')}:'
-      '${red('$errors')}:'
-      '${blue('$skipped')} $message';
+  var progress = '${green('${_counts.success}')}:'
+      '${red('${_counts.errors}')}:'
+      '${blue('${_counts.skipped}')} $message';
 
   // if (total != null) {
   //   final processed = successes + failures + skipped;
   //   progress = '${'Processed $processed/$total'} $progress';
   // }
 
-  final term = Terminal();
-  term.overwriteLine(progress);
+  if (_showProgress) {
+    final term = Terminal();
+    term.overwriteLine(progress);
+  }
   log(progress);
 }
 

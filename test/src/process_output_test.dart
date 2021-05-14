@@ -1,13 +1,14 @@
 import 'package:critical_test/src/process_output.dart' hide test;
+import 'package:critical_test/src/util/counts.dart';
 import 'package:test/test.dart';
 import 'package:dcli/dcli.dart' hide equals;
 
 void main() {
   test('process output ...', () async {
     /// we must set a log path.
-    var logPath = join(createTempDir(), 'logfile.log');
-    print('logging to $logPath');
-    logToPath = logPath;
+    var _logPath = join(createTempDir(), 'logfile.log');
+    print('logging to $_logPath');
+    logPath = _logPath;
     activeScript = 'testScript';
 
     // logPath.truncate();
@@ -30,7 +31,18 @@ void main() {
 
     processOutput(
         '{"testID":3,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2414}');
-    var log = read(logPath).toList();
-    expect(log[2], equals('1:0:0:0 testScript: Completed '));
+    var log = read(_logPath).toList();
+    expect(log[2], equals('1:0:0 testScript: Completed '));
   });
+
+  test('pass by reference', () {
+    var counts = Counts();
+
+    addOne(counts);
+    expect(counts.success, equals(1));
+  });
+}
+
+void addOne(Counts counts) {
+  counts.success++;
 }

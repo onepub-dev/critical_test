@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:dcli/dcli.dart';
 
 import 'process_output.dart';
+import 'util/counts.dart';
 
 late bool _show;
 late String _logPath =
@@ -16,13 +17,15 @@ late String prehookPath = join(hookPath, 'pre_test_hook');
 late String posthookPath = join(hookPath, 'post_test_hook');
 
 /// returns true if all tests passed.
-bool runTests(
+void runTests(
     {required String pathToProjectRoot,
     String? logPath,
     bool show = false,
     required String? tags,
     required String? excludeTags,
-    required bool coverage}) {
+    required bool coverage,
+    required bool showProgress,
+    required Counts counts}) {
   if (logPath != null) {
     _logPath = logPath;
   }
@@ -32,106 +35,118 @@ bool runTests(
 
   print(green(
       'Running unit tests for ${DartProject.fromPath(pwd).pubSpec.name}'));
-  print('Logging all output to $_logPath.');
+  print('Logging all output to $_logPath');
 
-  // ignore: missing_whitespace_between_adjacent_strings
-  print('Legend: ${green('Successes')}:${orange('Failures')}'
-      ':${red('Errors')}:${blue('Skipped')}');
+  if (showProgress) {
+    // ignore: missing_whitespace_between_adjacent_strings
+    print('Legend: ${green('Successes')}:${red('Errors')}:${blue('Skipped')}');
+  }
 
   prepareLog();
   runPreHooks();
 
-  var allPassed = _runAllTests(pathToProjectRoot,
-      tags: tags, excludeTags: excludeTags, coverage: coverage);
+  _runAllTests(
+      counts: counts,
+      pathToPackageRoot: pathToProjectRoot,
+      tags: tags,
+      excludeTags: excludeTags,
+      coverage: coverage,
+      showProgress: showProgress);
 
   print('');
 
   runPostHooks();
-
-  return allPassed;
 }
 
 /// Find and run each unit test file.
 /// Returns true if all tests passed.
-bool _runAllTests(String pathToPackageRoot,
-    {required String? tags,
+void _runAllTests(
+    {required Counts counts,
+    required String pathToPackageRoot,
+    required String? tags,
     required String? excludeTags,
-    required bool coverage}) {
+    required bool coverage,
+    required bool showProgress}) {
   final pathToTestRoot = join(pathToPackageRoot, 'test');
 
-  var passed = true;
-
   find('*_test.dart', workingDirectory: pathToTestRoot).forEach((testScript) {
-    passed &= runTest(
+    runTest(
+        counts: counts,
         testScript: testScript,
         pathToPackageRoot: pathToPackageRoot,
         show: _show,
         logPath: _logPath,
         tags: tags,
         excludeTags: excludeTags,
-        coverage: coverage);
+        coverage: coverage,
+        showProgress: showProgress);
   });
-
-  return passed;
 }
 
 /// returns true if the test passed.
-bool runSingleTest(
-    {required String testScript,
-    required String pathToProjectRoot,
-    String? logPath,
-    bool show = false,
-    String? tags,
-    String? excludeTags,
-    required bool coverage}) {
+void runSingleTest({
+  required Counts counts,
+  required String testScript,
+  required String pathToProjectRoot,
+  String? logPath,
+  bool show = false,
+  String? tags,
+  String? excludeTags,
+  required bool coverage,
+  required bool showProgress,
+}) {
   if (logPath != null) {
     _logPath = logPath;
   }
   _show = show;
 
-  print('Logging all output to $_logPath.');
+  print('Logging all output to $_logPath');
 
-  // ignore: missing_whitespace_between_adjacent_strings
-  print('Legend: ${green('Successes')}:${orange('Failures')}'
-      ':${red('Errors')}:${blue('Skipped')}');
-
+  if (showProgress) {
+    // ignore: missing_whitespace_between_adjacent_strings
+    print('Legend: ${green('Successes')}:${red('Errors')}:${blue('Skipped')}');
+  }
   prepareLog();
   runPreHooks();
 
-  var passed = runTest(
+  runTest(
+      counts: counts,
       testScript: testScript,
       pathToPackageRoot: pathToProjectRoot,
       show: _show,
       logPath: _logPath,
       tags: tags,
       excludeTags: excludeTags,
-      coverage: coverage);
+      coverage: coverage,
+      showProgress: showProgress);
 
   print('');
 
   runPostHooks();
-
-  return passed;
 }
 
 /// returns true if all tests passed.
-bool runFailedTests(
-    {required String pathToProjectRoot,
-    String? logPath,
-    bool show = false,
-    String? tags,
-    String? excludeTags,
-    required bool coverage}) {
+void runFailedTests({
+  required Counts counts,
+  required String pathToProjectRoot,
+  String? logPath,
+  bool show = false,
+  String? tags,
+  String? excludeTags,
+  required bool coverage,
+  required bool showProgress,
+}) {
   if (logPath != null) {
     _logPath = logPath;
   }
   _show = show;
 
-  print('Logging all output to $_logPath.');
+  print('Logging all output to $_logPath');
 
-  // ignore: missing_whitespace_between_adjacent_strings
-  print('Legend: ${green('Successes')}:${orange('Failures')}'
-      ':${red('Errors')}:${blue('Skipped')}');
+  if (showProgress) {
+    // ignore: missing_whitespace_between_adjacent_strings
+    print('Legend: ${green('Successes')}:${red('Errors')}:${blue('Skipped')}');
+  }
 
   final failedTests = read(pathToFailedTracker).toList();
 
@@ -140,22 +155,22 @@ bool runFailedTests(
   prepareLog();
   runPreHooks();
 
-  var passed = true;
   for (final failedTest in failedTests) {
-    passed &= runTest(
+    runTest(
+        counts: counts,
         testScript: failedTest,
         pathToPackageRoot: pathToProjectRoot,
         show: _show,
         logPath: _logPath,
         tags: tags,
         excludeTags: excludeTags,
-        coverage: coverage);
+        coverage: coverage,
+        showProgress: showProgress);
   }
 
   print('');
 
   runPostHooks();
-  return passed;
 }
 
 void runPreHooks() => runHooks(prehookPath, 'pre-hook');
