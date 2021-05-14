@@ -314,7 +314,7 @@ void showProgress(String message) {
       '${blue('${_counts.skipped}')} $message';
 
   // if (total != null) {
-  //   final processed = successes + failures + skipped;
+  //   final processed = success + failures + skipped;
   //   progress = '${'Processed $processed/$total'} $progress';
   // }
 
