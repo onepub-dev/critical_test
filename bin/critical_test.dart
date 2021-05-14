@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:critical_test/src/exceptions/critical_test_exception.dart';
 import 'package:critical_test/src/main.dart';
+import 'package:critical_test/src/util/counts.dart';
 import 'package:dcli/dcli.dart';
 
 /// running unit tests from vs-code doesn't seem to work as it spawns
@@ -13,12 +14,18 @@ import 'package:dcli/dcli.dart';
 ///
 void main(List<String> args) {
   try {
-    if (!CriticalTest.run(args)) {
-      exit(-1);
+    var counts = Counts();
+    CriticalTest.run(args, counts);
+
+    if (!counts.allPassed) {
+      exit(1);
+    }
+    if (counts.nothingRan) {
+      exit(5);
     }
   } on CriticalTestException catch (e) {
     printerr(e.message);
-    exit(-1);
+    exit(1);
   }
 
   exit(0);

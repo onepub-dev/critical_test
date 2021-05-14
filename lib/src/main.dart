@@ -5,8 +5,10 @@ import 'package:critical_test/src/run.dart';
 
 import 'package:dcli/dcli.dart' hide run;
 
+import 'util/counts.dart';
+
 class CriticalTest {
-  static bool run(List<String> args) {
+  static void run(List<String> args, Counts counts) {
     final parser = ArgParser()
       ..addFlag(
         'help',
@@ -14,37 +16,6 @@ class CriticalTest {
         negatable: false,
         help: 'Shows this usage message.',
       )
-      ..addFlag(
-        'no-hooks',
-        abbr: 'n',
-        negatable: false,
-        help: 'Supresses running of the pre and post hooks.',
-      )
-      ..addFlag(
-        'show',
-        negatable: false,
-        abbr: 's',
-        help: 'Also show output from successful unit tests.',
-      )
-      ..addFlag(
-        'verbose',
-        negatable: false,
-        abbr: 'v',
-        hide: true,
-        help: 'Verbose logging for debugging of critical test.',
-      )
-      ..addFlag(
-        'coverage',
-        negatable: false,
-        defaultsTo: false,
-        abbr: 'c',
-        help: "Generates test coverage reports in the 'coverage' directory.",
-      )
-      ..addOption('logTo',
-          abbr: 'l',
-          help: 'Path to log all output. '
-              'If set, all tests are logged to the given path.\n'
-              'If not set, then all tests are logged to ${Directory.systemTemp}/dcli/unit_test.log')
       ..addOption('single',
           abbr: '1',
           help: 'Allows you to run a single unit tests by passing in its path.')
@@ -60,7 +31,46 @@ class CriticalTest {
       ..addOption('exclude-tags',
           abbr: 'x',
           help:
-              'Select unit tests to exclude via their tags. The syntax must confirm to the --exclude-tags option in the test package.');
+              'Select unit tests to exclude via their tags. The syntax must confirm to the --exclude-tags option in the test package.')
+      ..addFlag(
+        'show',
+        negatable: false,
+        abbr: 's',
+        help: 'Also show output from successful unit tests.',
+      )
+      ..addFlag(
+        'progress',
+        negatable: true,
+        abbr: 'p',
+        defaultsTo: true,
+        help:
+            'Show progress messages. Use --no-progress when running with a CI pipeline to minimize noise.',
+      )
+      ..addFlag(
+        'coverage',
+        negatable: false,
+        defaultsTo: false,
+        abbr: 'c',
+        help: "Generates test coverage reports in the 'coverage' directory.",
+      )
+      ..addOption('logPath',
+          abbr: 'l',
+          help: 'Path to log all output. '
+              'If set, all tests are logged to the given path.\n'
+              'If not set, then all tests are logged to ${Directory.systemTemp.path}/critical_test/unit_test.log')
+      ..addFlag(
+        'no-hooks',
+        abbr: 'n',
+        negatable: false,
+        help: 'Supresses running of the pre and post hooks.',
+      )
+      ..addFlag(
+        'verbose',
+        negatable: false,
+        abbr: 'v',
+        hide: true,
+        help: 'Verbose logging for debugging of critical test.',
+      );
 
     final parsed = parser.parse(args);
 
@@ -72,6 +82,7 @@ class CriticalTest {
     Settings().setVerbose(enabled: verbose);
 
     var show = parsed['show'] as bool;
+    var progress = parsed['progress'] as bool;
 
     var coverage = parsed['coverage'] as bool;
 
@@ -83,8 +94,8 @@ class CriticalTest {
     }
 
     String? logPath;
-    if (parsed.wasParsed('logTo')) {
-      logPath = truepath(parsed['logTo'] as String);
+    if (parsed.wasParsed('logPath')) {
+      logPath = truepath(parsed['logPath'] as String);
     }
 
     String? tags;
@@ -99,42 +110,54 @@ class CriticalTest {
 
     final pathToProjectRoot = DartProject.fromPath(pwd).pathToProjectRoot;
 
-    var passed = false;
     if (parsed.wasParsed('single')) {
       var pathToScript = parsed['single'] as String;
-      passed = runSingleTest(
+      runSingleTest(
+          counts: counts,
           testScript: pathToScript,
           pathToProjectRoot: pathToProjectRoot,
           logPath: logPath,
           show: show,
           tags: tags,
           excludeTags: excludeTags,
-          coverage: coverage);
+          coverage: coverage,
+          showProgress: progress);
     } else if (runFailed) {
-      passed = runFailedTests(
+      runFailedTests(
+          counts: counts,
           pathToProjectRoot: pathToProjectRoot,
           logPath: logPath,
           show: show,
           tags: tags,
           excludeTags: excludeTags,
-          coverage: coverage);
+          coverage: coverage,
+          showProgress: progress);
     } else {
-      passed = runTests(
+      runTests(
+          counts: counts,
           pathToProjectRoot: pathToProjectRoot,
           logPath: logPath,
           show: show,
           tags: tags,
           excludeTags: excludeTags,
-          coverage: coverage);
+          coverage: coverage,
+          showProgress: progress);
     }
-
-    return passed;
+    if (counts.nothingRan) {
+      print(orange('No tests ran!'));
+    } else if (counts.allPassed) {
+      print(green(
+          'All tests passed. Success: ${counts.success} Skipped: ${counts.skipped}'));
+    } else {
+      printerr(
+          'Some tests failed! Errors: ${red('${counts.errors}')}, Success: ${green('${counts.success}')}, Skipped: ${blue('${counts.skipped}')}');
+    }
   }
 
   /// Show useage.
   static void showUsage(ArgParser parser) {
     print(
-        'Usage: critical_test [--show] [--logTo=<path to log>] [--single=<path to test>|--runfailed] [--no-hooks]');
+        'Usage: critical_test  [--single=<path to test>|--runfailed] [--tags="tag,..."] [--exclude-tags="tag,..."] [--show] [--no-progress] [--converage] [--logPath=<path to log>] [--no-hooks] ');
     print(green('Runs unit tests only showing output from failed tests.'));
     print(parser.usage);
     exit(1);
