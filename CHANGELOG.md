@@ -1,3 +1,8 @@
+# 2.0.1
+Fix: Fixed a bug with the path to failed tests .failed_tracker. The path had test/test/ as a prefix
+rather than just test/
+Attempt to improve the error handling if one of the spawned commands fails.
+
 # 2.0.0
 Change the flag --logTo to --logPath.
 Changed the exit codes to conform close to what other packages use. 0 - is good, 1 is bad, 5 no test were ran.
