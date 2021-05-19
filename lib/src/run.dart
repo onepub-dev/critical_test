@@ -69,7 +69,9 @@ void _runAllTests(
     required bool showProgress}) {
   final pathToTestRoot = join(pathToPackageRoot, 'test');
 
-  find('*_test.dart', workingDirectory: pathToTestRoot).forEach((testScript) {
+  var testScripts =
+      find('*_test.dart', workingDirectory: pathToTestRoot).toList();
+  for (var testScript in testScripts) {
     runTest(
         counts: counts,
         testScript: testScript,
@@ -80,7 +82,7 @@ void _runAllTests(
         excludeTags: excludeTags,
         coverage: coverage,
         showProgress: showProgress);
-  });
+  }
 }
 
 /// returns true if the test passed.
@@ -148,7 +150,7 @@ void runFailedTests({
     print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
   }
 
-  final failedTests = read(pathToFailedTracker).toList();
+  final failedTests = read(failedTrackerFilename).toList();
 
   clearFailedTracker();
 

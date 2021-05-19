@@ -5,6 +5,7 @@ import 'package:critical_test/src/run.dart';
 
 import 'package:dcli/dcli.dart' hide run;
 
+import 'exceptions/critical_test_exception.dart';
 import 'util/counts.dart';
 
 class CriticalTest {
@@ -72,7 +73,14 @@ class CriticalTest {
         help: 'Verbose logging for debugging of critical test.',
       );
 
-    final parsed = parser.parse(args);
+    late final ArgResults parsed;
+    try {
+      parsed = parser.parse(args);
+    } on FormatException catch (e) {
+      printerr(red(e.message));
+      printerr('');
+      showUsage(parser);
+    }
 
     if (parsed['help'] as bool == true) {
       showUsage(parser);
@@ -110,47 +118,52 @@ class CriticalTest {
 
     final pathToProjectRoot = DartProject.fromPath(pwd).pathToProjectRoot;
 
-    if (parsed.wasParsed('single')) {
-      var pathToScript = parsed['single'] as String;
-      runSingleTest(
-          counts: counts,
-          testScript: pathToScript,
-          pathToProjectRoot: pathToProjectRoot,
-          logPath: logPath,
-          show: show,
-          tags: tags,
-          excludeTags: excludeTags,
-          coverage: coverage,
-          showProgress: progress);
-    } else if (runFailed) {
-      runFailedTests(
-          counts: counts,
-          pathToProjectRoot: pathToProjectRoot,
-          logPath: logPath,
-          show: show,
-          tags: tags,
-          excludeTags: excludeTags,
-          coverage: coverage,
-          showProgress: progress);
-    } else {
-      runTests(
-          counts: counts,
-          pathToProjectRoot: pathToProjectRoot,
-          logPath: logPath,
-          show: show,
-          tags: tags,
-          excludeTags: excludeTags,
-          coverage: coverage,
-          showProgress: progress);
-    }
-    if (counts.nothingRan) {
-      print(orange('No tests ran!'));
-    } else if (counts.allPassed) {
-      print(green(
-          'All tests passed. Success: ${counts.success} Skipped: ${counts.skipped}'));
-    } else {
-      printerr(
-          '${red('Some tests failed!')} Errors: ${red('${counts.errors}')}, Success: ${green('${counts.success}')}, Skipped: ${blue('${counts.skipped}')}');
+    try {
+      if (parsed.wasParsed('single')) {
+        var pathToScript = parsed['single'] as String;
+        runSingleTest(
+            counts: counts,
+            testScript: pathToScript,
+            pathToProjectRoot: pathToProjectRoot,
+            logPath: logPath,
+            show: show,
+            tags: tags,
+            excludeTags: excludeTags,
+            coverage: coverage,
+            showProgress: progress);
+      } else if (runFailed) {
+        runFailedTests(
+            counts: counts,
+            pathToProjectRoot: pathToProjectRoot,
+            logPath: logPath,
+            show: show,
+            tags: tags,
+            excludeTags: excludeTags,
+            coverage: coverage,
+            showProgress: progress);
+      } else {
+        runTests(
+            counts: counts,
+            pathToProjectRoot: pathToProjectRoot,
+            logPath: logPath,
+            show: show,
+            tags: tags,
+            excludeTags: excludeTags,
+            coverage: coverage,
+            showProgress: progress);
+      }
+
+      if (counts.nothingRan) {
+        print(orange('No tests ran!'));
+      } else if (counts.allPassed) {
+        print(green(
+            'All tests passed. Success: ${counts.success} Skipped: ${counts.skipped}'));
+      } else {
+        printerr(
+            '${red('Some tests failed!')} Errors: ${red('${counts.errors}')}, Success: ${green('${counts.success}')}, Skipped: ${blue('${counts.skipped}')}');
+      }
+    } on CriticalTestException catch (e) {
+      printerr('A non recoverable error occured: ${e.message}');
     }
   }
 
