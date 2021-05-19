@@ -261,8 +261,7 @@ void processTestID(Map<String, dynamic> map) {
 }
 
 void printFailedTest(String error, String stackTrace) {
-  var pathToActiveScript = join('test', activeScript);
-  trackFailedTest(pathToActiveScript);
+  trackFailedTest(activeScript);
   printerr('');
   printerr(red(
       '${'*' * 34} BEGIN ERROR (${_counts.errors + 1}) '.padRight(80, '*')));
@@ -277,23 +276,23 @@ void printFailedTest(String error, String stackTrace) {
   }
   printerr(orange('${'*' * 34} STACKTRACE '.padRight(80, '*')));
   printerr(stackTrace);
-  printerr(blue('Rerun test via: critical_test --single=$pathToActiveScript'));
+  printerr(blue('Rerun test via: critical_test --single=$activeScript'));
   printerr(
       red('${'*' * 32} END ERROR (${_counts.errors + 1}) '.padRight(80, '*')));
 }
 
-final pathToFailedTracker = '.failed_tracker';
+final failedTrackerFilename = '.failed_tracker';
 final failedTests = <String>{};
 
 void trackFailedTest(String activeScript) {
   if (failedTests.contains(activeScript)) return;
 
   failedTests.add(activeScript);
-  pathToFailedTracker.append(activeScript);
+  failedTrackerFilename.append(activeScript);
 }
 
 void clearFailedTracker() {
-  pathToFailedTracker.truncate();
+  failedTrackerFilename.truncate();
 }
 
 List<String> lines = <String>[];
