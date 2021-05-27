@@ -12,9 +12,9 @@ late String _logPath =
     join(Directory.systemTemp.path, 'critical_test', 'unit_tests.log');
 
 late String hookPath =
-    join(DartProject.current.pathToProjectRoot, 'tool', 'critical_test_hook');
-late String prehookPath = join(hookPath, 'pre_test_hook');
-late String posthookPath = join(hookPath, 'post_test_hook');
+    join(DartProject.current.pathToProjectRoot, 'tool', 'critical_test');
+late String prehookPath = join(hookPath, 'pre_hook');
+late String posthookPath = join(hookPath, 'post_hook');
 
 /// returns true if all tests passed.
 void runTests(
@@ -175,13 +175,16 @@ void runFailedTests({
   runPostHooks();
 }
 
-void runPreHooks() => runHooks(prehookPath, 'pre-hook');
-void runPostHooks() => runHooks(posthookPath, 'post-hook');
+void runPreHooks() => runHooks(prehookPath, 'pre_hook');
+void runPostHooks() => runHooks(posthookPath, 'post_hook');
 
 void runHooks(String pathTo, String type) {
   if (exists(prehookPath)) {
     var hooks = find('*', workingDirectory: pathTo, recursive: false).toList();
     hooks.sort((lhs, rhs) => lhs.compareTo(rhs));
+    if (hooks.isEmpty) {
+      print(orange('No $type found in $prehookPath.'));
+    }
 
     for (var file in hooks) {
       if (isFile(file)) {
@@ -190,12 +193,15 @@ void runHooks(String pathTo, String type) {
           print('Running $type $file');
           file.run;
         } else {
-          Settings().verbose('Skipping non-executable $type $file');
+          print(orange('Skipping non-executable $type $file'));
         }
       } else {
         Settings().verbose('Ignoring non-file $type $file');
       }
     }
+  } else {
+    print(orange(
+        "The critical_test $type directory $prehookPath doesn't exist."));
   }
 }
 
