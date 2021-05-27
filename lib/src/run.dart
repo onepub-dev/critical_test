@@ -191,7 +191,12 @@ void runHooks(String pathTo, String type) {
         if (_isIgnoredFile(file)) return;
         if (isExecutable(file)) {
           print('Running $type $file');
-          file.run;
+          if (Platform.isWindows || which('dcli').notfound) {
+            /// No shebang support on windows or dcli not globally activated so we must run with the dart exe.
+            DartSdk().run(args: [file]);
+          } else {
+            file.run;
+          }
         } else {
           print(orange('Skipping non-executable $type $file'));
         }
