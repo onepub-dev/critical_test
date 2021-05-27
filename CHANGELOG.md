@@ -1,3 +1,6 @@
+# 3.0.2
+Added support for running dart scripts for hooks on windows and if dcli not installed.
+
 # 3.0.1
 Fixed a bug where we used the critical_tests project root rather than the target projects root to find hooks.
 
