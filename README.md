@@ -102,9 +102,10 @@ The Critical Test hooks are particularly useful for starting/stopping services \
 
 A hook can be any executable such as a DCli or Bash script.
 
-To create a hook, create a critical\_test\_hook directory under your project's 'tool' directory
+To create a hook, create a critical\_test\_hook directory under your project's 'tool' directory.
 
-pre-hooks are run before the unit tests start. post-hooks are run after all unit tests have completed.
+* Pre-hooks are run before the unit tests start. 
+* Post-hooks are run after all unit tests have completed.
 
 Pre/Post hooks will also run when you use the --single switch.
 
@@ -113,10 +114,10 @@ You can suppress hooks by passing in the --no-hooks flag.
 ```bash
 cd <myproject>/tool
 mkdir critical_test_hook
-mkdir critical_test_hook/pre-hook
-mkdir critical_test_hook/post-hook
-touch critical_test_hook/pre-hook/dostuff.sh
-chmod +x critical_test_hook/pre-hook/dostuff.sh
+mkdir critical_test_hook/pre_hook
+mkdir critical_test_hook/post_hook
+touch critical_test_hook/pre_hook/dostuff.sh
+chmod +x critical_test_hook/pre_hook/dostuff.sh
 ```
 
 Hooks are sorted alphanumerically so you can prefix the hook's name with a number if you need to control the order the hooks run in.
