@@ -1,3 +1,13 @@
+# 3.0.0
+Simplified the hook path names and made them more consistent.
+the hook paths are now:
+
+tool/critical_test/pre_hook
+tool/critical_test/post_hook
+
+Added warning if a non-executable hook file is detected.
+
+
 # 2.0.1
 Fix: Fixed a bug with the path to failed tests .failed_tracker. The path had test/test/ as a prefix
 rather than just test/
