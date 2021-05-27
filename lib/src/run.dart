@@ -12,7 +12,7 @@ late String _logPath =
     join(Directory.systemTemp.path, 'critical_test', 'unit_tests.log');
 
 late String hookPath =
-    join(DartProject.current.pathToProjectRoot, 'tool', 'critical_test');
+    join(DartProject.fromPath(pwd).pathToProjectRoot, 'tool', 'critical_test');
 late String prehookPath = join(hookPath, 'pre_hook');
 late String posthookPath = join(hookPath, 'post_hook');
 
