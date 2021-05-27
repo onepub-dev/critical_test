@@ -1,5 +1,5 @@
 name: critical_test
-version: 3.0.0
+version: 3.0.1
 description: Critical Test is a cli tool designed to simplify the process of fixing broken unit tests in Dart.
 repository: https://github.com/bsutton/critical_tester
 environment: 

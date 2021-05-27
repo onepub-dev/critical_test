@@ -1,3 +1,6 @@
+# 3.0.1
+Fixed a bug where we used the critical_tests project root rather than the target projects root to find hooks.
+
 # 3.0.0
 Simplified the hook path names and made them more consistent.
 the hook paths are now:
