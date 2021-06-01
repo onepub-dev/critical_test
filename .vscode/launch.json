@@ -11,5 +11,13 @@
             "program": "../bin/critical_test.dart",
             "cwd":  "test_scripts"
         }
+
+        {
+            "name": "critical_test",
+            "request": "launch",
+            "type": "dart",
+            "program": "../bin/critical_test.dart",
+            "cwd":  "/home/bsutton/git/conduit_testing/conduit/ci"
+        }
     ]
 }
