@@ -69,19 +69,23 @@ void _runAllTests(
     required bool showProgress}) {
   final pathToTestRoot = join(pathToPackageRoot, 'test');
 
-  var testScripts =
-      find('*_test.dart', workingDirectory: pathToTestRoot).toList();
-  for (var testScript in testScripts) {
-    runTest(
-        counts: counts,
-        testScript: testScript,
-        pathToPackageRoot: pathToPackageRoot,
-        show: _show,
-        logPath: _logPath,
-        tags: tags,
-        excludeTags: excludeTags,
-        coverage: coverage,
-        showProgress: showProgress);
+  if (!exists(pathToTestRoot)) {
+    print(orange('No tests found.'));
+  } else {
+    var testScripts =
+        find('*_test.dart', workingDirectory: pathToTestRoot).toList();
+    for (var testScript in testScripts) {
+      runTest(
+          counts: counts,
+          testScript: testScript,
+          pathToPackageRoot: pathToPackageRoot,
+          show: _show,
+          logPath: _logPath,
+          tags: tags,
+          excludeTags: excludeTags,
+          coverage: coverage,
+          showProgress: showProgress);
+    }
   }
 }
 
@@ -208,8 +212,8 @@ void runHooks(String pathTo, String type) {
       }
     }
   } else {
-    print(orange(
-        "The critical_test $type directory $prehookPath doesn't exist."));
+    print(
+        blue("The critical_test $type directory $prehookPath doesn't exist."));
   }
 }
 
