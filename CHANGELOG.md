@@ -1,3 +1,8 @@
+# 3.0.3
+Upgraded to dcli 1.5.0
+
+Fixed a number of unit tests.
+
 # 3.0.2
 Added support for running dart scripts for hooks on windows and if dcli not installed.
 

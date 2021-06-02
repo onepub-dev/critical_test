@@ -1,5 +1,5 @@
 name: critical_test
-version: 3.0.2
+version: 3.0.3
 description: Critical Test is a cli tool designed to simplify the process of fixing broken unit tests in Dart.
 repository: https://github.com/bsutton/critical_tester
 environment: 
@@ -12,9 +12,8 @@ dependencies:
 dev_dependencies: 
   pedantic: ^1.0.0
   test: ^1.0.0
-executables: 
-  critical_test: critical_test
-
-dependency_override:
+dependency_overrides: 
   dcli: 
     path: ../dcli
+executables: 
+  critical_test: critical_test

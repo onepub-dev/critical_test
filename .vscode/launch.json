@@ -10,7 +10,7 @@
             "type": "dart",
             "program": "../bin/critical_test.dart",
             "cwd":  "test_scripts"
-        }
+        },
 
         {
             "name": "critical_test",
