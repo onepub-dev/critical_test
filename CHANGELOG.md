@@ -1,4 +1,4 @@
-# 3.0.5
+# 3.0.6
 - upgraded to dcli 1.5.1
 - Added test that the test directory exists.
 - stripped ansi out of the count line for consistent regex matching.
