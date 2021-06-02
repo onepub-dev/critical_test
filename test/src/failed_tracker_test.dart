@@ -12,18 +12,20 @@ void main() {
     var pathToFailedTracker = po.failedTrackerFilename;
     if (exists(pathToFailedTracker)) delete(pathToFailedTracker);
 
-    final progress = start(
-        'critical_test --logPath=/dev/null --single test_scripts/for_counts_test.dart',
-        progress: Progress.capture(),
-        nothrow: true);
+    withTempFile((logfile) {
+      final progress = start(
+          'critical_test --logPath=$logfile --single test_scripts/for_counts_test.dart',
+          progress: Progress.capture(),
+          nothrow: true);
 
-    var counts = lastCounts(progress.lines);
-    expect(exists(pathToFailedTracker), isTrue);
-    expect(counts.errors, 2);
-    expect(progress.exitCode!, equals(1));
+      var counts = lastCounts(progress.lines);
+      expect(exists(pathToFailedTracker), isTrue);
+      expect(counts.errors, 2);
+      expect(progress.exitCode!, equals(1));
 
-    var failedTests = read(pathToFailedTracker).toList();
-    expect(failedTests.length, equals(1));
-    expect(failedTests[0], equals('test_scripts/for_counts_test.dart'));
+      var failedTests = read(pathToFailedTracker).toList();
+      expect(failedTests.length, equals(1));
+      expect(failedTests[0], equals('test_scripts/for_counts_test.dart'));
+    });
   });
 }
