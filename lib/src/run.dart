@@ -150,29 +150,32 @@ void runFailedTests({
     print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
   }
 
-  final failedTests = read(failedTrackerFilename).toList();
+  if (exists(failedTrackerFilename)) {
+    final failedTests = read(failedTrackerFilename).toList();
 
-  clearFailedTracker();
+    prepareLog();
+    runPreHooks();
 
-  prepareLog();
-  runPreHooks();
+    for (final failedTest in failedTests) {
+      runTest(
+          counts: counts,
+          testScript: failedTest,
+          pathToPackageRoot: pathToProjectRoot,
+          show: _show,
+          logPath: _logPath,
+          tags: tags,
+          excludeTags: excludeTags,
+          coverage: coverage,
+          showProgress: showProgress);
+    }
 
-  for (final failedTest in failedTests) {
-    runTest(
-        counts: counts,
-        testScript: failedTest,
-        pathToPackageRoot: pathToProjectRoot,
-        show: _show,
-        logPath: _logPath,
-        tags: tags,
-        excludeTags: excludeTags,
-        coverage: coverage,
-        showProgress: showProgress);
+    clearFailedTracker();
+    print('');
+
+    runPostHooks();
+  } else {
+    print(orange('No failed tests found'));
   }
-
-  print('');
-
-  runPostHooks();
 }
 
 void runPreHooks() => runHooks(prehookPath, 'pre_hook');
