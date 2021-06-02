@@ -49,14 +49,25 @@ class Counts {
 /// in the Counts object.
 Counts lastCounts(List<String> lines) {
   for (final line in lines.reversed) {
-    var regex = RegExp('([0-9]*):([0-9]*):([0-9]*).+');
-    if (regex.hasMatch(line)) {
-      var success = regex.firstMatch(line)!.group(1);
-      var errors = regex.firstMatch(line)!.group(2);
-      var skipped = regex.firstMatch(line)!.group(3);
+    var regexWithErrors =
+        RegExp('.+Errors: ([0-9]*), Success: ([0-9]*), Skipped: ([0-9]*)');
+
+    if (regexWithErrors.hasMatch(line)) {
+      var errors = regexWithErrors.firstMatch(line)!.group(1);
+      var success = regexWithErrors.firstMatch(line)!.group(2);
+      var skipped = regexWithErrors.firstMatch(line)!.group(3);
 
       return Counts.withValues(
           int.parse(success!), int.parse(errors!), int.parse(skipped!));
+    }
+
+    var regexNoErrors = RegExp('.+Success: ([0-9]*), Skipped: ([0-9]*)');
+
+    if (regexNoErrors.hasMatch(line)) {
+      var success = regexNoErrors.firstMatch(line)!.group(1);
+      var skipped = regexNoErrors.firstMatch(line)!.group(2);
+
+      return Counts.withValues(int.parse(success!), 0, int.parse(skipped!));
     }
   }
   throw Exception('Not counts found');

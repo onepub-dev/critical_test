@@ -31,8 +31,11 @@ void main() {
 
     processOutput(
         '{"testID":3,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2414}');
+    processOutput(
+        '{"testID":4,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2414}');
+
     var log = read(_logPath).toList();
-    expect(log[2], equals('1:0:0 testScript: Completed '));
+    expect(log.last, equals('2:0:0 testScript: Completed '));
   });
 
   test('pass by reference', () {

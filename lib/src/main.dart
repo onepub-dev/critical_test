@@ -157,7 +157,7 @@ class CriticalTest {
         print(orange('No tests ran!'));
       } else if (counts.allPassed) {
         print(green(
-            'All tests passed. Success: ${counts.success} Skipped: ${counts.skipped}'));
+            'All tests passed. Success: ${counts.success}, Skipped: ${counts.skipped}'));
       } else {
         printerr(
             '${red('Some tests failed!')} Errors: ${red('${counts.errors}')}, Success: ${green('${counts.success}')}, Skipped: ${blue('${counts.skipped}')}');
