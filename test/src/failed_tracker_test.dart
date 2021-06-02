@@ -13,7 +13,7 @@ void main() {
     if (exists(pathToFailedTracker)) delete(pathToFailedTracker);
 
     final progress = start(
-        'critical_test --logPath=\dev\null --single test_scripts/for_counts_test.dart',
+        'critical_test --logPath=/dev/null --single test_scripts/for_counts_test.dart',
         progress: Progress.capture(),
         nothrow: true);
 

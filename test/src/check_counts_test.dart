@@ -8,7 +8,7 @@ void main() {
     //     <String>['--single', 'test_scripts/for_counts_test.dart']);
 
     final progress = start(
-        'critical_test --logPath=\dev\null --single test_scripts/for_counts_test.dart',
+        'critical_test --logPath=/dev/null --single test_scripts/for_counts_test.dart',
         progress: Progress.capture(),
         nothrow: true);
 
@@ -26,7 +26,7 @@ void main() {
     //     <String>['--single', 'test_scripts/for_counts_test.dart']);
 
     final progress = start(
-        'critical_test --logPath=\dev\null --single test_scripts/for_counts_test.dart --tags="!bad"',
+        'critical_test --logPath=/dev/null --single test_scripts/for_counts_test.dart --tags="!bad"',
         progress: Progress.capture(),
         nothrow: true);
 
@@ -45,7 +45,7 @@ void main() {
     //     <String>['--single', 'test_scripts/for_counts_test.dart']);
 
     final progress = start(
-        'critical_test --logPath=\dev\null --single test_scripts/for_counts_test.dart --exclude-tags="bad"',
+        'critical_test --logPath=/dev/null --single test_scripts/for_counts_test.dart --exclude-tags="bad"',
         progress: Progress.capture(),
         nothrow: true);
 
