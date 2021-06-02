@@ -48,7 +48,8 @@ class Counts {
 /// It then parses the counts and returns the result
 /// in the Counts object.
 Counts lastCounts(List<String> lines) {
-  for (final line in lines.reversed) {
+  for (var line in lines.reversed) {
+    line = Ansi.strip(line);
     var regexWithErrors =
         RegExp('.+Errors: ([0-9]*), Success: ([0-9]*), Skipped: ([0-9]*)');
 
@@ -70,5 +71,5 @@ Counts lastCounts(List<String> lines) {
       return Counts.withValues(int.parse(success!), 0, int.parse(skipped!));
     }
   }
-  throw Exception('Not counts found');
+  throw Exception('No counts found');
 }
