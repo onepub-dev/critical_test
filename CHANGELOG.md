@@ -1,3 +1,9 @@
+# 3.0.5
+- upgraded to dcli 1.5.1
+- Added test that the test directory exists.
+- stripped ansi out of the count line for consistent regex matching.
+- Added check that the .failedtracker file exists rather than throwing an exception.
+
 # 3.0.3
 Upgraded to dcli 1.5.0
 
