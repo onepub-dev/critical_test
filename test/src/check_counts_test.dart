@@ -54,7 +54,7 @@ void main() {
       final progress = start(
           'critical_test --logPath=$logfile --single test_scripts/for_counts_test.dart --exclude-tags="bad"',
           progress: Progress.capture(),
-          nothrow: true, 
+          nothrow: true,
           runInShell: true);
 
       // print(progress.lines.join('\n'));

@@ -1,3 +1,7 @@
+# 3.0.7
+upgraded to dcli 1.5.3
+Fixed so unit tests find critical test on windows.
+
 # 3.0.6
 - upgraded to dcli 1.5.1
 - Added test that the test directory exists.
