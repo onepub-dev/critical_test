@@ -14,9 +14,10 @@ void main() {
 
     withTempFile((logfile) {
       final progress = start(
-          'critical_test --logPath=$logfile --single test_scripts/for_counts_test.dart',
+          'critical_test --logPath=$logfile --single ${join('test_scripts', 'for_counts_test.dart')}',
           progress: Progress.capture(),
-          nothrow: true);
+          nothrow: true,
+          runInShell: true);
 
       var counts = lastCounts(progress.lines);
       expect(exists(pathToFailedTracker), isTrue);
@@ -25,7 +26,8 @@ void main() {
 
       var failedTests = read(pathToFailedTracker).toList();
       expect(failedTests.length, equals(1));
-      expect(failedTests[0], equals('test_scripts/for_counts_test.dart'));
+      expect(
+          failedTests[0], equals(join('test_scripts', 'for_counts_test.dart')));
     });
   });
 }
