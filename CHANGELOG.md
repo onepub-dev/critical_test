@@ -1,3 +1,6 @@
+# 3.0.8
+Upgraded package versions.
+
 # 3.0.7
 upgraded to dcli 1.5.3
 Fixed so unit tests find critical test on windows.

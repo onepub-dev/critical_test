@@ -1,8 +1,8 @@
 name: critical_test
-version: 3.0.7
-description: Critical Test is a cli tool designed to simplify the process of fixing broken unit tests in Dart.
+version: 3.0.8
 homepage: https://www.noojee.dev
 documentation: https://criticaltest.noojee.dev
+description: Critical Test is a cli tool designed to simplify the process of fixing broken unit tests in Dart.
 repository: https://github.com/bsutton/critical_tester
 environment: 
   sdk: '>=2.12.0 <3.0.0'
