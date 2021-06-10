@@ -1,3 +1,9 @@
+---
+description: >-
+  Critical Test is a cli tool designed to provide an enhanced cli experience
+  when running Dart unit tests.
+---
+
 # README
 
 ## Critical Test
