@@ -3,3 +3,4 @@ analysis_options.yaml
 .dart_tool
 **/*.vm.json
 .failed_tracker
+.packages
