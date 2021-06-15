@@ -5,6 +5,8 @@ enum _RunType { full, replay, ignore }
 class FailedTracker {
   final _failedTrackerFilename = '.failed_tracker';
   final _failedTests = <String>{};
+
+  final _retryTests = <String>{};
   final _RunType _runType;
 
   FailedTracker.beginTestRun() : _runType = _RunType.full {
@@ -14,13 +16,13 @@ class FailedTracker {
 
   FailedTracker.beginReplay() : _runType = _RunType.replay {
     if (fileExists) {
-      _failedTests.addAll(dcli.read(_failedTrackerFilename).toList());
+      _retryTests.addAll(dcli.read(_failedTrackerFilename).toList());
       if (dcli.exists(_backupFilename)) dcli.delete(_backupFilename);
       dcli.move(_failedTrackerFilename, _backupFilename);
     } else {
       // check for backup
       if (backupExists) {
-        _failedTests.addAll(dcli.read(_backupFilename).toList());
+        _retryTests.addAll(dcli.read(_backupFilename).toList());
       }
     }
   }
@@ -50,6 +52,8 @@ class FailedTracker {
   void reset() {
     if (fileExists) dcli.delete(_failedTrackerFilename);
   }
+
+  List<String> get testsToRetry => _retryTests.toList();
 
   List<String> get failedTests => _failedTests.toList();
 

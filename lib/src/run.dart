@@ -161,7 +161,7 @@ void runFailedTests({
   }
 
   final tracker = FailedTracker.beginReplay();
-  final failedTests = tracker.failedTests;
+  final failedTests = tracker.testsToRetry;
   if (failedTests.isEmpty) {
     prepareLog();
     runPreHooks();
