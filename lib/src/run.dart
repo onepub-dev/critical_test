@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:dcli/dcli.dart';
 
+import 'failed_tracker.dart';
 import 'process_output.dart';
 import 'util/counts.dart';
 
@@ -31,7 +32,7 @@ void runTests(
   }
   _show = show;
 
-  clearFailedTracker();
+  final tracker = FailedTracker.beginTestRun();
 
   print(green(
       'Running unit tests for ${DartProject.fromPath(pwd).pubSpec.name}'));
@@ -51,11 +52,13 @@ void runTests(
       tags: tags,
       excludeTags: excludeTags,
       coverage: coverage,
-      showProgress: showProgress);
+      showProgress: showProgress,
+      tracker: tracker);
 
   print('');
 
   runPostHooks();
+  tracker.done();
 }
 
 /// Find and run each unit test file.
@@ -66,7 +69,8 @@ void _runAllTests(
     required String? tags,
     required String? excludeTags,
     required bool coverage,
-    required bool showProgress}) {
+    required bool showProgress,
+    required FailedTracker tracker}) {
   final pathToTestRoot = join(pathToPackageRoot, 'test');
 
   if (!exists(pathToTestRoot)) {
@@ -84,7 +88,8 @@ void _runAllTests(
           tags: tags,
           excludeTags: excludeTags,
           coverage: coverage,
-          showProgress: showProgress);
+          showProgress: showProgress,
+          tracker: tracker);
     }
   }
 }
@@ -124,7 +129,8 @@ void runSingleTest({
       tags: tags,
       excludeTags: excludeTags,
       coverage: coverage,
-      showProgress: showProgress);
+      showProgress: showProgress,
+      tracker: FailedTracker.ignoreFailures());
 
   print('');
 
@@ -154,9 +160,9 @@ void runFailedTests({
     print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
   }
 
-  if (exists(failedTrackerFilename)) {
-    final failedTests = read(failedTrackerFilename).toList();
-
+  final tracker = FailedTracker.beginReplay();
+  final failedTests = tracker.failedTests;
+  if (failedTests.isEmpty) {
     prepareLog();
     runPreHooks();
 
@@ -170,16 +176,17 @@ void runFailedTests({
           tags: tags,
           excludeTags: excludeTags,
           coverage: coverage,
-          showProgress: showProgress);
+          showProgress: showProgress,
+          tracker: tracker);
     }
 
-    clearFailedTracker();
     print('');
 
     runPostHooks();
   } else {
     print(orange('No failed tests found'));
   }
+  tracker.done();
 }
 
 void runPreHooks() => runHooks(prehookPath, 'pre_hook');
@@ -200,7 +207,7 @@ void runHooks(String pathTo, String type) {
           print('Running $type $file');
           if (Platform.isWindows || which('dcli').notfound) {
             /// No shebang support on windows or dcli not globally activated so we must run with the dart exe.
-            DartSdk().run(args: [file]);
+            DartSdk().run(args: [file], terminal: true);
           } else {
             file.run;
           }

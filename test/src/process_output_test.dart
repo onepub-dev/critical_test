@@ -1,5 +1,4 @@
-import 'package:critical_test/src/process_output.dart' hide test;
-import 'package:critical_test/src/util/counts.dart';
+import 'package:critical_test/critical_test.dart' hide test;
 import 'package:test/test.dart';
 import 'package:dcli/dcli.dart' hide equals;
 
@@ -11,10 +10,12 @@ void main() {
     logPath = _logPath;
     activeScript = 'testScript';
 
+    final tracker = FailedTracker.ignoreFailures();
     // logPath.truncate();
     var expectedMessage = 'Hellow world';
     processOutput(
-        '''{"message": "$expectedMessage","type":"print","time":4187}''');
+        '''{"message": "$expectedMessage","type":"print","time":4187}''',
+        tracker);
 //     var log = read(logPath).toList();
     expect(lines.isNotEmpty, isTrue);
     expect(lines.first, equals(expectedMessage));
@@ -22,7 +23,8 @@ void main() {
     // logPath.truncate();
     var crap = 'and some crap';
     processOutput(
-        '''{"message": "$expectedMessage","type":"print","time":4187}$crap''');
+        '''{"message": "$expectedMessage","type":"print","time":4187}$crap''',
+        tracker);
 
     // log = read(logPath).toList();
     expect(lines.isNotEmpty, isTrue);
@@ -30,9 +32,11 @@ void main() {
     expect(lines[1], equals(crap));
 
     processOutput(
-        '{"testID":3,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2414}');
+        '{"testID":3,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2414}',
+        tracker);
     processOutput(
-        '{"testID":4,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2414}');
+        '{"testID":4,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2414}',
+        tracker);
 
     var log = read(_logPath).toList();
     expect(log.last, equals('2:0:0 testScript: Completed '));

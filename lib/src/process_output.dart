@@ -4,6 +4,7 @@ import 'package:dcli/dcli.dart';
 import 'package:meta/meta.dart';
 
 import 'exceptions/critical_test_exception.dart';
+import 'failed_tracker.dart';
 import 'json/test.dart';
 import 'util/counts.dart';
 
@@ -35,6 +36,7 @@ void runTest({
   bool show = false,
   required bool coverage,
   required bool showProgress,
+  required FailedTracker tracker,
 }) {
   _counts = counts;
   _logPath = logPath;
@@ -65,8 +67,8 @@ void runTest({
         ],
         workingDirectory: pathToPackageRoot,
         nothrow: true,
-        progress: Progress(processOutput,
-            stderr: (line) => tee(line, processOutput)));
+        progress: Progress((line) => processOutput(line, tracker),
+            stderr: (line) => tee(line, processOutput, tracker)));
 
     // format_coverage --lcov --in=coverage --out=coverage.lcov --packages=.packages --report-on=lib',
 
@@ -82,15 +84,18 @@ void runTest({
 }
 
 final _errors = <String>[];
-void tee(String line, void Function(String line) processOutput) {
+void tee(
+    String line,
+    void Function(String line, FailedTracker tracker) processOutput,
+    FailedTracker tracker) {
   _errors.add(line);
-  processOutput(line);
+  processOutput(line, tracker);
 }
 
 @visibleForTesting
 set logPath(String logPath) => _logPath = logPath;
 
-void processOutput(String line) {
+void processOutput(String line, FailedTracker tracker) {
   var _line = line.trim();
   if (!_line.startsWith('{"')) {
     final embeddedIndex = _line.indexOf('{"');
@@ -137,7 +142,7 @@ void processOutput(String line) {
       break;
 
     case 'error':
-      processError(map);
+      processError(map, tracker);
       break;
 
     /// all tests are complete
@@ -181,10 +186,10 @@ void processDone(Map<String, dynamic> map) {
   }
 }
 
-void processError(Map<String, dynamic> map) {
+void processError(Map<String, dynamic> map, FailedTracker tracker) {
   final stackTrace = map['stackTrace'] as String;
   final error = map['error'] as String;
-  printFailedTest(error, stackTrace);
+  printFailedTest(error, stackTrace, tracker);
 }
 
 void processPrint(Map<String, dynamic> map) {
@@ -260,8 +265,8 @@ void processTestID(Map<String, dynamic> map) {
   }
 }
 
-void printFailedTest(String error, String stackTrace) {
-  trackFailedTest(activeScript);
+void printFailedTest(String error, String stackTrace, FailedTracker tracker) {
+  tracker.recordFailure(activeScript);
   printerr('');
   printerr(red(
       '${'*' * 34} BEGIN ERROR (${_counts.errors + 1}) '.padRight(80, '*')));
@@ -279,20 +284,6 @@ void printFailedTest(String error, String stackTrace) {
   printerr(blue('Rerun test via: critical_test --single=$activeScript'));
   printerr(
       red('${'*' * 32} END ERROR (${_counts.errors + 1}) '.padRight(80, '*')));
-}
-
-final failedTrackerFilename = '.failed_tracker';
-final failedTests = <String>{};
-
-void trackFailedTest(String activeScript) {
-  if (failedTests.contains(activeScript)) return;
-
-  failedTests.add(activeScript);
-  failedTrackerFilename.append(activeScript);
-}
-
-void clearFailedTracker() {
-  failedTrackerFilename.truncate();
 }
 
 List<String> lines = <String>[];
