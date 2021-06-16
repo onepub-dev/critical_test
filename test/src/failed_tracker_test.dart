@@ -6,22 +6,14 @@ import 'package:test/test.dart';
 void main() {
   /// Check that the .failed_tracker file contains the correct information.
   test('failed tracker', () {
-    // ct.CriticalTest.run(
-    //     <String>['--single', 'test_scripts/for_counts_test.dart']);
-
     withTempFile((logfile) {
-      var tracker = FailedTracker.beginTestRun();
-      tracker.reset();
       final progress = start(
-          'critical_test --logPath=$logfile --single ${join('test_scripts', 'for_counts_test.dart')}',
+          'critical_test --logPath=$logfile -v --track --single ${join('test_scripts', 'for_counts_test.dart')}',
           progress: Progress.capture(),
           nothrow: true,
           runInShell: true);
 
-      tracker.done();
-      expect(tracker.fileExists, isTrue);
-
-      tracker = FailedTracker.beginReplay();
+      final tracker = FailedTracker.beginReplay();
       var counts = lastCounts(progress.lines);
       expect(counts.errors, 2);
       expect(progress.exitCode!, equals(1));
@@ -54,13 +46,13 @@ void main() {
 
     expect(tracker.fileExists, isTrue);
     expect(tracker.backupExists, isFalse);
-    expect(tracker.testsToRetry.length, equals(1));
+    expect(tracker.failedTests.length, equals(1));
 
     tracker.done();
 
     expect(tracker.fileExists, isTrue);
     expect(tracker.backupExists, isFalse);
-    expect(tracker.testsToRetry.length, equals(1));
+    expect(tracker.failedTests.length, equals(1));
   });
 
   test('FailedTracker.beginTestRun - three failures', () {
@@ -71,13 +63,13 @@ void main() {
 
     expect(tracker.fileExists, isTrue);
     expect(tracker.backupExists, isFalse);
-    expect(tracker.testsToRetry.length, equals(3));
+    expect(tracker.failedTests.length, equals(3));
 
     tracker.done();
 
     expect(tracker.fileExists, isTrue);
     expect(tracker.backupExists, isFalse);
-    expect(tracker.testsToRetry.length, equals(3));
+    expect(tracker.failedTests.length, equals(3));
   });
 
   test('FailedTracker.beginTestRun - ignore duplicates', () {
@@ -88,13 +80,13 @@ void main() {
 
     expect(tracker.fileExists, isTrue);
     expect(tracker.backupExists, isFalse);
-    expect(tracker.testsToRetry.length, equals(2));
+    expect(tracker.failedTests.length, equals(2));
 
     tracker.done();
 
     expect(tracker.fileExists, isTrue);
     expect(tracker.backupExists, isFalse);
-    expect(tracker.testsToRetry.length, equals(2));
+    expect(tracker.failedTests.length, equals(2));
   });
 
   test('FailedTracker.beginReplay ', () {

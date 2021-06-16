@@ -75,6 +75,14 @@ Causes pub get to be run on all pubspec.yaml files found in the package.
 Unit tests will fail if pub get hasn't been run.''',
       )
       ..addFlag(
+        'track',
+        negatable: false,
+        abbr: 'k',
+        hide: true,
+        help:
+            'Used to force --single to record failures in .failed_tracker. This is used for our own unit testing.',
+      )
+      ..addFlag(
         'verbose',
         negatable: false,
         abbr: 'v',
@@ -103,6 +111,7 @@ Unit tests will fail if pub get hasn't been run.''',
 
     var coverage = parsed['coverage'] as bool;
     var warmup = parsed['warmup'] as bool;
+    var track = parsed['track'] as bool;
 
     var runFailed = parsed['runfailed'] as bool;
 
@@ -141,7 +150,8 @@ Unit tests will fail if pub get hasn't been run.''',
             excludeTags: excludeTags,
             coverage: coverage,
             showProgress: progress,
-            warmup: warmup);
+            warmup: warmup, 
+            track: track);
       } else if (runFailed) {
         runFailedTests(
             counts: counts,

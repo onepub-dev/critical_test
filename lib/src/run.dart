@@ -111,6 +111,7 @@ void runSingleTest({
   required bool coverage,
   required bool showProgress,
   required bool warmup,
+  required bool track,
 }) {
   if (logPath != null) {
     _logPath = logPath;
@@ -120,6 +121,13 @@ void runSingleTest({
   print('Logging all output to $_logPath');
 
   if (warmup) warmupAllPubspecs(pathToProjectRoot);
+
+  FailedTracker tracker;
+  if (track) {
+    tracker = FailedTracker.beginTestRun();
+  } else {
+    tracker = FailedTracker.ignoreFailures();
+  }
 
   if (showProgress) {
     // ignore: missing_whitespace_between_adjacent_strings
@@ -138,11 +146,12 @@ void runSingleTest({
       excludeTags: excludeTags,
       coverage: coverage,
       showProgress: showProgress,
-      tracker: FailedTracker.ignoreFailures());
+      tracker: tracker);
 
   print('');
 
   runPostHooks();
+  tracker.done();
 }
 
 /// returns true if all tests passed.
