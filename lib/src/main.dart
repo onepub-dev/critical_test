@@ -150,7 +150,7 @@ Unit tests will fail if pub get hasn't been run.''',
             excludeTags: excludeTags,
             coverage: coverage,
             showProgress: progress,
-            warmup: warmup, 
+            warmup: warmup,
             track: track);
       } else if (runFailed) {
         runFailedTests(

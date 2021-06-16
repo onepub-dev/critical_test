@@ -1,3 +1,13 @@
+# 3.0.9
+Added:
+ - Added code to run pub get on the package and any sub packages to ensure that the unit test run successfully from a code project. 
+ - Use --no-warmup to suppress the pub get operations.
+ - Added a hidden --track switch so we can use it in our own unit tests with --single so we can confirm the trackers behaviour. Fixed a unit test that was failing because single tests don't normally track.
+
+Fixes:
+ - We now corretly track failed test that occur during a rerun. Previously we would loose track of these failures.
+ - re-wrote the failed tracker to try to handle aborts. Previously the list of failed tests would be lost if user used ctrl-c during a test run. We now try to preserve the failed test list.
+
 # 3.0.8
 Upgraded package versions.
 
