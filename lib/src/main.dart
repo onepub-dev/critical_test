@@ -60,9 +60,10 @@ class CriticalTest {
               'If set, all tests are logged to the given path.\n'
               'If not set, then all tests are logged to ${Directory.systemTemp.path}/critical_test/unit_test.log')
       ..addFlag(
-        'no-hooks',
+        'hooks',
         abbr: 'n',
-        negatable: false,
+        negatable: true,
+        defaultsTo: false,
         help: 'Supresses running of the pre and post hooks.',
       )
       ..addFlag(
@@ -112,6 +113,7 @@ Unit tests will fail if pub get hasn't been run.''',
     var coverage = parsed['coverage'] as bool;
     var warmup = parsed['warmup'] as bool;
     var track = parsed['track'] as bool;
+    var hooks = parsed['hooks'] as bool;
 
     var runFailed = parsed['runfailed'] as bool;
 
@@ -151,7 +153,8 @@ Unit tests will fail if pub get hasn't been run.''',
             coverage: coverage,
             showProgress: progress,
             warmup: warmup,
-            track: track);
+            track: track,
+            hooks: hooks);
       } else if (runFailed) {
         runFailedTests(
             counts: counts,
@@ -162,7 +165,8 @@ Unit tests will fail if pub get hasn't been run.''',
             excludeTags: excludeTags,
             coverage: coverage,
             showProgress: progress,
-            warmup: warmup);
+            warmup: warmup,
+            hooks: hooks);
       } else {
         runPackageTests(
             counts: counts,
@@ -173,7 +177,8 @@ Unit tests will fail if pub get hasn't been run.''',
             excludeTags: excludeTags,
             coverage: coverage,
             showProgress: progress,
-            warmup: warmup);
+            warmup: warmup,
+            hooks: hooks);
       }
 
       if (counts.nothingRan) {

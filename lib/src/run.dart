@@ -29,7 +29,8 @@ void runPackageTests(
     required bool coverage,
     required bool showProgress,
     required Counts counts,
-    required bool warmup}) {
+    required bool warmup,
+    required bool hooks}) {
   if (logPath != null) {
     _logPath = logPath;
   }
@@ -49,7 +50,7 @@ void runPackageTests(
   }
 
   prepareLog();
-  runPreHooks();
+  if (hooks) runPreHooks();
 
   _runAllTests(
       counts: counts,
@@ -62,7 +63,7 @@ void runPackageTests(
 
   print('');
 
-  runPostHooks();
+  if (hooks) runPostHooks();
   tracker.done();
 }
 
@@ -112,6 +113,7 @@ void runSingleTest({
   required bool showProgress,
   required bool warmup,
   required bool track,
+  required bool hooks,
 }) {
   if (logPath != null) {
     _logPath = logPath;
@@ -134,7 +136,7 @@ void runSingleTest({
     print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
   }
   prepareLog();
-  runPreHooks();
+  if (hooks) runPreHooks();
 
   runTestScript(
       counts: counts,
@@ -150,7 +152,7 @@ void runSingleTest({
 
   print('');
 
-  runPostHooks();
+  if (hooks) runPostHooks();
   tracker.done();
 }
 
@@ -165,6 +167,7 @@ void runFailedTests({
   required bool coverage,
   required bool showProgress,
   required bool warmup,
+  required bool hooks,
 }) {
   if (logPath != null) {
     _logPath = logPath;
@@ -183,7 +186,7 @@ void runFailedTests({
   final failedTests = tracker.testsToRetry;
   if (failedTests.isEmpty) {
     prepareLog();
-    runPreHooks();
+    if (hooks) runPreHooks();
 
     for (final failedTest in failedTests) {
       runTestScript(
@@ -201,7 +204,7 @@ void runFailedTests({
 
     print('');
 
-    runPostHooks();
+    if (hooks) runPostHooks();
   } else {
     print(orange('No failed tests found'));
   }
