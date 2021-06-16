@@ -66,6 +66,15 @@ class CriticalTest {
         help: 'Supresses running of the pre and post hooks.',
       )
       ..addFlag(
+        'warmup',
+        abbr: 'w',
+        defaultsTo: true,
+        negatable: true,
+        help: '''
+Causes pub get to be run on all pubspec.yaml files found in the package.
+Unit tests will fail if pub get hasn't been run.''',
+      )
+      ..addFlag(
         'verbose',
         negatable: false,
         abbr: 'v',
@@ -93,6 +102,7 @@ class CriticalTest {
     var progress = parsed['progress'] as bool;
 
     var coverage = parsed['coverage'] as bool;
+    var warmup = parsed['warmup'] as bool;
 
     var runFailed = parsed['runfailed'] as bool;
 
@@ -130,7 +140,8 @@ class CriticalTest {
             tags: tags,
             excludeTags: excludeTags,
             coverage: coverage,
-            showProgress: progress);
+            showProgress: progress,
+            warmup: warmup);
       } else if (runFailed) {
         runFailedTests(
             counts: counts,
@@ -140,9 +151,10 @@ class CriticalTest {
             tags: tags,
             excludeTags: excludeTags,
             coverage: coverage,
-            showProgress: progress);
+            showProgress: progress,
+            warmup: warmup);
       } else {
-        runTests(
+        runPackageTests(
             counts: counts,
             pathToProjectRoot: pathToProjectRoot,
             logPath: logPath,
@@ -150,7 +162,8 @@ class CriticalTest {
             tags: tags,
             excludeTags: excludeTags,
             coverage: coverage,
-            showProgress: progress);
+            showProgress: progress,
+            warmup: warmup);
       }
 
       if (counts.nothingRan) {

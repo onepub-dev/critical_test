@@ -25,8 +25,9 @@ bool _showProgress = false;
 /// We just init it here so its nnbd.
 Counts _counts = Counts();
 
+/// Runs the tests contained in a single test script.
 /// returns true if all tests passed.
-void runTest({
+void runTestScript({
   required Counts counts,
   required String testScript,
   required String pathToPackageRoot,

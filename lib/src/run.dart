@@ -17,8 +17,10 @@ late String hookPath =
 late String prehookPath = join(hookPath, 'pre_hook');
 late String posthookPath = join(hookPath, 'post_hook');
 
+/// Runs all tests for the given dart package
+/// found at [pathToProjectRoot].
 /// returns true if all tests passed.
-void runTests(
+void runPackageTests(
     {required String pathToProjectRoot,
     String? logPath,
     bool show = false,
@@ -26,11 +28,14 @@ void runTests(
     required String? excludeTags,
     required bool coverage,
     required bool showProgress,
-    required Counts counts}) {
+    required Counts counts,
+    required bool warmup}) {
   if (logPath != null) {
     _logPath = logPath;
   }
   _show = show;
+
+  if (warmup) warmupAllPubspecs(pathToProjectRoot);
 
   final tracker = FailedTracker.beginTestRun();
 
@@ -79,7 +84,7 @@ void _runAllTests(
     var testScripts =
         find('*_test.dart', workingDirectory: pathToTestRoot).toList();
     for (var testScript in testScripts) {
-      runTest(
+      runTestScript(
           counts: counts,
           testScript: testScript,
           pathToPackageRoot: pathToPackageRoot,
@@ -105,6 +110,7 @@ void runSingleTest({
   String? excludeTags,
   required bool coverage,
   required bool showProgress,
+  required bool warmup,
 }) {
   if (logPath != null) {
     _logPath = logPath;
@@ -113,6 +119,8 @@ void runSingleTest({
 
   print('Logging all output to $_logPath');
 
+  if (warmup) warmupAllPubspecs(pathToProjectRoot);
+
   if (showProgress) {
     // ignore: missing_whitespace_between_adjacent_strings
     print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
@@ -120,7 +128,7 @@ void runSingleTest({
   prepareLog();
   runPreHooks();
 
-  runTest(
+  runTestScript(
       counts: counts,
       testScript: testScript,
       pathToPackageRoot: pathToProjectRoot,
@@ -147,6 +155,7 @@ void runFailedTests({
   String? excludeTags,
   required bool coverage,
   required bool showProgress,
+  required bool warmup,
 }) {
   if (logPath != null) {
     _logPath = logPath;
@@ -154,6 +163,7 @@ void runFailedTests({
   _show = show;
 
   print('Logging all output to $_logPath');
+  if (warmup) warmupAllPubspecs(pathToProjectRoot);
 
   if (showProgress) {
     // ignore: missing_whitespace_between_adjacent_strings
@@ -167,7 +177,7 @@ void runFailedTests({
     runPreHooks();
 
     for (final failedTest in failedTests) {
-      runTest(
+      runTestScript(
           counts: counts,
           testScript: failedTest,
           pathToPackageRoot: pathToProjectRoot,
@@ -236,4 +246,17 @@ void prepareLog() {
     createDir(dirname(_logPath), recursive: true);
   }
   _logPath.truncate();
+}
+
+/// Run pub get on all pubspec.yaml files we find in the project.
+/// Unit tests won't run correctly if pub get hasn't been run.
+void warmupAllPubspecs(String pathToProjectRoot) {
+  /// warm up all test packages.
+  for (final pubspec
+      in find('pubspec.yaml', workingDirectory: pathToProjectRoot).toList()) {
+    if (DartSdk().isPubGetRequired(dirname(pubspec))) {
+      print(blue('Running pub get in ${dirname(pubspec)}'));
+      DartSdk().runPubGet(dirname(pubspec));
+    }
+  }
 }
