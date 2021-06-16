@@ -128,6 +128,15 @@ chmod +x critical_test/pre_hook/dostuff.sh
 
 Hooks are sorted alphanumerically so you can prefix the hook's name with a number if you need to control the order the hooks run in.
 
+Critical Test will ignore files with the following extensions:
+
+* .yaml
+* .ini
+* .config
+* .ignore
+
+As well as any files which are not executable.
+
 ### Coverage
 
 Critical Test makes it easy to collect coverage data when running your unit tests.
