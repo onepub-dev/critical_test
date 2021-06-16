@@ -1,3 +1,6 @@
+# 3.0.10
+Fixed the --no-hooks command line flag as it was being ignored.
+
 # 3.0.9
 Added:
  - Added code to run pub get on the package and any sub packages to ensure that the unit test run successfully from a code project. 
