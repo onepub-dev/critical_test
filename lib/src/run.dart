@@ -6,16 +6,12 @@ import 'package:dcli/dcli.dart';
 
 import 'failed_tracker.dart';
 import 'process_output.dart';
+import 'run_hooks.dart';
 import 'util/counts.dart';
 
 late bool _show;
 late String _logPath =
     join(Directory.systemTemp.path, 'critical_test', 'unit_tests.log');
-
-late String hookPath =
-    join(DartProject.fromPath(pwd).pathToProjectRoot, 'tool', 'critical_test');
-late String prehookPath = join(hookPath, 'pre_hook');
-late String posthookPath = join(hookPath, 'post_hook');
 
 /// Runs all tests for the given dart package
 /// found at [pathToProjectRoot].
@@ -50,7 +46,7 @@ void runPackageTests(
   }
 
   prepareLog();
-  if (hooks) runPreHooks();
+  if (hooks) runPreHooks(pathToProjectRoot);
 
   _runAllTests(
       counts: counts,
@@ -63,7 +59,7 @@ void runPackageTests(
 
   print('');
 
-  if (hooks) runPostHooks();
+  if (hooks) runPostHooks(pathToProjectRoot);
   tracker.done();
 }
 
@@ -136,7 +132,7 @@ void runSingleTest({
     print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
   }
   prepareLog();
-  if (hooks) runPreHooks();
+  if (hooks) runPreHooks(pathToProjectRoot);
 
   runTestScript(
       counts: counts,
@@ -152,7 +148,7 @@ void runSingleTest({
 
   print('');
 
-  if (hooks) runPostHooks();
+  if (hooks) runPostHooks(pathToProjectRoot);
   tracker.done();
 }
 
@@ -186,7 +182,7 @@ void runFailedTests({
   final failedTests = tracker.testsToRetry;
   if (failedTests.isEmpty) {
     prepareLog();
-    if (hooks) runPreHooks();
+    if (hooks) runPreHooks(pathToProjectRoot);
 
     for (final failedTest in failedTests) {
       runTestScript(
@@ -204,53 +200,11 @@ void runFailedTests({
 
     print('');
 
-    if (hooks) runPostHooks();
+    if (hooks) runPostHooks(pathToProjectRoot);
   } else {
     print(orange('No failed tests found'));
   }
   tracker.done();
-}
-
-void runPreHooks() => runHooks(prehookPath, 'pre_hook');
-void runPostHooks() => runHooks(posthookPath, 'post_hook');
-
-void runHooks(String pathTo, String type) {
-  if (exists(prehookPath)) {
-    var hooks = find('*', workingDirectory: pathTo, recursive: false).toList();
-    hooks.sort((lhs, rhs) => lhs.compareTo(rhs));
-    if (hooks.isEmpty) {
-      print(orange('No $type found in $prehookPath.'));
-    }
-
-    for (var file in hooks) {
-      if (isFile(file)) {
-        if (_isIgnoredFile(file)) return;
-        if (isExecutable(file)) {
-          print('Running $type $file');
-          if (Platform.isWindows || which('dcli').notfound) {
-            /// No shebang support on windows or dcli not globally activated so we must run with the dart exe.
-            DartSdk().run(args: [file], terminal: true);
-          } else {
-            file.run;
-          }
-        } else {
-          print(orange('Skipping non-executable $type $file'));
-        }
-      } else {
-        Settings().verbose('Ignoring non-file $type $file');
-      }
-    }
-  } else {
-    print(
-        blue("The critical_test $type directory $prehookPath doesn't exist."));
-  }
-}
-
-const _ignoredExtensions = ['.yaml', '.ini', '.config'];
-bool _isIgnoredFile(String pathToHook) {
-  final _extension = extension(pathToHook);
-
-  return _ignoredExtensions.contains(_extension);
 }
 
 void prepareLog() {
