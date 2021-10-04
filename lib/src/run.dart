@@ -180,7 +180,7 @@ void runFailedTests({
 
   final tracker = FailedTracker.beginReplay();
   final failedTests = tracker.testsToRetry;
-  if (failedTests.isEmpty) {
+  if (failedTests.isNotEmpty) {
     prepareLog();
     if (hooks) runPreHooks(pathToProjectRoot);
 
