@@ -1,3 +1,6 @@
+# 3.0.13
+- had accidentially ignore analysis_options.yaml
+
 # 3.0.11
  - Fixed a bug where the --runFailed switch was not finding any failed tests due to an inverted if statement.
 

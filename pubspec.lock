@@ -112,7 +112,7 @@ packages:
       path: "../dcli"
       relative: true
     source: path
-    version: "1.9.2"
+    version: "1.9.3"
   equatable:
     dependency: transitive
     description:
