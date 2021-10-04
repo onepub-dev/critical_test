@@ -6,7 +6,8 @@ import 'package:test/test.dart';
 void main() {
   test('hooks ...', () async {
     withTempDir((packageRoot) {
-      final pathToHooks = join(packageRoot, 'tool','critical_test', 'pre_hook');
+      final pathToHooks =
+          join(packageRoot, 'tool', 'critical_test', 'pre_hook');
       createDir(pathToHooks, recursive: true);
 
       createDart(pathToHooks);

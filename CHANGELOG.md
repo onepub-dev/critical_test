@@ -1,3 +1,6 @@
+# 3.0.11
+ - Fixed a bug where the --runFailed switch was not finding any failed tests due to an inverted if statement.
+
 # 3.0.10
 Fixed the --no-hooks command line flag as it was being ignored.
 
