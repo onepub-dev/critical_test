@@ -1,6 +1,5 @@
 #! /usr/bin/env dcli
 
-
 import 'package:critical_test/src/main.dart';
 
 /// running unit tests from vs-code doesn't seem to work as it spawns
