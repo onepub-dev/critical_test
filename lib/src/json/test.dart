@@ -49,6 +49,8 @@ class Test {
 // The URL for the file in which the test was defined, or `null`.
   String url;
 
+  String get path => Uri.parse(url).toFilePath();
+
   // // The (1-based) line in the original test suite from which the test
   // // originated.
   // //

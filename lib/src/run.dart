@@ -1,60 +1,47 @@
 #! /usr/bin/env dcli
 
-import 'dart:io';
-
 import 'package:dcli/dcli.dart';
 
-import 'failed_tracker.dart';
 import 'process_output.dart';
 import 'run_hooks.dart';
+import 'unit_tests/failed_tracker.dart';
+import 'unit_tests/unit_test.dart';
 import 'util/counts.dart';
-
-late bool _show;
-late String _logPath =
-    join(Directory.systemTemp.path, 'critical_test', 'unit_tests.log');
 
 /// Runs all tests for the given dart package
 /// found at [pathToProjectRoot].
 /// returns true if all tests passed.
 void runPackageTests(
-    {required String pathToProjectRoot,
-    String? logPath,
-    bool show = false,
+    {required ProcessOutput processor,
+    required String pathToProjectRoot,
     required String? tags,
     required String? excludeTags,
     required bool coverage,
-    required bool showProgress,
-    required Counts counts,
     required bool warmup,
-    required bool hooks}) {
-  if (logPath != null) {
-    _logPath = logPath;
-  }
-  _show = show;
-
+    required bool hooks,
+    required String trackerFilename}) {
   if (warmup) warmupAllPubspecs(pathToProjectRoot);
 
-  final tracker = FailedTracker.beginTestRun();
+  final tracker = FailedTracker.beginTestRun(trackerFilename);
 
   print(green(
       'Running unit tests for ${DartProject.fromPath(pwd).pubSpec.name}'));
-  print('Logging all output to $_logPath');
+  print('Logging all output to ${processor.logPath}');
 
-  if (showProgress) {
+  if (processor.showProgress) {
     // ignore: missing_whitespace_between_adjacent_strings
     print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
   }
 
-  prepareLog();
+  processor.prepareLog();
   if (hooks) runPreHooks(pathToProjectRoot);
 
   _runAllTests(
-      counts: counts,
+      processor: processor,
       pathToPackageRoot: pathToProjectRoot,
       tags: tags,
       excludeTags: excludeTags,
       coverage: coverage,
-      showProgress: showProgress,
       tracker: tracker);
 
   print('');
@@ -66,12 +53,11 @@ void runPackageTests(
 /// Find and run each unit test file.
 /// Returns true if all tests passed.
 void _runAllTests(
-    {required Counts counts,
+    {required ProcessOutput processor,
     required String pathToPackageRoot,
     required String? tags,
     required String? excludeTags,
     required bool coverage,
-    required bool showProgress,
     required FailedTracker tracker}) {
   final pathToTestRoot = join(pathToPackageRoot, 'test');
 
@@ -81,70 +67,59 @@ void _runAllTests(
     var testScripts =
         find('*_test.dart', workingDirectory: pathToTestRoot).toList();
     for (var testScript in testScripts) {
-      runTestScript(
-          counts: counts,
-          testScript: testScript,
+      _runTestScript(
+          processor: processor,
+          unitTest: UnitTest(pathTo: testScript),
           pathToPackageRoot: pathToPackageRoot,
-          show: _show,
-          logPath: _logPath,
           tags: tags,
           excludeTags: excludeTags,
           coverage: coverage,
-          showProgress: showProgress,
           tracker: tracker);
     }
+    processor.complete();
   }
 }
 
 /// returns true if the test passed.
 void runSingleTest({
-  required Counts counts,
-  required String testScript,
+  required ProcessOutput processor,
+  required UnitTest unitTest,
   required String pathToProjectRoot,
-  String? logPath,
-  bool show = false,
   String? tags,
   String? excludeTags,
   required bool coverage,
-  required bool showProgress,
   required bool warmup,
   required bool track,
   required bool hooks,
+  required String trackerFilename,
 }) {
-  if (logPath != null) {
-    _logPath = logPath;
-  }
-  _show = show;
-
-  print('Logging all output to $_logPath');
+  print('Logging all output to ${processor.logPath}');
 
   if (warmup) warmupAllPubspecs(pathToProjectRoot);
 
   FailedTracker tracker;
   if (track) {
-    tracker = FailedTracker.beginTestRun();
+    tracker = FailedTracker.beginTestRun(trackerFilename);
   } else {
     tracker = FailedTracker.ignoreFailures();
   }
 
-  if (showProgress) {
+  if (processor.showProgress) {
     // ignore: missing_whitespace_between_adjacent_strings
     print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
   }
-  prepareLog();
+  processor.prepareLog();
   if (hooks) runPreHooks(pathToProjectRoot);
 
-  runTestScript(
-      counts: counts,
-      testScript: testScript,
+  _runTestScript(
+      processor: processor,
+      unitTest: unitTest,
       pathToPackageRoot: pathToProjectRoot,
-      show: _show,
-      logPath: _logPath,
       tags: tags,
       excludeTags: excludeTags,
       coverage: coverage,
-      showProgress: showProgress,
       tracker: tracker);
+  processor.complete();
 
   print('');
 
@@ -154,49 +129,41 @@ void runSingleTest({
 
 /// returns true if all tests passed.
 void runFailedTests({
-  required Counts counts,
+  required ProcessOutput processor,
   required String pathToProjectRoot,
   String? logPath,
-  bool show = false,
   String? tags,
   String? excludeTags,
   required bool coverage,
-  required bool showProgress,
   required bool warmup,
   required bool hooks,
+  required String trackerFilename,
 }) {
-  if (logPath != null) {
-    _logPath = logPath;
-  }
-  _show = show;
-
-  print('Logging all output to $_logPath');
+  print('Logging all output to ${processor.logPath}');
   if (warmup) warmupAllPubspecs(pathToProjectRoot);
 
-  if (showProgress) {
+  if (processor.showProgress) {
     // ignore: missing_whitespace_between_adjacent_strings
     print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
   }
 
-  final tracker = FailedTracker.beginReplay();
+  final tracker = FailedTracker.beginReplay(trackerFilename);
   final failedTests = tracker.testsToRetry;
   if (failedTests.isNotEmpty) {
-    prepareLog();
+    processor.prepareLog();
     if (hooks) runPreHooks(pathToProjectRoot);
 
     for (final failedTest in failedTests) {
-      runTestScript(
-          counts: counts,
-          testScript: failedTest,
+      _runTestScript(
+          processor: processor,
+          unitTest: failedTest,
           pathToPackageRoot: pathToProjectRoot,
-          show: _show,
-          logPath: _logPath,
           tags: tags,
           excludeTags: excludeTags,
           coverage: coverage,
-          showProgress: showProgress,
           tracker: tracker);
     }
+    processor.complete();
 
     print('');
 
@@ -207,11 +174,49 @@ void runFailedTests({
   tracker.done();
 }
 
-void prepareLog() {
-  if (!exists(dirname(_logPath))) {
-    createDir(dirname(_logPath), recursive: true);
+/// Runs the tests contained in a single test script.
+/// returns true if all tests passed.
+void _runTestScript({
+  required ProcessOutput processor,
+  required UnitTest unitTest,
+  required String pathToPackageRoot,
+  required String? tags,
+  required String? excludeTags,
+  required bool coverage,
+  required FailedTracker tracker,
+}) {
+  try {
+    var saved = Counts.copyFrom(processor.counts);
+    DartSdk().run(
+        args: [
+          'test',
+          if (unitTest.pathTo != null) ...[unitTest.pathTo!],
+          '-j1',
+          '-r',
+          'json',
+          if (coverage) '--coverage',
+          if (coverage) join(pathToPackageRoot, 'coverage'),
+          if (tags != null) ...['--tags', '"$tags"'],
+          if (excludeTags != null) ...['--exclude-tags', '"$excludeTags"'],
+          if (unitTest.testName != null) ...['-N', unitTest.testName!],
+        ],
+        workingDirectory: pathToPackageRoot,
+        nothrow: true,
+        progress: Progress((line) => processor.processOutput(line, tracker),
+            stderr: (line) =>
+                processor.tee(line, processor.processOutput, tracker)));
+
+    // format_coverage --lcov --in=coverage --out=coverage.lcov --packages=.packages --report-on=lib',
+
+    /// dart run test returns 1 if any unit tests failed
+    /// The problem is that also returns 1 if no unit tests were run
+    /// so we do this check to see if any errors were generated.
+    if (processor.counts.errors != saved.errors) {
+      printerr(processor.errors.join('\n'));
+    }
+  } catch (e, st) {
+    printerr('Error ${e.toString()}, st: $st');
   }
-  _logPath.truncate();
 }
 
 /// Run pub get on all pubspec.yaml files we find in the project.

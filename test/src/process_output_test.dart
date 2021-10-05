@@ -1,45 +1,52 @@
-import 'package:critical_test/critical_test.dart' hide test;
+import 'package:critical_test/critical_test.dart';
+import 'package:critical_test/src/unit_tests/failed_tracker.dart';
 import 'package:test/test.dart';
 import 'package:dcli/dcli.dart' hide equals;
 
 void main() {
   test('process output ...', () async {
+    var processor = ProcessOutput();
+    processor.showProgress = false;
+
     /// we must set a log path.
     var _logPath = join(createTempDir(), 'logfile.log');
     print('logging to $_logPath');
-    logPath = _logPath;
-    activeScript = 'testScript';
+    processor.logPath = _logPath;
 
     final tracker = FailedTracker.ignoreFailures();
-    // logPath.truncate();
+
+    processor.processOutput(
+        r'{"test":{"id":11,"name":"Group ##1 4th Intentional succeed","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false,"skipReason":null},"line":33,"column":5,"url":"file:///home/bsutton/git/critical_test/test_scripts/for_counts_test.dart"},"type":"testStart","time":1011}',
+        tracker);
+
     var expectedMessage = 'Hellow world';
-    processOutput(
-        '''{"message": "$expectedMessage","type":"print","time":4187}''',
+    processor.processOutput(
+        '''{"message": "${expectedMessage}1","type":"print","time":4187}''',
         tracker);
-//     var log = read(logPath).toList();
-    expect(lines.isNotEmpty, isTrue);
-    expect(lines.first, equals(expectedMessage));
+    expect(processor.lines.isNotEmpty, isTrue);
+    expect(processor.lines.first, equals('${expectedMessage}1'));
 
-    // logPath.truncate();
     var crap = 'and some crap';
-    processOutput(
-        '''{"message": "$expectedMessage","type":"print","time":4187}$crap''',
+    processor.processOutput(
+        '''{"message": "${expectedMessage}2","type":"print","time":4187}$crap''',
         tracker);
 
-    // log = read(logPath).toList();
-    expect(lines.isNotEmpty, isTrue);
-    expect(lines.first, equals(expectedMessage));
-    expect(lines[1], equals(crap));
+    expect(processor.lines.isNotEmpty, isTrue);
+    expect(processor.lines.first, equals('${expectedMessage}1'));
+    expect(processor.lines[1], equals(crap));
 
-    processOutput(
-        '{"testID":3,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2414}',
+    processor.processOutput(
+        r'{"testID":3,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2414}',
         tracker);
-    processOutput(
-        '{"testID":4,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2414}',
+    processor.processOutput(
+        r'{"testID":4,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2414}',
         tracker);
 
     var log = read(_logPath).toList();
-    expect(log.last, equals('2:0:0 testScript: Completed '));
+    expect(
+        log.first,
+        equals(
+            '0:0:0 Running: /home/bsutton/git/critical_test/test_scripts/for_counts_test.dart: Group ##1 4th Intentional succeed'));
   });
 
   test('pass by reference', () {

@@ -1,3 +1,28 @@
+# 4.0.0
+Major works to improve the performance of the --runfailed flag.
+Pre 4.x --runfailed will re-run all tests contained in a Dart Library if even one of the tests failed.
+With this release we only run the tests that failed.
+
+The cli arguments have also changed to bring them closer to alignment with the 'dart test' command.
+
+You can now pass a directory or script as a final argument and only tests in that directory/dart will
+be ran.
+
+```bash
+critical_test [switches] [file or directory]
+```
+We have removed the --single switch use --plain-name instead.
+
+We have introduced a --plain-name argument which allows you to run a single test via name.
+If the test is nested with in a group(s) then you need to provide each of the group names
+separated by a space.
+
+```
+critical_tests --plain-name="[<group name> <group name> ...] <test name>"
+```
+- hook switch abbreviation has changed from 'n' to 'o'
+
+
 # 3.0.13
 - had accidentially ignore analysis_options.yaml
 
