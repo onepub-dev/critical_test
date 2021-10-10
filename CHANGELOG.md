@@ -1,3 +1,47 @@
+# 4.0.0
+Major works to improve the performance of the --runfailed flag.
+Pre 4.x --runfailed will re-run all tests contained in a Dart Library if even one of the tests failed.
+With this release we only run the tests that failed.
+
+The cli arguments have also changed to bring them closer to alignment with the 'dart test' command.
+
+You can now pass a directory or script as a final argument and only tests in that directory/dart will
+be ran.
+
+```bash
+critical_test [switches] [file or directory]
+```
+We have removed the --single switch use --plain-name instead.
+
+We have introduced a --plain-name argument which allows you to run a single test via name.
+If the test is nested with in a group(s) then you need to provide each of the group names
+separated by a space.
+
+```
+critical_tests --plain-name="[<group name> <group name> ...] <test name>"
+```
+- hook switch abbreviation has changed from 'n' to 'o'
+
+
+# 3.0.13
+- had accidentially ignore analysis_options.yaml
+
+# 3.0.11
+ - Fixed a bug where the --runFailed switch was not finding any failed tests due to an inverted if statement.
+
+# 3.0.10
+Fixed the --no-hooks command line flag as it was being ignored.
+
+# 3.0.9
+Added:
+ - Added code to run pub get on the package and any sub packages to ensure that the unit test run successfully from a code project. 
+ - Use --no-warmup to suppress the pub get operations.
+ - Added a hidden --track switch so we can use it in our own unit tests with --single so we can confirm the trackers behaviour. Fixed a unit test that was failing because single tests don't normally track.
+
+Fixes:
+ - We now corretly track failed test that occur during a rerun. Previously we would loose track of these failures.
+ - re-wrote the failed tracker to try to handle aborts. Previously the list of failed tests would be lost if user used ctrl-c during a test run. We now try to preserve the failed test list.
+
 # 3.0.8
 Upgraded package versions.
 

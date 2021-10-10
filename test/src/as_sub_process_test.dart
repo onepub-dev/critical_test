@@ -5,8 +5,13 @@ import 'package:test/test.dart';
 void main() {
   test('Run critical_test as a spawned process', () {
     withTempFile((logfile) {
-      'critical_test --logPath=$logfile --tags="bad,debug"'.start(
-          workingDirectory: pwd, nothrow: true, progress: Progress.devNull());
+      withTempFile((tracker) {
+        'bin/critical_test.dart --tracker=$tracker --logPath=$logfile --tags="bad,debug"'
+            .start(
+                workingDirectory: pwd,
+                nothrow: true,
+                progress: Progress.devNull());
+      });
     });
   });
 }

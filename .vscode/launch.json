@@ -9,15 +9,20 @@
             "request": "launch",
             "type": "dart",
             "program": "../bin/critical_test.dart",
-            "cwd":  "test_scripts"
+            "cwd": "test_scripts"
         },
-
         {
             "name": "critical_test",
             "request": "launch",
             "type": "dart",
             "program": "../bin/critical_test.dart",
-            "cwd":  "/home/bsutton/git/conduit_testing/conduit/ci"
+            "cwd": "/home/bsutton/git/conduit_testing/conduit/ci"
+        },
+        {
+            "name": "Dart (test/src/check_counts_test.dart)",
+            "type": "dart",
+            "request": "launch",
+            "program": "test/src/check_counts_test.dart"
         }
     ]
 }

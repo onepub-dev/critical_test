@@ -1,75 +1,63 @@
 #! /usr/bin/env dcli
 
-import 'dart:io';
-
 import 'package:dcli/dcli.dart';
 
-import 'failed_tracker.dart';
 import 'process_output.dart';
+import 'run_hooks.dart';
+import 'unit_tests/failed_tracker.dart';
+import 'unit_tests/unit_test.dart';
 import 'util/counts.dart';
 
-late bool _show;
-late String _logPath =
-    join(Directory.systemTemp.path, 'critical_test', 'unit_tests.log');
-
-late String hookPath =
-    join(DartProject.fromPath(pwd).pathToProjectRoot, 'tool', 'critical_test');
-late String prehookPath = join(hookPath, 'pre_hook');
-late String posthookPath = join(hookPath, 'post_hook');
-
+/// Runs all tests for the given dart package
+/// found at [pathToProjectRoot].
 /// returns true if all tests passed.
-void runTests(
-    {required String pathToProjectRoot,
-    String? logPath,
-    bool show = false,
+void runPackageTests(
+    {required ProcessOutput processor,
+    required String pathToProjectRoot,
     required String? tags,
     required String? excludeTags,
     required bool coverage,
-    required bool showProgress,
-    required Counts counts}) {
-  if (logPath != null) {
-    _logPath = logPath;
-  }
-  _show = show;
+    required bool warmup,
+    required bool hooks,
+    required String trackerFilename}) {
+  if (warmup) warmupAllPubspecs(pathToProjectRoot);
 
-  final tracker = FailedTracker.beginTestRun();
+  final tracker = FailedTracker.beginTestRun(trackerFilename);
 
   print(green(
       'Running unit tests for ${DartProject.fromPath(pwd).pubSpec.name}'));
-  print('Logging all output to $_logPath');
+  print('Logging all output to ${processor.logPath}');
 
-  if (showProgress) {
+  if (processor.showProgress) {
     // ignore: missing_whitespace_between_adjacent_strings
     print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
   }
 
-  prepareLog();
-  runPreHooks();
+  processor.prepareLog();
+  if (hooks) runPreHooks(pathToProjectRoot);
 
   _runAllTests(
-      counts: counts,
+      processor: processor,
       pathToPackageRoot: pathToProjectRoot,
       tags: tags,
       excludeTags: excludeTags,
       coverage: coverage,
-      showProgress: showProgress,
       tracker: tracker);
 
   print('');
 
-  runPostHooks();
+  if (hooks) runPostHooks(pathToProjectRoot);
   tracker.done();
 }
 
 /// Find and run each unit test file.
 /// Returns true if all tests passed.
 void _runAllTests(
-    {required Counts counts,
+    {required ProcessOutput processor,
     required String pathToPackageRoot,
     required String? tags,
     required String? excludeTags,
     required bool coverage,
-    required bool showProgress,
     required FailedTracker tracker}) {
   final pathToTestRoot = join(pathToPackageRoot, 'test');
 
@@ -79,161 +67,167 @@ void _runAllTests(
     var testScripts =
         find('*_test.dart', workingDirectory: pathToTestRoot).toList();
     for (var testScript in testScripts) {
-      runTest(
-          counts: counts,
-          testScript: testScript,
+      _runTestScript(
+          processor: processor,
+          unitTest: UnitTest(pathTo: testScript),
           pathToPackageRoot: pathToPackageRoot,
-          show: _show,
-          logPath: _logPath,
           tags: tags,
           excludeTags: excludeTags,
           coverage: coverage,
-          showProgress: showProgress,
           tracker: tracker);
     }
+    processor.complete();
   }
 }
 
 /// returns true if the test passed.
 void runSingleTest({
-  required Counts counts,
-  required String testScript,
+  required ProcessOutput processor,
+  required UnitTest unitTest,
   required String pathToProjectRoot,
-  String? logPath,
-  bool show = false,
   String? tags,
   String? excludeTags,
   required bool coverage,
-  required bool showProgress,
+  required bool warmup,
+  required bool track,
+  required bool hooks,
+  required String trackerFilename,
 }) {
-  if (logPath != null) {
-    _logPath = logPath;
+  print('Logging all output to ${processor.logPath}');
+
+  if (warmup) warmupAllPubspecs(pathToProjectRoot);
+
+  FailedTracker tracker;
+  if (track) {
+    tracker = FailedTracker.beginTestRun(trackerFilename);
+  } else {
+    tracker = FailedTracker.ignoreFailures();
   }
-  _show = show;
 
-  print('Logging all output to $_logPath');
-
-  if (showProgress) {
+  if (processor.showProgress) {
     // ignore: missing_whitespace_between_adjacent_strings
     print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
   }
-  prepareLog();
-  runPreHooks();
+  processor.prepareLog();
+  if (hooks) runPreHooks(pathToProjectRoot);
 
-  runTest(
-      counts: counts,
-      testScript: testScript,
+  _runTestScript(
+      processor: processor,
+      unitTest: unitTest,
       pathToPackageRoot: pathToProjectRoot,
-      show: _show,
-      logPath: _logPath,
       tags: tags,
       excludeTags: excludeTags,
       coverage: coverage,
-      showProgress: showProgress,
-      tracker: FailedTracker.ignoreFailures());
+      tracker: tracker);
+  processor.complete();
 
   print('');
 
-  runPostHooks();
+  if (hooks) runPostHooks(pathToProjectRoot);
+  tracker.done();
 }
 
 /// returns true if all tests passed.
 void runFailedTests({
-  required Counts counts,
+  required ProcessOutput processor,
   required String pathToProjectRoot,
   String? logPath,
-  bool show = false,
   String? tags,
   String? excludeTags,
   required bool coverage,
-  required bool showProgress,
+  required bool warmup,
+  required bool hooks,
+  required String trackerFilename,
 }) {
-  if (logPath != null) {
-    _logPath = logPath;
-  }
-  _show = show;
+  print('Logging all output to ${processor.logPath}');
+  if (warmup) warmupAllPubspecs(pathToProjectRoot);
 
-  print('Logging all output to $_logPath');
-
-  if (showProgress) {
+  if (processor.showProgress) {
     // ignore: missing_whitespace_between_adjacent_strings
     print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
   }
 
-  final tracker = FailedTracker.beginReplay();
+  final tracker = FailedTracker.beginReplay(trackerFilename);
   final failedTests = tracker.testsToRetry;
-  if (failedTests.isEmpty) {
-    prepareLog();
-    runPreHooks();
+  if (failedTests.isNotEmpty) {
+    processor.prepareLog();
+    if (hooks) runPreHooks(pathToProjectRoot);
 
     for (final failedTest in failedTests) {
-      runTest(
-          counts: counts,
-          testScript: failedTest,
+      _runTestScript(
+          processor: processor,
+          unitTest: failedTest,
           pathToPackageRoot: pathToProjectRoot,
-          show: _show,
-          logPath: _logPath,
           tags: tags,
           excludeTags: excludeTags,
           coverage: coverage,
-          showProgress: showProgress,
           tracker: tracker);
     }
+    processor.complete();
 
     print('');
 
-    runPostHooks();
+    if (hooks) runPostHooks(pathToProjectRoot);
   } else {
     print(orange('No failed tests found'));
   }
   tracker.done();
 }
 
-void runPreHooks() => runHooks(prehookPath, 'pre_hook');
-void runPostHooks() => runHooks(posthookPath, 'post_hook');
+/// Runs the tests contained in a single test script.
+/// returns true if all tests passed.
+void _runTestScript({
+  required ProcessOutput processor,
+  required UnitTest unitTest,
+  required String pathToPackageRoot,
+  required String? tags,
+  required String? excludeTags,
+  required bool coverage,
+  required FailedTracker tracker,
+}) {
+  try {
+    var saved = Counts.copyFrom(processor.counts);
+    DartSdk().run(
+        args: [
+          'test',
+          if (unitTest.pathTo != null) ...[unitTest.pathTo!],
+          '-j1',
+          '-r',
+          'json',
+          if (coverage) '--coverage',
+          if (coverage) join(pathToPackageRoot, 'coverage'),
+          if (tags != null) ...['--tags', '"$tags"'],
+          if (excludeTags != null) ...['--exclude-tags', '"$excludeTags"'],
+          if (unitTest.testName != null) ...['-N', unitTest.testName!],
+        ],
+        workingDirectory: pathToPackageRoot,
+        nothrow: true,
+        progress: Progress((line) => processor.processOutput(line, tracker),
+            stderr: (line) =>
+                processor.tee(line, processor.processOutput, tracker)));
 
-void runHooks(String pathTo, String type) {
-  if (exists(prehookPath)) {
-    var hooks = find('*', workingDirectory: pathTo, recursive: false).toList();
-    hooks.sort((lhs, rhs) => lhs.compareTo(rhs));
-    if (hooks.isEmpty) {
-      print(orange('No $type found in $prehookPath.'));
-    }
+    // format_coverage --lcov --in=coverage --out=coverage.lcov --packages=.packages --report-on=lib',
 
-    for (var file in hooks) {
-      if (isFile(file)) {
-        if (_isIgnoredFile(file)) return;
-        if (isExecutable(file)) {
-          print('Running $type $file');
-          if (Platform.isWindows || which('dcli').notfound) {
-            /// No shebang support on windows or dcli not globally activated so we must run with the dart exe.
-            DartSdk().run(args: [file], terminal: true);
-          } else {
-            file.run;
-          }
-        } else {
-          print(orange('Skipping non-executable $type $file'));
-        }
-      } else {
-        Settings().verbose('Ignoring non-file $type $file');
-      }
+    /// dart run test returns 1 if any unit tests failed
+    /// The problem is that also returns 1 if no unit tests were run
+    /// so we do this check to see if any errors were generated.
+    if (processor.counts.errors != saved.errors) {
+      printerr(processor.errors.join('\n'));
     }
-  } else {
-    print(
-        blue("The critical_test $type directory $prehookPath doesn't exist."));
+  } catch (e, st) {
+    printerr('Error ${e.toString()}, st: $st');
   }
 }
 
-const _ignoredExtensions = ['.yaml', '.ini', '.config'];
-bool _isIgnoredFile(String pathToHook) {
-  final _extension = extension(pathToHook);
-
-  return _ignoredExtensions.contains(_extension);
-}
-
-void prepareLog() {
-  if (!exists(dirname(_logPath))) {
-    createDir(dirname(_logPath), recursive: true);
+/// Run pub get on all pubspec.yaml files we find in the project.
+/// Unit tests won't run correctly if pub get hasn't been run.
+void warmupAllPubspecs(String pathToProjectRoot) {
+  /// warm up all test packages.
+  for (final pubspec
+      in find('pubspec.yaml', workingDirectory: pathToProjectRoot).toList()) {
+    if (DartSdk().isPubGetRequired(dirname(pubspec))) {
+      print(blue('Running pub get in ${dirname(pubspec)}'));
+      DartSdk().runPubGet(dirname(pubspec));
+    }
   }
-  _logPath.truncate();
 }

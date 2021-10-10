@@ -1,7 +1,7 @@
 @Timeout(Duration(minutes: 5))
 import 'package:critical_test/src/exceptions/critical_test_exception.dart';
 import 'package:critical_test/src/main.dart';
-import 'package:critical_test/src/util/counts.dart';
+import 'package:critical_test/src/process_output.dart';
 import 'package:dcli/dcli.dart';
 import 'package:test/test.dart';
 
@@ -9,10 +9,10 @@ void main() {
   /// test case used when we need to debug.
   test('check test counts', () async {
     // progress = await DCliZone().run(() {
-    var counts = Counts();
+    var processor = ProcessOutput();
     try {
       // CriticalTest.run(<String>['--exclude-tags=special'], counts);
-      CriticalTest.run(<String>['--single=test_scripts'], counts);
+      CriticalTest.run(<String>['test_scripts'], processor);
     } on CriticalTestException catch (e) {
       printerr(e.message);
     }

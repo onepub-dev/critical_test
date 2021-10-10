@@ -1,16 +1,36 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:critical_test/critical_test.dart';
+import 'package:critical_test/src/process_output.dart';
 import 'package:critical_test/src/run.dart';
+import 'package:critical_test/src/unit_tests/failed_tracker.dart';
 
 import 'package:dcli/dcli.dart' hide run;
 
 import 'exceptions/critical_test_exception.dart';
-import 'util/counts.dart';
+import 'unit_tests/unit_test.dart';
+
+void run(List<String> args) {
+  try {
+    var processor = ProcessOutput();
+    CriticalTest.run(args, processor);
+
+    if (!processor.allPassed) {
+      exit(1);
+    }
+    if (processor.nothingRan) {
+      exit(5);
+    }
+  } on CriticalTestException catch (e) {
+    printerr(e.message);
+    exit(1);
+  }
+
+  exit(0);
+}
 
 class CriticalTest {
-  static void run(List<String> args, Counts counts) {
+  static void run(List<String> args, ProcessOutput processor) {
     final parser = ArgParser()
       ..addFlag(
         'help',
@@ -18,9 +38,7 @@ class CriticalTest {
         negatable: false,
         help: 'Shows this usage message.',
       )
-      ..addOption('single',
-          abbr: '1',
-          help: 'Allows you to run a single unit tests by passing in its path.')
+      ..addOption('plain-name', abbr: 'N', help: 'Run a unit test by name.')
       ..addFlag('runfailed',
           abbr: 'f',
           negatable: false,
@@ -67,10 +85,33 @@ class CriticalTest {
               'If set, all tests are logged to the given path.\n'
               'If not set, then all tests are logged to ${Directory.systemTemp.path}/critical_test/unit_test.log')
       ..addFlag(
-        'no-hooks',
-        abbr: 'n',
-        negatable: false,
+        'hooks',
+        abbr: 'o',
+        negatable: true,
+        defaultsTo: false,
         help: 'Supresses running of the pre and post hooks.',
+      )
+      ..addFlag(
+        'warmup',
+        abbr: 'w',
+        defaultsTo: true,
+        negatable: true,
+        help: '''
+Causes pub get to be run on all pubspec.yaml files found in the package.
+Unit tests will fail if pub get hasn't been run.''',
+      )
+      ..addFlag(
+        'track',
+        abbr: 'k',
+        hide: true,
+        help: 'Used to force the recording of failures in .failed_tracker.',
+      )
+      ..addOption(
+        'tracker',
+        defaultsTo: FailedTracker.defaultFilename,
+        hide: true,
+        help:
+            'Used to define an alternate filename for the fail test tracker. This is intended only for internal testing',
       )
       ..addFlag(
         'verbose',
@@ -96,24 +137,39 @@ class CriticalTest {
     var verbose = parsed['verbose'] as bool;
     Settings().setVerbose(enabled: verbose);
 
-    var show = parsed['show'] as bool;
-    var progress = parsed['progress'] as bool;
+    processor.showSuccess = parsed['show'] as bool;
+    processor.showProgress = parsed['progress'] as bool;
 
     var select = parsed['select'] as bool;
 
     var coverage = parsed['coverage'] as bool;
+    var warmup = parsed['warmup'] as bool;
+    var track = parsed['track'] as bool;
+    var hooks = parsed['hooks'] as bool;
 
     var runFailed = parsed['runfailed'] as bool;
 
-    if (!noMoreThanOne([select, runFailed, parsed.wasParsed('single')])) {
-      printerr(
-          red('You may only pass one of --single,  --runfailed or --select'));
+    if (!atMostOne([select, runFailed, parsed.wasParsed('plain-name')])) {
+      printerr(red('You may only pass one of --plain-name or --runfailed'));
       showUsage(parser);
     }
 
-    String? logPath;
+    final trackerFilename = parsed['tracker'] as String;
+
+    if (parsed.wasParsed('plain-name') &&
+        (parsed.wasParsed('tags') || parsed.wasParsed('exclude-tags'))) {
+      printerr(red(
+          'You cannot combine "--plain-name" with "--tag" or "--exclude-tags"'));
+      showUsage(parser);
+    }
+
     if (parsed.wasParsed('logPath')) {
-      logPath = truepath(parsed['logPath'] as String);
+      final _logPath = truepath(parsed['logPath'] as String);
+      if (exists(_logPath) && !isFile(_logPath)) {
+        printerr(red('--logPath must specify a file'));
+        showUsage(parser);
+      }
+      processor.logPath = _logPath;
     }
 
     String? tags;
@@ -128,57 +184,89 @@ class CriticalTest {
 
     final pathToProjectRoot = DartProject.fromPath(pwd).pathToProjectRoot;
 
+    String? testName;
+
+    if (parsed.wasParsed('plain-name')) {
+      testName = parsed['plain-name'] as String;
+    }
+
     try {
       if (select) {
         selectTest(
-            counts: counts,
+            processor: processor,
             pathToProjectRoot: pathToProjectRoot,
-            logPath: logPath,
-            show: show,
             coverage: coverage,
-            progress: progress);
-      } else if (parsed.wasParsed('single')) {
-        var pathToScript = parsed['single'] as String;
-        runSingleTest(
-            counts: counts,
-            testScript: pathToScript,
-            pathToProjectRoot: pathToProjectRoot,
-            logPath: logPath,
-            show: show,
-            tags: tags,
-            excludeTags: excludeTags,
-            coverage: coverage,
-            showProgress: progress);
+            warmup: warmup,
+            track: track,
+            hooks: hooks,
+            trackerFilename: trackerFilename);
       } else if (runFailed) {
         runFailedTests(
-            counts: counts,
+            processor: processor,
             pathToProjectRoot: pathToProjectRoot,
-            logPath: logPath,
-            show: show,
             tags: tags,
             excludeTags: excludeTags,
             coverage: coverage,
-            showProgress: progress);
+            warmup: warmup,
+            hooks: hooks,
+            trackerFilename: trackerFilename);
       } else {
-        runTests(
-            counts: counts,
-            pathToProjectRoot: pathToProjectRoot,
-            logPath: logPath,
-            show: show,
-            tags: tags,
-            excludeTags: excludeTags,
-            coverage: coverage,
-            showProgress: progress);
+        if (parsed.rest.isEmpty) {
+          if (testName == null) {
+            runPackageTests(
+                processor: processor,
+                pathToProjectRoot: pathToProjectRoot,
+                tags: tags,
+                excludeTags: excludeTags,
+                coverage: coverage,
+                warmup: warmup,
+                hooks: hooks,
+                trackerFilename: trackerFilename);
+          } else {
+            // run named test
+            runSingleTest(
+                processor: processor,
+                unitTest: UnitTest(pathTo: null, testName: testName),
+                pathToProjectRoot: pathToProjectRoot,
+                tags: tags,
+                excludeTags: excludeTags,
+                coverage: coverage,
+                warmup: warmup,
+                track: track,
+                hooks: hooks,
+                trackerFilename: trackerFilename);
+          }
+        } else {
+          /// Process each director or library passed.
+          for (final dirOrFile in parsed.rest) {
+            if (!exists(dirOrFile)) {
+              printerr(red("The path ${truepath(dirOrFile)} doesn't exist."));
+              showUsage(parser);
+            }
+
+            runSingleTest(
+                processor: processor,
+                unitTest: UnitTest(pathTo: dirOrFile, testName: testName),
+                pathToProjectRoot: pathToProjectRoot,
+                tags: tags,
+                excludeTags: excludeTags,
+                coverage: coverage,
+                warmup: warmup,
+                track: track,
+                hooks: hooks,
+                trackerFilename: trackerFilename);
+          }
+        }
       }
 
-      if (counts.nothingRan) {
+      if (processor.nothingRan) {
         print(orange('No tests ran!'));
-      } else if (counts.allPassed) {
+      } else if (processor.allPassed) {
         print(green(
-            'All tests passed. Success: ${counts.success}, Skipped: ${counts.skipped}'));
+            'All tests passed. Success: ${processor.successCount}, Skipped: ${processor.skippedCount}'));
       } else {
         printerr(
-            '${red('Some tests failed!')} Errors: ${red('${counts.errors}')}, Success: ${green('${counts.success}')}, Skipped: ${blue('${counts.skipped}')}');
+            '${red('Some tests failed!')} Errors: ${red('${processor.erorrCount}')}, Success: ${green('${processor.successCount}')}, Skipped: ${blue('${processor.skippedCount}')}');
       }
     } on CriticalTestException catch (e) {
       printerr('A non recoverable error occured: ${e.message}');
@@ -187,40 +275,60 @@ class CriticalTest {
 
   /// Show useage.
   static void showUsage(ArgParser parser) {
+    print(orange('Usage: critical_test [arguments]'));
     print(
-        'Usage: critical_test  [--single=<path to test>|--runfailed] [--tags="tag,..."] [--exclude-tags="tag,..."] [--show] [--no-progress] [--converage] [--logPath=<path to log>] [--no-hooks] ');
-    print(green('Runs unit tests only showing output from failed tests.'));
+        'Runs unit tests only showing output from failed tests and allows you to just re-run failed tests.');
+    print(blue('Run all tests'));
+    print('critical_test');
+    print('');
+    print(blue('Re-run failed tests'));
+    print('critical_tests --runfailed');
+    print('');
+    print(blue('Run all tests in a Dart Library or directory'));
+    print('critical_tests <path to test>');
+    print('');
+    print(blue('Run a single test by name'));
+    print(
+        'critical_tests --plain-name="[<group name> <group name> ...] <test name>"');
+    print('');
     print(parser.usage);
     exit(1);
   }
 
-  static bool noMoreThanOne(List<bool> args) {
-    var count = 0;
-    for (final arg in args) {
-      if (arg) count++;
-    }
-
-    return count <= 1;
-  }
-
-  static void selectTest(
-      {required Counts counts,
-      required String pathToProjectRoot,
-      String? logPath,
-      required bool show,
-      required bool coverage,
-      required bool progress}) {
-    final tracker = FailedTracker.beginReplay();
+  static void selectTest({
+    required ProcessOutput processor,
+    required String pathToProjectRoot,
+    required bool coverage,
+    required bool warmup,
+    required bool track,
+    required bool hooks,
+    required String trackerFilename,
+  }) {
+    final tracker = FailedTracker.beginReplay(trackerFilename);
 
     print(green('Select the test to run'));
-    final selected = menu(prompt: 'Select Test:', options: tracker.testsToRetry);
+    final selected =
+        menu(prompt: 'Select Test:', options: tracker.testsToRetry);
 
     print('Running: $selected');
     runSingleTest(
-        counts: counts,
-        testScript: selected,
+        processor: processor,
+        unitTest: selected,
         pathToProjectRoot: pathToProjectRoot,
         coverage: coverage,
-        showProgress: progress);
+        warmup: warmup,
+        track: track,
+        hooks: hooks,
+        trackerFilename: trackerFilename);
+  }
+
+  /// no more than one of the passed bools may be true
+  static bool atMostOne(List<bool> list) {
+    var count = 0;
+
+    for (final val in list) {
+      if (val) count++;
+    }
+    return count <= 1;
   }
 }

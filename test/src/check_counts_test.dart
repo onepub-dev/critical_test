@@ -1,69 +1,90 @@
 import 'package:critical_test/src/util/counts.dart';
-import 'package:dcli/dcli.dart' hide equals;
+import 'package:dcli/dcli.dart' hide equals, run;
 import 'package:test/test.dart';
 
 void main() {
   test('check test counts', () async {
     // ct.CriticalTest.run(
-    //     <String>['--single', 'test_scripts/for_counts_test.dart']);
+    //     <String>['test_scripts/for_counts_test.dart']);
 
     withTempFile((logfile) {
-      final progress = start(
-          'critical_test --logPath=$logfile --single test_scripts/for_counts_test.dart',
-          progress: Progress.capture(),
-          nothrow: true,
-          runInShell: true);
+      withTempFile((tracker) {
+        final progress = start(
+            'bin/critical_test.dart --tracker=$tracker --logPath=$logfile  test_scripts/for_counts_test.dart',
+            progress: Progress.capture(),
+            nothrow: true,
+            runInShell: true);
 
-      // print(progress.lines.join('\n'));
-      var counts = lastCounts(progress.lines);
+        // print(progress.lines.join('\n'));
+        var counts = lastCounts(progress.lines);
 
-      expect(counts.success, 4);
-      expect(counts.errors, 2);
-      expect(counts.skipped, 2);
-      expect(progress.exitCode!, equals(1));
+        expect(counts.success, 4);
+        expect(counts.errors, 2);
+        expect(counts.skipped, 2);
+        expect(progress.exitCode!, equals(1));
+      });
     });
   });
 
+  // test('check test counts -direct', () async {
+  //   // ct.CriticalTest.run(
+  //   //     <String>['test_scripts/for_counts_test.dart']);
+
+  //   withTempFile((logfile) {
+  //     withTempFile((tracker) {
+  //       run([
+  //         '--tracker=$tracker',
+  //         '--logPath=$logfile',
+  //         'test_scripts/for_counts_test.dart'
+  //       ]);
+  //     });
+  //   });
+  // });
+
   test('check test counts with tags', () async {
     // ct.CriticalTest.run(
-    //     <String>['--single', 'test_scripts/for_counts_test.dart']);
+    //     <String>['test_scripts/for_counts_test.dart']);
 
     withTempFile((logfile) {
-      final progress = start(
-          'critical_test --logPath=$logfile --single test_scripts/for_counts_test.dart --tags="!bad"',
-          progress: Progress.capture(),
-          nothrow: true,
-          runInShell: true);
+      withTempFile((tracker) {
+        final progress = start(
+            'bin/critical_test.dart --tracker=$tracker --logPath=$logfile --tags="!bad"  test_scripts/for_counts_test.dart ',
+            progress: Progress.capture(),
+            nothrow: true,
+            runInShell: true);
 
-      // print(progress.lines.join('\n'));
-      var counts = lastCounts(progress.lines);
+        // print(progress.lines.join('\n'));
+        var counts = lastCounts(progress.lines);
 
-      expect(counts.success, 4);
-      expect(counts.errors, 0);
-      expect(counts.skipped, 2);
+        expect(counts.success, 4);
+        expect(counts.errors, 0);
+        expect(counts.skipped, 2);
 
-      expect(progress.exitCode!, equals(0));
+        expect(progress.exitCode!, equals(0));
+      });
     });
   });
 
   test('check test counts with exclude-tags', () async {
     // ct.CriticalTest.run(
-    //     <String>['--single', 'test_scripts/for_counts_test.dart']);
+    //     <String>['test_scripts/for_counts_test.dart']);
 
     withTempFile((logfile) {
-      final progress = start(
-          'critical_test --logPath=$logfile --single test_scripts/for_counts_test.dart --exclude-tags="bad"',
-          progress: Progress.capture(),
-          nothrow: true,
-          runInShell: true);
+      withTempFile((tracker) {
+        final progress = start(
+            'bin/critical_test.dart --tracker=$tracker --logPath=$logfile --exclude-tags="bad" test_scripts/for_counts_test.dart ',
+            progress: Progress.capture(),
+            nothrow: true,
+            runInShell: true);
 
-      // print(progress.lines.join('\n'));
-      var counts = lastCounts(progress.lines);
+        // print(progress.lines.join('\n'));
+        var counts = lastCounts(progress.lines);
 
-      expect(counts.success, 4);
-      expect(counts.errors, 0);
-      expect(counts.skipped, 2);
-      expect(progress.exitCode!, equals(0));
+        expect(counts.success, 4);
+        expect(counts.errors, 0);
+        expect(counts.skipped, 2);
+        expect(progress.exitCode!, equals(0));
+      });
     });
   });
 
