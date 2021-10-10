@@ -55,6 +55,8 @@ class FailedTracker {
 
   List<String> get testsToRetry => _retryTests.toList();
 
+  /// During a run each time a test fails it is added
+  /// to the list of [failedTests].
   List<String> get failedTests => _failedTests.toList();
 
   String get _backupFilename => '$_failedTrackerFilename.bak';
