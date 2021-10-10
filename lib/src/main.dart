@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
+import 'package:critical_test/critical_test.dart';
 import 'package:critical_test/src/run.dart';
 
 import 'package:dcli/dcli.dart' hide run;
@@ -40,6 +41,12 @@ class CriticalTest {
         help: 'Also show output from successful unit tests.',
       )
       ..addFlag(
+        'select',
+        negatable: false,
+        abbr: 'l',
+        help: 'Select from a menu of failed tests to re-run.',
+      )
+      ..addFlag(
         'progress',
         negatable: true,
         abbr: 'p',
@@ -55,7 +62,7 @@ class CriticalTest {
         help: "Generates test coverage reports in the 'coverage' directory.",
       )
       ..addOption('logPath',
-          abbr: 'l',
+          abbr: 'g',
           help: 'Path to log all output. '
               'If set, all tests are logged to the given path.\n'
               'If not set, then all tests are logged to ${Directory.systemTemp.path}/critical_test/unit_test.log')
@@ -92,12 +99,15 @@ class CriticalTest {
     var show = parsed['show'] as bool;
     var progress = parsed['progress'] as bool;
 
+    var select = parsed['select'] as bool;
+
     var coverage = parsed['coverage'] as bool;
 
     var runFailed = parsed['runfailed'] as bool;
 
-    if (runFailed && parsed.wasParsed('single')) {
-      printerr(red('You may only pass one of --single or --runfailed'));
+    if (!noMoreThanOne([select, runFailed, parsed.wasParsed('single')])) {
+      printerr(
+          red('You may only pass one of --single,  --runfailed or --select'));
       showUsage(parser);
     }
 
@@ -119,7 +129,15 @@ class CriticalTest {
     final pathToProjectRoot = DartProject.fromPath(pwd).pathToProjectRoot;
 
     try {
-      if (parsed.wasParsed('single')) {
+      if (select) {
+        selectTest(
+            counts: counts,
+            pathToProjectRoot: pathToProjectRoot,
+            logPath: logPath,
+            show: show,
+            coverage: coverage,
+            progress: progress);
+      } else if (parsed.wasParsed('single')) {
         var pathToScript = parsed['single'] as String;
         runSingleTest(
             counts: counts,
@@ -174,5 +192,35 @@ class CriticalTest {
     print(green('Runs unit tests only showing output from failed tests.'));
     print(parser.usage);
     exit(1);
+  }
+
+  static bool noMoreThanOne(List<bool> args) {
+    var count = 0;
+    for (final arg in args) {
+      if (arg) count++;
+    }
+
+    return count <= 1;
+  }
+
+  static void selectTest(
+      {required Counts counts,
+      required String pathToProjectRoot,
+      String? logPath,
+      required bool show,
+      required bool coverage,
+      required bool progress}) {
+    final tracker = FailedTracker.beginReplay();
+
+    print(green('Select the test to run'));
+    final selected = menu(prompt: 'Select Test:', options: tracker.testsToRetry);
+
+    print('Running: $selected');
+    runSingleTest(
+        counts: counts,
+        testScript: selected,
+        pathToProjectRoot: pathToProjectRoot,
+        coverage: coverage,
+        showProgress: progress);
   }
 }
