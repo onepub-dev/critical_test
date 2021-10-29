@@ -8,7 +8,7 @@ import 'package:critical_test/src/unit_tests/failed_tracker.dart';
 import 'package:dcli/dcli.dart' hide run;
 
 import 'exceptions/critical_test_exception.dart';
-import 'unit_tests/unit_test.dart';
+import 'menu.dart';
 import 'unit_tests/unit_test_selector.dart';
 
 void run(List<String> args) {
@@ -60,10 +60,10 @@ class CriticalTest {
         help: 'Also show output from successful unit tests.',
       )
       ..addFlag(
-        'select',
+        'menu',
         negatable: false,
-        abbr: 'l',
-        help: 'Select from a menu of failed tests to re-run.',
+        abbr: 'm',
+        help: 'Select from a menu of failed tests to view and re-run.',
       )
       ..addFlag(
         'progress',
@@ -141,7 +141,7 @@ Unit tests will fail if pub get hasn't been run.''',
     processor.showSuccess = parsed['show'] as bool;
     processor.showProgress = parsed['progress'] as bool;
 
-    var select = parsed['select'] as bool;
+    var menu = parsed['menu'] as bool;
 
     var coverage = parsed['coverage'] as bool;
     var warmup = parsed['warmup'] as bool;
@@ -150,7 +150,7 @@ Unit tests will fail if pub get hasn't been run.''',
 
     var runFailed = parsed['runfailed'] as bool;
 
-    if (!atMostOne([select, runFailed, parsed.wasParsed('plain-name')])) {
+    if (!atMostOne([menu, runFailed, parsed.wasParsed('plain-name')])) {
       printerr(red('You may only pass one of --plain-name or --runfailed'));
       showUsage(parser);
     }
@@ -199,8 +199,8 @@ Unit tests will fail if pub get hasn't been run.''',
     }
 
     try {
-      if (select) {
-        selectTest(
+      if (menu) {
+        testMenu(
             processor: processor,
             pathToProjectRoot: pathToProjectRoot,
             coverage: coverage,
@@ -374,42 +374,6 @@ tags, exclude-tags and plain-name all act as filters when running against
 selected directories or libraries and restrict the set of tests that are run.''');
     print(parser.usage);
     exit(1);
-  }
-
-  static void selectTest({
-    required ProcessOutput processor,
-    required String pathToProjectRoot,
-    required bool coverage,
-    required bool warmup,
-    required bool track,
-    required bool hooks,
-    required String trackerFilename,
-  }) {
-    final tracker = FailedTracker.beginReplay(trackerFilename);
-
-    final failedTests = tracker.failedTests.toList();
-
-    if (failedTests.isEmpty) {
-      print(green('All tests have passed. Nothing to run.'));
-      exit(0);
-    }
-
-    print(green('Select the test to run'));
-    final selected = menu<UnitTest>(
-        prompt: 'Select Test:',
-        options: failedTests,
-        format: (unitTest) => unitTest.testName);
-
-    print('Running: $selected');
-    runSingleTest(
-        processor: processor,
-        selector: UnitTestSelector.fromUnitTest(selected),
-        pathToProjectRoot: pathToProjectRoot,
-        coverage: coverage,
-        warmup: warmup,
-        tracker: tracker,
-        hooks: hooks,
-        trackerFilename: trackerFilename);
   }
 
   /// no more than one of the passed bools may be true

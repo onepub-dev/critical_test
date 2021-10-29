@@ -19,8 +19,8 @@ part 'unit_test.g.dart';
 @JsonSerializable()
 class UnitTest {
   UnitTest({required this.pathTo, required this.testName});
-  String pathTo;
-  String testName;
+  final String pathTo;
+  final String testName;
 
   factory UnitTest.fromJson(Map<String, dynamic> json) =>
       _$UnitTestFromJson(json);
@@ -51,4 +51,10 @@ class UnitTest {
       return UnitTest.decodeList(source);
     }
   }
+
+  /// Used so we can create a menu item to exit
+  /// critical_test without running any unit test.
+  const UnitTest.exitOption()
+      : pathTo = '',
+        testName = 'exit';
 }

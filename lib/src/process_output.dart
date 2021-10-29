@@ -166,7 +166,7 @@ class ProcessOutput {
     if (test.name == 'Loading.') {
       printProgress(test.name);
     } else {
-      printProgress('Running: ${test.path} : ${test.name}');
+      printProgress('Running: ${relative(test.path)} : ${test.name}');
     }
   }
 

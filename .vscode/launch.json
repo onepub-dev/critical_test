@@ -19,12 +19,11 @@
             "cwd": "/home/bsutton/git/conduit_testing/conduit/ci"
         },
         {
-            "name": "critical_test - select",
+            "name": "critical_test - menu",
             "request": "launch",
             "type": "dart",
             "program": "../critical_test/bin/critical_test.dart",
-            "cwd": "../dcli",
-            "args": ["--select"],
+            "args": ["--menu"],
             "console": "terminal"
         },
         {
