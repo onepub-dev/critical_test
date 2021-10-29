@@ -190,7 +190,7 @@ Unit tests will fail if pub get hasn't been run.''',
     if (parsed.wasParsed('plain-name')) {
       testName = parsed['plain-name'] as String;
 
-      if (parsed.rest.isEmpty) {
+      if (parsed.rest.isNotEmpty) {
         printerr(red(
             "You can't use --plain-name and a list of test directories/files together."));
         showUsage(parser);
@@ -232,23 +232,32 @@ Unit tests will fail if pub get hasn't been run.''',
                 trackerFilename: trackerFilename);
           } else {
             // run named test
-            runNamedTest(processor, testName, pathToProjectRoot, tags,
-                excludeTags, coverage, warmup, track, hooks, trackerFilename);
+            runNamedTest(
+                processor: processor,
+                testName: testName,
+                pathToProjectRoot: pathToProjectRoot,
+                tags: tags,
+                excludeTags: excludeTags,
+                coverage: coverage,
+                warmup: warmup,
+                track: track,
+                hooks: hooks,
+                trackerFilename: trackerFilename);
           }
         } else {
           /// Process each director or library passed.
           processDirAndLibraries(
-              parsed,
-              parser,
-              processor,
-              pathToProjectRoot,
-              tags,
-              excludeTags,
-              coverage,
-              warmup,
-              track,
-              hooks,
-              trackerFilename);
+              parsed: parsed,
+              parser: parser,
+              processor: processor,
+              pathToProjectRoot: pathToProjectRoot,
+              tags: tags,
+              excludeTags: excludeTags,
+              coverage: coverage,
+              warmup: warmup,
+              track: track,
+              hooks: hooks,
+              trackerFilename: trackerFilename);
         }
       }
 
@@ -267,16 +276,16 @@ Unit tests will fail if pub get hasn't been run.''',
   }
 
   static void runNamedTest(
-      ProcessOutput processor,
-      String testName,
-      String pathToProjectRoot,
+      {required ProcessOutput processor,
+      required String testName,
+      required String pathToProjectRoot,
       String? tags,
       String? excludeTags,
-      bool coverage,
-      bool warmup,
-      bool track,
-      bool hooks,
-      String trackerFilename) {
+      required bool coverage,
+      required bool warmup,
+      required bool track,
+      required bool hooks,
+      required String trackerFilename}) {
     FailedTracker tracker;
     if (track) {
       tracker = FailedTracker.beginTestRun(trackerFilename);
@@ -301,17 +310,17 @@ Unit tests will fail if pub get hasn't been run.''',
   }
 
   static void processDirAndLibraries(
-      ArgResults parsed,
-      ArgParser parser,
-      ProcessOutput processor,
-      String pathToProjectRoot,
+      {required ArgResults parsed,
+      required ArgParser parser,
+      required ProcessOutput processor,
+      required String pathToProjectRoot,
       String? tags,
       String? excludeTags,
-      bool coverage,
-      bool warmup,
-      bool track,
-      bool hooks,
-      String trackerFilename) {
+      required bool coverage,
+      required bool warmup,
+      required bool track,
+      required bool hooks,
+      required String trackerFilename}) {
     FailedTracker tracker;
     if (track) {
       tracker = FailedTracker.beginTestRun(trackerFilename);
@@ -344,22 +353,25 @@ Unit tests will fail if pub get hasn't been run.''',
 
   /// Show useage.
   static void showUsage(ArgParser parser) {
-    print(orange('Usage: critical_test [arguments]'));
+    print(orange('Usage: critical_test [switches] [<directory | library>...]'));
     print(
         'Runs unit tests only showing output from failed tests and allows you to just re-run failed tests.');
-    print(blue('Run all tests'));
+    print(blue(
+        "Run all tests in the project 'test' directory if no directories or libraries a passed"));
     print('critical_test');
     print('');
     print(blue('Re-run failed tests'));
     print('critical_tests --runfailed');
     print('');
     print(blue('Run all tests in a Dart Library or directory'));
-    print('critical_tests <path to test>');
+    print('critical_tests [<directory or library to test>]...');
     print('');
     print(blue('Run a single test by name'));
-    print(
-        'critical_tests --plain-name="[<group name> <group name> ...] <test name>"');
+    print('critical_tests --plain-name="[<group name> ]... <test name>"');
     print('');
+    print('''
+tags, exclude-tags and plain-name all act as filters when running against 
+selected directories or libraries and restrict the set of tests that are run.''');
     print(parser.usage);
     exit(1);
   }

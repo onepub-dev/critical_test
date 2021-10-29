@@ -21,7 +21,7 @@ void main() {
     final escapedPath = path.replaceAll(r'\', '/');
     processor.processOutput(
         '{"test":{"id":11,"name":"Group ##1 4th Intentional succeed","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false'
-        ',"skipReason":null},"line":33,"column":5,"url":"file:///$escapedPath"},"type":"testStart","time":1011}',
+        ',"skipReason":null},"line":33,"column":5,"url":"file://$escapedPath"},"type":"testStart","time":1011}',
         tracker);
 
     var expectedMessage = 'Hellow world';

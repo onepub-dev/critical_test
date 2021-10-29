@@ -11,15 +11,16 @@ import 'util/counts.dart';
 /// Runs all tests for the given dart package
 /// found at [pathToProjectRoot].
 /// returns true if all tests passed.
-void runPackageTests(
-    {required ProcessOutput processor,
-    required String pathToProjectRoot,
-    required String? tags,
-    required String? excludeTags,
-    required bool coverage,
-    required bool warmup,
-    required bool hooks,
-    required String trackerFilename}) {
+void runPackageTests({
+  required ProcessOutput processor,
+  required String pathToProjectRoot,
+  required String? tags,
+  required String? excludeTags,
+  required bool coverage,
+  required bool warmup,
+  required bool hooks,
+  required String trackerFilename,
+}) {
   if (warmup) warmupAllPubspecs(pathToProjectRoot);
 
   final tracker = FailedTracker.beginTestRun(trackerFilename);
@@ -168,6 +169,9 @@ void runFailedTests({
 
 /// Runs the tests contained in a single test script.
 /// returns true if all tests passed.
+/// [testRoot] is the path to the root of the test
+/// directory. Normally this is <project root>/test
+/// but it can be overriden.
 void _runTestScript({
   required ProcessOutput processor,
   required UnitTestSelector selector,
@@ -191,6 +195,7 @@ void _runTestScript({
           if (tags != null) ...['--tags', '"$tags"'],
           if (excludeTags != null) ...['--exclude-tags', '"$excludeTags"'],
           if (selector.testName != null) ...['-N', selector.testName!],
+          // testRoot
         ],
         workingDirectory: pathToPackageRoot,
         nothrow: true,
