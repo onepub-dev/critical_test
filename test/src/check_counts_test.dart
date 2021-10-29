@@ -9,8 +9,9 @@ void main() {
 
     withTempFile((logfile) {
       withTempFile((tracker) {
+        final criticalTestExe = join('bin', 'critical_test.dart');
         final progress = start(
-            'bin/critical_test.dart --tracker=$tracker --logPath=$logfile  test_scripts/for_counts_test.dart',
+            '$criticalTestExe --tracker=$tracker --logPath=$logfile  test_scripts/for_counts_test.dart',
             progress: Progress.capture(),
             nothrow: true,
             runInShell: true);
@@ -47,8 +48,9 @@ void main() {
 
     withTempFile((logfile) {
       withTempFile((tracker) {
+        final criticalTestExe = join('bin', 'critical_test.dart');
         final progress = start(
-            'bin/critical_test.dart --tracker=$tracker --logPath=$logfile --tags="!bad"  test_scripts/for_counts_test.dart ',
+            '$criticalTestExe --tracker=$tracker --logPath=$logfile --tags="!bad"  test_scripts/for_counts_test.dart ',
             progress: Progress.capture(),
             nothrow: true,
             runInShell: true);
@@ -71,8 +73,9 @@ void main() {
 
     withTempFile((logfile) {
       withTempFile((tracker) {
+        final criticalTestExe = join('bin', 'critical_test.dart');
         final progress = start(
-            'bin/critical_test.dart --tracker=$tracker --logPath=$logfile --exclude-tags="bad" test_scripts/for_counts_test.dart ',
+            '$criticalTestExe --tracker=$tracker --logPath=$logfile --exclude-tags="bad" test_scripts/for_counts_test.dart ',
             progress: Progress.capture(),
             nothrow: true,
             runInShell: true);

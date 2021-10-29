@@ -22,8 +22,9 @@ void main() {
       // final output = waitForEx(combined.text);
       // var exitCode = waitForEx(script.exitCode);
       withTempFile((trackerFilename) {
+        final criticalTestExe = join('bin', 'critical_test.dart');
         final progress = start(
-            'bin/critical_test.dart --tracker=$trackerFilename --logPath=$logfile -v --track ${join('test_scripts', 'for_counts_test.dart')}',
+            '$criticalTestExe --tracker=$trackerFilename --logPath=$logfile -v --track ${join('test_scripts', 'for_counts_test.dart')}',
             progress: Progress.capture(),
             nothrow: true,
             runInShell: true);
@@ -33,7 +34,7 @@ void main() {
         expect(counts.errors, 2);
         expect(progress.exitCode!, equals(1));
 
-        var failedTests = tracker.testsToRetry;
+        var failedTests = tracker.failedTests;
         expect(failedTests.length, equals(2));
         expect(failedTests[0].testName, equals("Group ##1 Intentional fail"));
 
@@ -61,8 +62,9 @@ void main() {
   test('run test by name', () {
     withTempFile((logfile) {
       withTempFile((trackerFilename) {
+        final criticalTestExe = join('bin', 'critical_test.dart');
         final progress = start(
-          'bin/critical_test.dart --tracker=$trackerFilename  --logPath=$logfile -v --track --plain-name "Group ##1 Intentional fail" test_scripts',
+          '$criticalTestExe --tracker=$trackerFilename  --logPath=$logfile -v --track --plain-name "Group ##1 Intentional fail" test_scripts',
           progress: Progress.capture(),
           nothrow: true,
           runInShell: true,
@@ -73,7 +75,7 @@ void main() {
         expect(counts.errors, 1);
         expect(progress.exitCode!, equals(1));
 
-        var failedTests = tracker.testsToRetry;
+        var failedTests = tracker.failedTests;
         expect(failedTests.length, equals(1));
         expect(failedTests[0].pathTo,
             equals(truepath('test_scripts', 'for_counts_test.dart')));
@@ -91,20 +93,21 @@ void main() {
 
       expect(tracker.fileExists, isFalse);
       expect(tracker.backupExists, isFalse);
-      expect(tracker.testsToRetry.length, isZero);
+      expect(tracker.failedTests.length, isZero);
 
       tracker.done();
 
       expect(tracker.fileExists, isFalse);
       expect(tracker.backupExists, isFalse);
-      expect(tracker.testsToRetry.length, isZero);
+      expect(tracker.failedTests.length, isZero);
     });
   });
 
   test('FailedTracker.beginTestRun - one failures', () {
     withTempFile((trackerFilename) {
       final tracker = FailedTracker.beginTestRun(trackerFilename);
-      tracker.recordFailure(UnitTest(pathTo: 'test/me/failed_test.dart'));
+      tracker.recordError(
+          UnitTest(pathTo: 'test/me/failed_test.dart', testName: 'one'));
 
       expect(tracker.fileExists, isTrue);
       expect(tracker.backupExists, isFalse);
@@ -121,9 +124,12 @@ void main() {
   test('FailedTracker.beginTestRun - three failures', () {
     withTempFile((trackerFilename) {
       final tracker = FailedTracker.beginTestRun(trackerFilename);
-      tracker.recordFailure(UnitTest(pathTo: 'test/me/failed_test.dart'));
-      tracker.recordFailure(UnitTest(pathTo: 'test/me/failed_test2.dart'));
-      tracker.recordFailure(UnitTest(pathTo: 'test/me/failed_test3.dart'));
+      tracker.recordError(
+          UnitTest(pathTo: 'test/me/failed_test.dart', testName: 'one'));
+      tracker.recordError(
+          UnitTest(pathTo: 'test/me/failed_test2.dart', testName: 'one'));
+      tracker.recordError(
+          UnitTest(pathTo: 'test/me/failed_test3.dart', testName: 'one'));
 
       expect(tracker.fileExists, isTrue);
       expect(tracker.backupExists, isFalse);
@@ -140,20 +146,23 @@ void main() {
   test('FailedTracker.beginReplay ', () {
     withTempFile((trackerFilename) {
       final tracker = FailedTracker.beginTestRun(trackerFilename);
-      tracker.recordFailure(UnitTest(pathTo: 'test/me/failed_test.dart'));
-      tracker.recordFailure(UnitTest(pathTo: 'test/me/failed_test2.dart'));
-      tracker.recordFailure(UnitTest(pathTo: 'test/me/failed_test3.dart'));
+      tracker.recordError(
+          UnitTest(pathTo: 'test/me/failed_test.dart', testName: 'one'));
+      tracker.recordError(
+          UnitTest(pathTo: 'test/me/failed_test2.dart', testName: 'one'));
+      tracker.recordError(
+          UnitTest(pathTo: 'test/me/failed_test3.dart', testName: 'one'));
       tracker.done();
 
       /// now test the replay
       final replay = FailedTracker.beginReplay(trackerFilename);
 
-      expect(replay.fileExists, isFalse);
+      expect(replay.fileExists, isTrue);
       expect(replay.backupExists, isTrue);
-      expect(replay.testsToRetry.length, equals(3));
+      expect(replay.failedTests.length, equals(3));
 
       replay.done();
-      expect(replay.fileExists, isFalse);
+      expect(replay.fileExists, isTrue);
       expect(replay.backupExists, isFalse);
     });
   });
@@ -161,28 +170,31 @@ void main() {
   test('FailedTracker restart replay ', () {
     withTempFile((trackerFilename) {
       final tracker = FailedTracker.beginTestRun(trackerFilename);
-      tracker.recordFailure(UnitTest(pathTo: 'test/me/failed_test.dart'));
-      tracker.recordFailure(UnitTest(pathTo: 'test/me/failed_test2.dart'));
-      tracker.recordFailure(UnitTest(pathTo: 'test/me/failed_test3.dart'));
+      tracker.recordError(
+          UnitTest(pathTo: 'test/me/failed_test.dart', testName: 'one'));
+      tracker.recordError(
+          UnitTest(pathTo: 'test/me/failed_test2.dart', testName: 'one'));
+      tracker.recordError(
+          UnitTest(pathTo: 'test/me/failed_test3.dart', testName: 'one'));
       tracker.done();
 
       /// now test the replay
       var replay = FailedTracker.beginReplay(trackerFilename);
 
-      expect(replay.fileExists, isFalse);
+      expect(replay.fileExists, isTrue);
       expect(replay.backupExists, isTrue);
-      expect(replay.testsToRetry.length, equals(3));
+      expect(replay.failedTests.length, equals(3));
 
       // restart replay without calling done to
       // ensure we restore failed tests from the
       // backup.
       replay = FailedTracker.beginReplay(trackerFilename);
 
-      expect(replay.fileExists, isFalse);
+      expect(replay.fileExists, isTrue);
       expect(replay.backupExists, isTrue);
-      expect(replay.testsToRetry.length, equals(3));
+      expect(replay.failedTests.length, equals(3));
       replay.done();
-      expect(replay.fileExists, isFalse);
+      expect(replay.fileExists, isTrue);
       expect(replay.backupExists, isFalse);
     });
   });
@@ -190,29 +202,33 @@ void main() {
   test('FailedTracker.beginReplay with second round', () {
     withTempFile((trackerFilename) {
       final tracker = FailedTracker.beginTestRun(trackerFilename);
-      tracker.recordFailure(UnitTest(pathTo: 'test/me/failed_test.dart'));
-      tracker.recordFailure(UnitTest(pathTo: 'test/me/failed_test2.dart'));
-      tracker.recordFailure(UnitTest(pathTo: 'test/me/failed_test3.dart'));
+      tracker.recordError(
+          UnitTest(pathTo: 'test/me/failed_test.dart', testName: 'one'));
+      tracker.recordError(
+          UnitTest(pathTo: 'test/me/failed_test2.dart', testName: 'two'));
+      tracker.recordError(
+          UnitTest(pathTo: 'test/me/failed_test3.dart', testName: 'three'));
       tracker.done();
       expect(tracker.failedTests.length, equals(3));
 
       /// now test the replay
       final replay = FailedTracker.beginReplay(trackerFilename);
 
-      expect(replay.fileExists, isFalse);
+      expect(replay.fileExists, isTrue);
       expect(replay.backupExists, isTrue);
-      expect(replay.testsToRetry.length, equals(3));
+      expect(replay.failedTests.length, equals(3));
 
-      replay.recordFailure(UnitTest(pathTo: 'test/me/failed_test.dart'));
-      expect(replay.failedTests.length, equals(1));
+      replay.recordError(
+          UnitTest(pathTo: 'test/me/failed_test.dart', testName: 'one'));
+      expect(replay.failedTests.length, equals(3));
 
       replay.done();
 
       /// test a second replay after the last test had a failure
       final part2 = FailedTracker.beginReplay(trackerFilename);
 
-      expect(part2.testsToRetry.length, equals(1));
-      expect(part2.fileExists, isFalse);
+      expect(part2.failedTests.length, equals(3));
+      expect(part2.fileExists, isTrue);
       expect(part2.backupExists, isTrue);
 
       part2.done();

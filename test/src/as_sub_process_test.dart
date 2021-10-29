@@ -6,7 +6,8 @@ void main() {
   test('Run critical_test as a spawned process', () {
     withTempFile((logfile) {
       withTempFile((tracker) {
-        'bin/critical_test.dart --tracker=$tracker --logPath=$logfile --tags="bad,debug"'
+        final criticalTestExe = join('bin', 'critical_test.dart');
+        '$criticalTestExe --tracker=$tracker --logPath=$logfile --tags="bad,debug"'
             .start(
                 workingDirectory: pwd,
                 nothrow: true,

@@ -18,34 +18,19 @@ part 'unit_test.g.dart';
 /// dart run build_runner build
 @JsonSerializable()
 class UnitTest {
-  UnitTest({this.pathTo, this.testName})
-      : assert(pathTo != null || testName != null);
-  String? pathTo;
-  String? testName;
+  UnitTest({required this.pathTo, required this.testName});
+  String pathTo;
+  String testName;
 
   factory UnitTest.fromJson(Map<String, dynamic> json) =>
       _$UnitTestFromJson(json);
-
-  bool get hasTestName => testName != null;
-
-  // /// Returns the unit test name if it has one.
-  // /// Call [hasName] before calling this method to determine
-  // /// if this [UnitTest] has a name.
-  // String get name {
-  //   var name = '';
-
-  //   if (testName != null) {
-  //     name = ' $testName';
-  //   }
-  //   return name;
-  // }
 
   @override
   String toString() {
     var result = '';
 
-    if (testName != null) result += 'test: "$testName", ';
-    if (pathTo != null) result += pathTo!;
+    result += 'test: "$testName", ';
+    result += pathTo;
 
     return result;
   }
@@ -58,8 +43,12 @@ class UnitTest {
         (dynamic i) => UnitTest.fromJson(i as Map<String, dynamic>)));
   }
 
-  static List<UnitTest> fromFile(String failedTrackerFilename) {
+  static List<UnitTest> loadFailedTests(String failedTrackerFilename) {
     var source = read(failedTrackerFilename).toParagraph();
-    return UnitTest.decodeList(source);
+    if (source.trim().isEmpty) {
+      return <UnitTest>[];
+    } else {
+      return UnitTest.decodeList(source);
+    }
   }
 }

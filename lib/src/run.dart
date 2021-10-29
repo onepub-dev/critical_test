@@ -1,11 +1,11 @@
 #! /usr/bin/env dcli
 
+import 'package:critical_test/src/unit_tests/unit_test_selector.dart';
 import 'package:dcli/dcli.dart';
 
 import 'process_output.dart';
 import 'run_hooks.dart';
 import 'unit_tests/failed_tracker.dart';
-import 'unit_tests/unit_test.dart';
 import 'util/counts.dart';
 
 /// Runs all tests for the given dart package
@@ -69,7 +69,7 @@ void _runAllTests(
     for (var testScript in testScripts) {
       _runTestScript(
           processor: processor,
-          unitTest: UnitTest(pathTo: testScript),
+          selector: UnitTestSelector.fromPath(pathTo: testScript),
           pathToPackageRoot: pathToPackageRoot,
           tags: tags,
           excludeTags: excludeTags,
@@ -83,26 +83,19 @@ void _runAllTests(
 /// returns true if the test passed.
 void runSingleTest({
   required ProcessOutput processor,
-  required UnitTest unitTest,
+  required UnitTestSelector selector,
   required String pathToProjectRoot,
   String? tags,
   String? excludeTags,
   required bool coverage,
   required bool warmup,
-  required bool track,
+  required FailedTracker tracker,
   required bool hooks,
   required String trackerFilename,
 }) {
   print('Logging all output to ${processor.logPath}');
 
   if (warmup) warmupAllPubspecs(pathToProjectRoot);
-
-  FailedTracker tracker;
-  if (track) {
-    tracker = FailedTracker.beginTestRun(trackerFilename);
-  } else {
-    tracker = FailedTracker.ignoreFailures();
-  }
 
   if (processor.showProgress) {
     // ignore: missing_whitespace_between_adjacent_strings
@@ -113,7 +106,7 @@ void runSingleTest({
 
   _runTestScript(
       processor: processor,
-      unitTest: unitTest,
+      selector: selector,
       pathToPackageRoot: pathToProjectRoot,
       tags: tags,
       excludeTags: excludeTags,
@@ -124,7 +117,6 @@ void runSingleTest({
   print('');
 
   if (hooks) runPostHooks(pathToProjectRoot);
-  tracker.done();
 }
 
 /// returns true if all tests passed.
@@ -148,7 +140,7 @@ void runFailedTests({
   }
 
   final tracker = FailedTracker.beginReplay(trackerFilename);
-  final failedTests = tracker.testsToRetry;
+  final failedTests = tracker.failedTests;
   if (failedTests.isNotEmpty) {
     processor.prepareLog();
     if (hooks) runPreHooks(pathToProjectRoot);
@@ -156,7 +148,7 @@ void runFailedTests({
     for (final failedTest in failedTests) {
       _runTestScript(
           processor: processor,
-          unitTest: failedTest,
+          selector: UnitTestSelector.fromUnitTest(failedTest),
           pathToPackageRoot: pathToProjectRoot,
           tags: tags,
           excludeTags: excludeTags,
@@ -178,7 +170,7 @@ void runFailedTests({
 /// returns true if all tests passed.
 void _runTestScript({
   required ProcessOutput processor,
-  required UnitTest unitTest,
+  required UnitTestSelector selector,
   required String pathToPackageRoot,
   required String? tags,
   required String? excludeTags,
@@ -190,7 +182,7 @@ void _runTestScript({
     DartSdk().run(
         args: [
           'test',
-          if (unitTest.pathTo != null) ...[unitTest.pathTo!],
+          if (selector.pathTo != null) ...[selector.pathTo!],
           '-j1',
           '-r',
           'json',
@@ -198,7 +190,7 @@ void _runTestScript({
           if (coverage) join(pathToPackageRoot, 'coverage'),
           if (tags != null) ...['--tags', '"$tags"'],
           if (excludeTags != null) ...['--exclude-tags', '"$excludeTags"'],
-          if (unitTest.testName != null) ...['-N', unitTest.testName!],
+          if (selector.testName != null) ...['-N', selector.testName!],
         ],
         workingDirectory: pathToPackageRoot,
         nothrow: true,

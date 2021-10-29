@@ -11,28 +11,27 @@ class FailedTracker {
   static const defaultFilename = '.failed_tracker';
   final _failedTests = <UnitTest>[];
 
-  final _retryTests = <UnitTest>[];
   final _RunType _runType;
 
   final String trackerFilename;
 
   FailedTracker.beginTestRun(this.trackerFilename) : _runType = _RunType.full {
     if (fileExists) dcli.delete(trackerFilename);
-    if (dcli.exists(_backupFilename)) dcli.delete(_backupFilename);
+    if (dcli.exists(backupFilename)) dcli.delete(backupFilename);
   }
 
   FailedTracker.beginReplay(this.trackerFilename) : _runType = _RunType.replay {
     if (fileExists) {
-      var failures = UnitTest.fromFile(trackerFilename);
+      var failures = UnitTest.loadFailedTests(trackerFilename);
 
-      _retryTests.addAll(failures);
-      if (dcli.exists(_backupFilename)) dcli.delete(_backupFilename);
-      dcli.move(trackerFilename, _backupFilename);
+      _failedTests.addAll(failures);
+      if (dcli.exists(backupFilename)) dcli.delete(backupFilename);
+      dcli.copy(trackerFilename, backupFilename);
     } else {
       // check for backup
       if (backupExists) {
-        var failures = UnitTest.fromFile(_backupFilename);
-        _retryTests.addAll(failures);
+        var failures = UnitTest.loadFailedTests(backupFilename);
+        _failedTests.addAll(failures);
       }
     }
   }
@@ -50,14 +49,37 @@ class FailedTracker {
   void done() {
     if (_runType == _RunType.ignore) return;
 
-    if (dcli.exists(_backupFilename)) dcli.delete(_backupFilename);
+    if (dcli.exists(backupFilename)) dcli.delete(backupFilename);
   }
 
-  void recordFailure(UnitTest failedTest) {
+  void recordError(UnitTest failedTest) {
     if (_runType == _RunType.ignore) return;
 
-    _failedTests.add(failedTest);
+    if (_find(failedTest) == null) _failedTests.add(failedTest);
 
+    _write();
+  }
+
+  void recordSuccess(UnitTest sucessfulTest) {
+    if (_runType == _RunType.ignore) return;
+
+    final found = _find(sucessfulTest);
+    if (found != null) {
+      _failedTests.remove(found);
+    }
+    _write();
+  }
+
+  UnitTest? _find(UnitTest find) {
+    for (final unitTest in _failedTests) {
+      if (unitTest.pathTo == find.pathTo &&
+          ((unitTest.testName == find.testName))) {
+        return unitTest;
+      }
+    }
+  }
+
+  void _write() {
     /// we have to re-write the entire file each time.
     /// this makes me unhappy.
     trackerFilename.write(jsonEncode(_failedTests));
@@ -67,15 +89,13 @@ class FailedTracker {
     if (fileExists) dcli.delete(trackerFilename);
   }
 
-  List<UnitTest> get testsToRetry => List.unmodifiable(_retryTests);
-
   List<UnitTest> get failedTests => List.unmodifiable(_failedTests);
 
-  String get _backupFilename => '$trackerFilename.bak';
+  String get backupFilename => '$trackerFilename.bak';
 
   bool get fileExists {
     return dcli.exists(trackerFilename);
   }
 
-  bool get backupExists => dcli.exists(_backupFilename);
+  bool get backupExists => dcli.exists(backupFilename);
 }

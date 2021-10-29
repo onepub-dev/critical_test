@@ -15,8 +15,13 @@ void main() {
 
     final tracker = FailedTracker.ignoreFailures();
 
+    final path = join(rootPath, 'home', 'bsutton', 'git', 'critical_test',
+        'test_scripts', 'for_counts_test.dart');
+
+    final escapedPath = path.replaceAll(r'\', '/');
     processor.processOutput(
-        r'{"test":{"id":11,"name":"Group ##1 4th Intentional succeed","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false,"skipReason":null},"line":33,"column":5,"url":"file:///home/bsutton/git/critical_test/test_scripts/for_counts_test.dart"},"type":"testStart","time":1011}',
+        '{"test":{"id":11,"name":"Group ##1 4th Intentional succeed","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false'
+        ',"skipReason":null},"line":33,"column":5,"url":"file:///$escapedPath"},"type":"testStart","time":1011}',
         tracker);
 
     var expectedMessage = 'Hellow world';
@@ -43,10 +48,8 @@ void main() {
         tracker);
 
     var log = read(_logPath).toList();
-    expect(
-        log.first,
-        equals(
-            '0:0:0 Running: /home/bsutton/git/critical_test/test_scripts/for_counts_test.dart: Group ##1 4th Intentional succeed'));
+    expect(log.first,
+        equals('0:0:0 Running: $path : Group ##1 4th Intentional succeed'));
   });
 
   test('pass by reference', () {

@@ -44,7 +44,7 @@ class Counts {
 }
 
 /// Takes a list of all the progress messages and finds
-/// the last line containt counts.
+/// the last line which containts the counts.
 /// It then parses the counts and returns the result
 /// in the Counts object.
 Counts lastCounts(List<String> lines) {

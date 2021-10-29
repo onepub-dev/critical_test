@@ -77,6 +77,8 @@ class ProcessOutput {
 
     final type = map['type'] as String;
 
+    final unitTest = UnitTest(pathTo: test.path, testName: test.name);
+
     switch (type) {
       case 'suite':
         processSuite(map);
@@ -91,7 +93,7 @@ class ProcessOutput {
         break;
 
       case 'testDone':
-        processTestDone(map);
+        processTestDone(map, tracker, unitTest);
         break;
 
       case 'print':
@@ -99,7 +101,7 @@ class ProcessOutput {
         break;
 
       case 'error':
-        processError(map, tracker, group, test);
+        processError(map, tracker, group, unitTest);
         break;
 
       /// all tests are complete
@@ -144,10 +146,10 @@ class ProcessOutput {
   }
 
   void processError(Map<String, dynamic> map, FailedTracker tracker,
-      String group, Test test) {
+      String group, UnitTest unitTest) {
     final stackTrace = map['stackTrace'] as String;
     final error = map['error'] as String;
-    printFailedTest(error, stackTrace, tracker, group, test);
+    printFailedTest(error, stackTrace, tracker, group, unitTest);
   }
 
   void processPrint(Map<String, dynamic> map) {
@@ -164,11 +166,12 @@ class ProcessOutput {
     if (test.name == 'Loading.') {
       printProgress(test.name);
     } else {
-      printProgress('Running: ${test.path}: ${test.name}');
+      printProgress('Running: ${test.path} : ${test.name}');
     }
   }
 
-  void processTestDone(Map<String, dynamic> map) {
+  void processTestDone(
+      Map<String, dynamic> map, FailedTracker tracker, UnitTest unitTest) {
     final result = map['result'] as String;
 
     if (map['hidden'] == true) {
@@ -186,16 +189,19 @@ class ProcessOutput {
       switch (result) {
         case 'success':
           _counts.success++;
+          tracker.recordSuccess(unitTest);
           break;
 
         /// if the test had a TestFailure but no other errors.
         case 'failure':
           _counts.errors++;
+          tracker.recordError(unitTest);
           break;
 
         /// if the test had an error other than a TestFailure.
         case 'error':
           _counts.errors++;
+          tracker.recordError(unitTest);
           break;
       }
     }
@@ -226,9 +232,7 @@ class ProcessOutput {
   }
 
   void printFailedTest(String error, String stackTrace, FailedTracker tracker,
-      String group, Test test) {
-    final unitTest = UnitTest(pathTo: test.path, testName: test.name);
-    tracker.recordFailure(unitTest);
+      String group, UnitTest unitTest) {
     printerr('');
     printerr(red(
         '${'*' * 34} BEGIN ERROR (${_counts.errors + 1}) '.padRight(80, '*')));
@@ -243,8 +247,7 @@ class ProcessOutput {
     }
     printerr(orange('${'*' * 34} STACKTRACE '.padRight(80, '*')));
     printerr(stackTrace);
-    final nameSwitch =
-        unitTest.testName != null ? '--plain-name="${unitTest.testName}"' : '';
+    final nameSwitch = '--plain-name="${unitTest.testName}"';
     printerr(blue('Rerun test via: critical_test $nameSwitch'));
     printerr(red(
         '${'*' * 32} END ERROR (${_counts.errors + 1}) '.padRight(80, '*')));
@@ -263,10 +266,10 @@ class ProcessOutput {
         '${red('${_counts.errors}')}:'
         '${blue('${_counts.skipped}')} $message';
 
-    /// We allow 20 chars for the counts.
+    /// We allow 24 chars for the counts.
     if (message.length > columns - 24) {
       /// print('progess: ${message.length}');
-      message = Format().limitString(message, width: 24);
+      message = Format().limitString(message, width: columns - 24);
     }
 
     var progress = '${green('${_counts.success}')}:'

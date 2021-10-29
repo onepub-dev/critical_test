@@ -8,15 +8,24 @@
             "name": "critical_test",
             "request": "launch",
             "type": "dart",
-            "program": "../bin/critical_test.dart",
+            "program": "bin/critical_test.dart",
             "cwd": "test_scripts"
         },
         {
             "name": "critical_test",
             "request": "launch",
             "type": "dart",
-            "program": "../bin/critical_test.dart",
+            "program": "bin/critical_test.dart",
             "cwd": "/home/bsutton/git/conduit_testing/conduit/ci"
+        },
+        {
+            "name": "critical_test - select",
+            "request": "launch",
+            "type": "dart",
+            "program": "../critical_test/bin/critical_test.dart",
+            "cwd": "../dcli",
+            "args": ["--select"],
+            "console": "terminal"
         },
         {
             "name": "Dart (test/src/check_counts_test.dart)",

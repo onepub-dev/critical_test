@@ -9,6 +9,7 @@ import 'package:dcli/dcli.dart' hide run;
 
 import 'exceptions/critical_test_exception.dart';
 import 'unit_tests/unit_test.dart';
+import 'unit_tests/unit_test_selector.dart';
 
 void run(List<String> args) {
   try {
@@ -188,6 +189,13 @@ Unit tests will fail if pub get hasn't been run.''',
 
     if (parsed.wasParsed('plain-name')) {
       testName = parsed['plain-name'] as String;
+
+      if (parsed.rest.isEmpty) {
+        printerr(red(
+            "You can't use --plain-name and a list of test directories/files together."));
+        showUsage(parser);
+        exit(1);
+      }
     }
 
     try {
@@ -197,7 +205,7 @@ Unit tests will fail if pub get hasn't been run.''',
             pathToProjectRoot: pathToProjectRoot,
             coverage: coverage,
             warmup: warmup,
-            track: track,
+            track: true,
             hooks: hooks,
             trackerFilename: trackerFilename);
       } else if (runFailed) {
@@ -224,38 +232,23 @@ Unit tests will fail if pub get hasn't been run.''',
                 trackerFilename: trackerFilename);
           } else {
             // run named test
-            runSingleTest(
-                processor: processor,
-                unitTest: UnitTest(pathTo: null, testName: testName),
-                pathToProjectRoot: pathToProjectRoot,
-                tags: tags,
-                excludeTags: excludeTags,
-                coverage: coverage,
-                warmup: warmup,
-                track: track,
-                hooks: hooks,
-                trackerFilename: trackerFilename);
+            runNamedTest(processor, testName, pathToProjectRoot, tags,
+                excludeTags, coverage, warmup, track, hooks, trackerFilename);
           }
         } else {
           /// Process each director or library passed.
-          for (final dirOrFile in parsed.rest) {
-            if (!exists(dirOrFile)) {
-              printerr(red("The path ${truepath(dirOrFile)} doesn't exist."));
-              showUsage(parser);
-            }
-
-            runSingleTest(
-                processor: processor,
-                unitTest: UnitTest(pathTo: dirOrFile, testName: testName),
-                pathToProjectRoot: pathToProjectRoot,
-                tags: tags,
-                excludeTags: excludeTags,
-                coverage: coverage,
-                warmup: warmup,
-                track: track,
-                hooks: hooks,
-                trackerFilename: trackerFilename);
-          }
+          processDirAndLibraries(
+              parsed,
+              parser,
+              processor,
+              pathToProjectRoot,
+              tags,
+              excludeTags,
+              coverage,
+              warmup,
+              track,
+              hooks,
+              trackerFilename);
         }
       }
 
@@ -270,6 +263,82 @@ Unit tests will fail if pub get hasn't been run.''',
       }
     } on CriticalTestException catch (e) {
       printerr('A non recoverable error occured: ${e.message}');
+    }
+  }
+
+  static void runNamedTest(
+      ProcessOutput processor,
+      String testName,
+      String pathToProjectRoot,
+      String? tags,
+      String? excludeTags,
+      bool coverage,
+      bool warmup,
+      bool track,
+      bool hooks,
+      String trackerFilename) {
+    FailedTracker tracker;
+    if (track) {
+      tracker = FailedTracker.beginTestRun(trackerFilename);
+    } else {
+      tracker = FailedTracker.ignoreFailures();
+    }
+
+    // run named test
+    runSingleTest(
+        processor: processor,
+        selector: UnitTestSelector.fromTestName(testName: testName),
+        pathToProjectRoot: pathToProjectRoot,
+        tags: tags,
+        excludeTags: excludeTags,
+        coverage: coverage,
+        warmup: warmup,
+        tracker: tracker,
+        hooks: hooks,
+        trackerFilename: trackerFilename);
+
+    tracker.done();
+  }
+
+  static void processDirAndLibraries(
+      ArgResults parsed,
+      ArgParser parser,
+      ProcessOutput processor,
+      String pathToProjectRoot,
+      String? tags,
+      String? excludeTags,
+      bool coverage,
+      bool warmup,
+      bool track,
+      bool hooks,
+      String trackerFilename) {
+    FailedTracker tracker;
+    if (track) {
+      tracker = FailedTracker.beginTestRun(trackerFilename);
+    } else {
+      tracker = FailedTracker.ignoreFailures();
+    }
+
+    /// Process each director or library passed.
+    for (final dirOrFile in parsed.rest) {
+      if (!exists(dirOrFile)) {
+        printerr(red("The path ${truepath(dirOrFile)} doesn't exist."));
+        showUsage(parser);
+      }
+
+      runSingleTest(
+          processor: processor,
+          selector: UnitTestSelector.fromPath(pathTo: dirOrFile),
+          pathToProjectRoot: pathToProjectRoot,
+          tags: tags,
+          excludeTags: excludeTags,
+          coverage: coverage,
+          warmup: warmup,
+          tracker: tracker,
+          hooks: hooks,
+          trackerFilename: trackerFilename);
+
+      tracker.done();
     }
   }
 
@@ -306,18 +375,27 @@ Unit tests will fail if pub get hasn't been run.''',
   }) {
     final tracker = FailedTracker.beginReplay(trackerFilename);
 
+    final failedTests = tracker.failedTests.toList();
+
+    if (failedTests.isEmpty) {
+      print(green('All tests have passed. Nothing to run.'));
+      exit(0);
+    }
+
     print(green('Select the test to run'));
-    final selected =
-        menu(prompt: 'Select Test:', options: tracker.testsToRetry);
+    final selected = menu<UnitTest>(
+        prompt: 'Select Test:',
+        options: failedTests,
+        format: (unitTest) => unitTest.testName);
 
     print('Running: $selected');
     runSingleTest(
         processor: processor,
-        unitTest: selected,
+        selector: UnitTestSelector.fromUnitTest(selected),
         pathToProjectRoot: pathToProjectRoot,
         coverage: coverage,
         warmup: warmup,
-        track: track,
+        tracker: tracker,
         hooks: hooks,
         trackerFilename: trackerFilename);
   }
