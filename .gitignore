@@ -3,3 +3,4 @@
 **/*.vm.json
 .failed_tracker
 .packages
+.failed_tracker.test
