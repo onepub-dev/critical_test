@@ -53,6 +53,7 @@ class ProcessOutput {
   }
 
   void processOutput(String line, FailedTracker tracker) {
+    verbose(() => line);
     var _line = line.trim();
     if (!_line.startsWith('{"')) {
       final embeddedIndex = _line.indexOf('{"');
