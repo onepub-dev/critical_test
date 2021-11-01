@@ -11,6 +11,9 @@ import 'exceptions/critical_test_exception.dart';
 import 'menu.dart';
 import 'unit_tests/unit_test_selector.dart';
 
+late final defaultLogPath =
+    '${Directory.systemTemp.path}/critical_test/unit_test.log';
+
 void run(List<String> args) {
   try {
     var processor = ProcessOutput();
@@ -32,7 +35,176 @@ void run(List<String> args) {
 
 class CriticalTest {
   static void run(List<String> args, ProcessOutput processor) {
-    final parser = ArgParser()
+    final parser = buildArgParser();
+
+    final parsedArgs = parseArgs(parser, args);
+
+    print('Running: $parsedArgs');
+
+    processor.showSuccess = parsedArgs.showSuccess;
+    processor.showProgress = parsedArgs.showProgress;
+    processor.logPath = parsedArgs.logPath;
+
+    try {
+      if (parsedArgs.menu) {
+        testMenu(
+            processor: processor,
+            pathToProjectRoot: parsedArgs.pathToProjectRoot,
+            coverage: parsedArgs.coverage,
+            warmup: parsedArgs.warmup,
+            track: true,
+            hooks: parsedArgs.hooks,
+            trackerFilename: parsedArgs.trackerFilename);
+      } else if (parsedArgs.runFailed) {
+        runFailedTests(
+            processor: processor,
+            pathToProjectRoot: parsedArgs.pathToProjectRoot,
+            tags: parsedArgs.tags,
+            excludeTags: parsedArgs.excludeTags,
+            coverage: parsedArgs.coverage,
+            warmup: parsedArgs.warmup,
+            hooks: parsedArgs.hooks,
+            trackerFilename: parsedArgs.trackerFilename);
+      } else {
+        /// Process each director or library passed.
+        processDirAndLibraries(
+            processor: processor,
+            pathToProjectRoot: parsedArgs.pathToProjectRoot,
+            selector: UnitTestSelector.fromArgs(parsedArgs),
+            coverage: parsedArgs.coverage,
+            warmup: parsedArgs.warmup,
+            track: parsedArgs.track,
+            hooks: parsedArgs.hooks,
+            trackerFilename: parsedArgs.trackerFilename,
+            parser: parser);
+      }
+
+      if (processor.nothingRan) {
+        print(orange('No tests ran!'));
+      } else if (processor.allPassed) {
+        print(green(
+            'All tests passed. Success: ${processor.successCount}, Skipped: ${processor.skippedCount}'));
+      } else {
+        printerr(
+            '${red('Some tests failed!')} Errors: ${red('${processor.erorrCount}')}, Success: ${green('${processor.successCount}')}, Skipped: ${blue('${processor.skippedCount}')}');
+      }
+    } on CriticalTestException catch (e) {
+      printerr('A non recoverable error occured: ${e.message}');
+    }
+  }
+
+  // static void runNamedTest(
+  //     {required ProcessOutput processor,
+  //     required String testName,
+  //     required String pathToProjectRoot,
+  //     String? tags,
+  //     String? excludeTags,
+  //     required bool coverage,
+  //     required bool warmup,
+  //     required bool track,
+  //     required bool hooks,
+  //     required String trackerFilename}) {
+  //   FailedTracker tracker;
+  //   if (track) {
+  //     tracker = FailedTracker.beginTestRun(trackerFilename);
+  //   } else {
+  //     tracker = FailedTracker.ignoreFailures();
+  //   }
+
+  //   // run named test
+  //   runSingleTest(
+  //       processor: processor,
+  //       pathToProjectRoot: pathToProjectRoot,
+
+  //       selector: UnitTestSelector.fromTestName(testName: testName),
+  //       excludeTags: excludeTags,
+  //       coverage: coverage,
+  //       warmup: warmup,
+  //       tracker: tracker,
+  //       hooks: hooks,
+  //       trackerFilename: trackerFilename);
+
+  //   tracker.done();
+  // }
+
+  static void processDirAndLibraries(
+      {required ProcessOutput processor,
+      required String pathToProjectRoot,
+      required UnitTestSelector selector,
+      required bool coverage,
+      required bool warmup,
+      required bool track,
+      required bool hooks,
+      required String trackerFilename,
+      required ArgParser parser}) {
+    FailedTracker tracker;
+    if (track) {
+      tracker = FailedTracker.beginTestRun(trackerFilename);
+    } else {
+      tracker = FailedTracker.ignoreFailures();
+    }
+
+    /// Process each director or library passed.
+    for (final dirOrFile in selector.testPaths) {
+      if (!exists(dirOrFile)) {
+        printerr(red("The path ${truepath(dirOrFile)} doesn't exist."));
+        showUsage(parser);
+      }
+
+      runSingleTest(
+          processor: processor,
+          pathTo: dirOrFile,
+          testName: selector.testName,
+          tags: selector.tags,
+          excludeTags: selector.excludeTags,
+          pathToProjectRoot: pathToProjectRoot,
+          coverage: coverage,
+          warmup: warmup,
+          tracker: tracker,
+          hooks: hooks,
+          trackerFilename: trackerFilename);
+
+      tracker.done();
+    }
+  }
+
+  /// Show useage.
+  static void showUsage(ArgParser parser) {
+    print(orange('Usage: critical_test [switches] [<directory | library>...]'));
+    print(
+        'Runs unit tests only showing output from failed tests and allows you to just re-run failed tests.');
+    print(blue(
+        "Run all tests in the project 'test' directory if no directories or libraries a passed"));
+    print('critical_test');
+    print('');
+    print(blue('Re-run failed tests'));
+    print('critical_tests --runfailed');
+    print('');
+    print(blue('Run all tests in a Dart Library or directory'));
+    print('critical_tests [<directory or library to test>]...');
+    print('');
+    print(blue('Run a single test by name'));
+    print('critical_tests --plain-name="[<group name> ]... <test name>"');
+    print('');
+    print('''
+tags, exclude-tags and plain-name all act as filters when running against 
+selected directories or libraries and restrict the set of tests that are run.''');
+    print(parser.usage);
+    exit(1);
+  }
+
+  /// no more than one of the passed bools may be true
+  static bool atMostOne(List<bool> list) {
+    var count = 0;
+
+    for (final val in list) {
+      if (val) count++;
+    }
+    return count <= 1;
+  }
+
+  static ArgParser buildArgParser() {
+    return ArgParser()
       ..addFlag(
         'help',
         abbr: 'h',
@@ -84,7 +256,7 @@ class CriticalTest {
           abbr: 'g',
           help: 'Path to log all output. '
               'If set, all tests are logged to the given path.\n'
-              'If not set, then all tests are logged to ${Directory.systemTemp.path}/critical_test/unit_test.log')
+              'If not set, then all tests are logged to $defaultLogPath')
       ..addFlag(
         'hooks',
         abbr: 'o',
@@ -121,10 +293,14 @@ Unit tests will fail if pub get hasn't been run.''',
         hide: true,
         help: 'Verbose logging for debugging of critical test.',
       );
+  }
+
+  static ParsedArgs parseArgs(ArgParser parser, List<String> args) {
+    final parsedArgs = ParsedArgs();
 
     late final ArgResults parsed;
     try {
-      parsed = parser.parse(args);
+      parsedArgs.parsed = parsed = parser.parse(args);
     } on FormatException catch (e) {
       printerr(red(e.message));
       printerr('');
@@ -135,32 +311,40 @@ Unit tests will fail if pub get hasn't been run.''',
       showUsage(parser);
     }
 
-    var verbose = parsed['verbose'] as bool;
-    Settings().setVerbose(enabled: verbose);
+    Settings().setVerbose(enabled: parsed['verbose'] as bool);
 
-    processor.showSuccess = parsed['show'] as bool;
-    processor.showProgress = parsed['progress'] as bool;
+    parsedArgs.showSuccess = parsed['show'] as bool;
+    parsedArgs.showProgress = parsed['progress'] as bool;
+    parsedArgs.menu = parsed['menu'] as bool;
+    parsedArgs.coverage = parsed['coverage'] as bool;
+    parsedArgs.warmup = parsed['warmup'] as bool;
+    parsedArgs.track = parsed['track'] as bool;
+    parsedArgs.hooks = parsed['hooks'] as bool;
+    parsedArgs.runFailed = parsed['runfailed'] as bool;
 
-    var menu = parsed['menu'] as bool;
+    final hasTags = parsed.wasParsed('tags');
+    final hasExcludedTags = parsed.wasParsed('exclude-tags');
+    final hasPlainName = parsed.wasParsed('plain-name');
 
-    var coverage = parsed['coverage'] as bool;
-    var warmup = parsed['warmup'] as bool;
-    var track = parsed['track'] as bool;
-    var hooks = parsed['hooks'] as bool;
+    var hasFilter = hasTags || hasExcludedTags || hasPlainName;
 
-    var runFailed = parsed['runfailed'] as bool;
-
-    if (!atMostOne([menu, runFailed, parsed.wasParsed('plain-name')])) {
-      printerr(red('You may only pass one of --plain-name or --runfailed'));
+    if (!atMostOne([parsedArgs.menu, hasFilter])) {
+      printerr(red(
+          'You may combine --menu with any of the filters [--plain-text, --tags, --exclude-tags]'));
       showUsage(parser);
     }
 
-    final trackerFilename = parsed['tracker'] as String;
-
-    if (parsed.wasParsed('plain-name') &&
-        (parsed.wasParsed('tags') || parsed.wasParsed('exclude-tags'))) {
+    if (!atMostOne([parsedArgs.runFailed, hasFilter])) {
       printerr(red(
-          'You cannot combine "--plain-name" with "--tag" or "--exclude-tags"'));
+          'You may combine --runFailed with any of the filters [--plain-text, --tags, --exclude-tags]'));
+      showUsage(parser);
+    }
+
+    parsedArgs.trackerFilename = parsed['tracker'] as String;
+
+    if (hasPlainName && (hasExcludedTags || hasTags)) {
+      printerr(red(
+          'You cannot combine "--plain-name" with "--tags" or "--exclude-tags"'));
       showUsage(parser);
     }
 
@@ -170,219 +354,76 @@ Unit tests will fail if pub get hasn't been run.''',
         printerr(red('--logPath must specify a file'));
         showUsage(parser);
       }
-      processor.logPath = _logPath;
-    }
-
-    String? tags;
-    if (parsed.wasParsed('tags')) {
-      tags = parsed['tags'] as String;
-    }
-
-    String? excludeTags;
-    if (parsed.wasParsed('exclude-tags')) {
-      excludeTags = parsed['exclude-tags'] as String;
-    }
-
-    final pathToProjectRoot = DartProject.fromPath(pwd).pathToProjectRoot;
-
-    String? testName;
-
-    if (parsed.wasParsed('plain-name')) {
-      testName = parsed['plain-name'] as String;
-
-      if (parsed.rest.isNotEmpty) {
-        printerr(red(
-            "You can't use --plain-name and a list of test directories/files together."));
-        showUsage(parser);
-        exit(1);
-      }
-    }
-
-    try {
-      if (menu) {
-        testMenu(
-            processor: processor,
-            pathToProjectRoot: pathToProjectRoot,
-            coverage: coverage,
-            warmup: warmup,
-            track: true,
-            hooks: hooks,
-            trackerFilename: trackerFilename);
-      } else if (runFailed) {
-        runFailedTests(
-            processor: processor,
-            pathToProjectRoot: pathToProjectRoot,
-            tags: tags,
-            excludeTags: excludeTags,
-            coverage: coverage,
-            warmup: warmup,
-            hooks: hooks,
-            trackerFilename: trackerFilename);
-      } else {
-        if (parsed.rest.isEmpty) {
-          if (testName == null) {
-            runPackageTests(
-                processor: processor,
-                pathToProjectRoot: pathToProjectRoot,
-                tags: tags,
-                excludeTags: excludeTags,
-                coverage: coverage,
-                warmup: warmup,
-                hooks: hooks,
-                trackerFilename: trackerFilename);
-          } else {
-            // run named test
-            runNamedTest(
-                processor: processor,
-                testName: testName,
-                pathToProjectRoot: pathToProjectRoot,
-                tags: tags,
-                excludeTags: excludeTags,
-                coverage: coverage,
-                warmup: warmup,
-                track: track,
-                hooks: hooks,
-                trackerFilename: trackerFilename);
-          }
-        } else {
-          /// Process each director or library passed.
-          processDirAndLibraries(
-              parsed: parsed,
-              parser: parser,
-              processor: processor,
-              pathToProjectRoot: pathToProjectRoot,
-              tags: tags,
-              excludeTags: excludeTags,
-              coverage: coverage,
-              warmup: warmup,
-              track: track,
-              hooks: hooks,
-              trackerFilename: trackerFilename);
-        }
-      }
-
-      if (processor.nothingRan) {
-        print(orange('No tests ran!'));
-      } else if (processor.allPassed) {
-        print(green(
-            'All tests passed. Success: ${processor.successCount}, Skipped: ${processor.skippedCount}'));
-      } else {
-        printerr(
-            '${red('Some tests failed!')} Errors: ${red('${processor.erorrCount}')}, Success: ${green('${processor.successCount}')}, Skipped: ${blue('${processor.skippedCount}')}');
-      }
-    } on CriticalTestException catch (e) {
-      printerr('A non recoverable error occured: ${e.message}');
-    }
-  }
-
-  static void runNamedTest(
-      {required ProcessOutput processor,
-      required String testName,
-      required String pathToProjectRoot,
-      String? tags,
-      String? excludeTags,
-      required bool coverage,
-      required bool warmup,
-      required bool track,
-      required bool hooks,
-      required String trackerFilename}) {
-    FailedTracker tracker;
-    if (track) {
-      tracker = FailedTracker.beginTestRun(trackerFilename);
+      parsedArgs.logPath = _logPath;
     } else {
-      tracker = FailedTracker.ignoreFailures();
+      parsedArgs.logPath = defaultLogPath;
     }
 
-    // run named test
-    runSingleTest(
-        processor: processor,
-        selector: UnitTestSelector.fromTestName(testName: testName),
-        pathToProjectRoot: pathToProjectRoot,
-        tags: tags,
-        excludeTags: excludeTags,
-        coverage: coverage,
-        warmup: warmup,
-        tracker: tracker,
-        hooks: hooks,
-        trackerFilename: trackerFilename);
-
-    tracker.done();
-  }
-
-  static void processDirAndLibraries(
-      {required ArgResults parsed,
-      required ArgParser parser,
-      required ProcessOutput processor,
-      required String pathToProjectRoot,
-      String? tags,
-      String? excludeTags,
-      required bool coverage,
-      required bool warmup,
-      required bool track,
-      required bool hooks,
-      required String trackerFilename}) {
-    FailedTracker tracker;
-    if (track) {
-      tracker = FailedTracker.beginTestRun(trackerFilename);
+    if (hasTags) {
+      parsedArgs.tags = parsed['tags'] as String;
     } else {
-      tracker = FailedTracker.ignoreFailures();
+      parsedArgs.tags = null;
     }
 
-    /// Process each director or library passed.
-    for (final dirOrFile in parsed.rest) {
-      if (!exists(dirOrFile)) {
-        printerr(red("The path ${truepath(dirOrFile)} doesn't exist."));
-        showUsage(parser);
-      }
-
-      runSingleTest(
-          processor: processor,
-          selector: UnitTestSelector.fromPath(pathTo: dirOrFile),
-          pathToProjectRoot: pathToProjectRoot,
-          tags: tags,
-          excludeTags: excludeTags,
-          coverage: coverage,
-          warmup: warmup,
-          tracker: tracker,
-          hooks: hooks,
-          trackerFilename: trackerFilename);
-
-      tracker.done();
+    if (hasExcludedTags) {
+      parsedArgs.excludeTags = parsed['exclude-tags'] as String;
+    } else {
+      parsedArgs.excludeTags = null;
     }
-  }
 
-  /// Show useage.
-  static void showUsage(ArgParser parser) {
-    print(orange('Usage: critical_test [switches] [<directory | library>...]'));
-    print(
-        'Runs unit tests only showing output from failed tests and allows you to just re-run failed tests.');
-    print(blue(
-        "Run all tests in the project 'test' directory if no directories or libraries a passed"));
-    print('critical_test');
-    print('');
-    print(blue('Re-run failed tests'));
-    print('critical_tests --runfailed');
-    print('');
-    print(blue('Run all tests in a Dart Library or directory'));
-    print('critical_tests [<directory or library to test>]...');
-    print('');
-    print(blue('Run a single test by name'));
-    print('critical_tests --plain-name="[<group name> ]... <test name>"');
-    print('');
-    print('''
-tags, exclude-tags and plain-name all act as filters when running against 
-selected directories or libraries and restrict the set of tests that are run.''');
-    print(parser.usage);
-    exit(1);
-  }
+    parsedArgs.pathToProjectRoot = DartProject.fromPath(pwd).pathToProjectRoot;
 
-  /// no more than one of the passed bools may be true
-  static bool atMostOne(List<bool> list) {
-    var count = 0;
-
-    for (final val in list) {
-      if (val) count++;
+    if (hasPlainName) {
+      parsedArgs.testName = trimQuotes(parsed['plain-name'] as String);
+    } else {
+      parsedArgs.testName = null;
     }
-    return count <= 1;
+
+    return parsedArgs;
   }
+
+  /// if [parsed] is enclosed in quotes then we strip them off.
+  static String? trimQuotes(String parsed) {
+    final last = parsed.length - 1;
+    if ((parsed[0] == "'" || parsed[0] == '"') &&
+        (parsed[last] == "'" || parsed[last] == '"')) {
+      return parsed.substring(1, last - 1);
+    }
+    return parsed;
+  }
+}
+
+class ParsedArgs {
+  late final bool menu;
+
+  late final String pathToProjectRoot;
+
+  late final bool coverage;
+
+  late final bool warmup;
+
+  late final bool hooks;
+
+  late final String trackerFilename;
+
+  late final bool runFailed;
+
+  late final String? tags;
+
+  late final String? excludeTags;
+
+  late final String? testName;
+
+  late final bool track;
+
+  late final ArgResults parsed;
+
+  late final bool showSuccess;
+
+  late final bool showProgress;
+
+  late final String logPath;
+
+  @override
+  String toString() => 'test: $testName ';
 }

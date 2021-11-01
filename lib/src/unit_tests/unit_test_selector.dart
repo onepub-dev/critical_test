@@ -1,3 +1,4 @@
+import 'package:critical_test/src/main.dart';
 import 'package:critical_test/src/unit_tests/unit_test.dart';
 
 /// Describes a unit test or the collection of unit tests in a test library.
@@ -10,22 +11,40 @@ import 'package:critical_test/src/unit_tests/unit_test.dart';
 ///
 class UnitTestSelector {
   UnitTestSelector.fromUnitTest(UnitTest unitTest)
-      : pathTo = unitTest.pathTo,
-        testName = unitTest.testName;
+      : testName = unitTest.testName,
+        testPaths = <String>[] {
+    testPaths.add(unitTest.pathTo);
+  }
 
-  UnitTestSelector.fromPath({required this.pathTo});
-  UnitTestSelector.fromTestName({required this.testName});
+  UnitTestSelector.fromPath(
+      {required this.testPaths, required this.tags, required this.excludeTags});
+  UnitTestSelector.fromTestName({required this.testName})
+      : testPaths = <String>[];
 
-  String? pathTo;
+  /// The set of directories and/or libraries to run tests from.
+  final List<String> testPaths;
   String? testName;
+  String? tags;
+  String? excludeTags;
 
   @override
   String toString() {
     var result = '';
 
     result += 'test: "${testName ?? '*'}", ';
-    result += pathTo ?? '';
+    result += testPaths.join(', ');
 
     return result;
+  }
+
+  UnitTestSelector.fromArgs(ParsedArgs parsedArgs)
+      : testPaths = List.from(parsedArgs.parsed.rest),
+        testName = parsedArgs.testName,
+        tags = parsedArgs.tags,
+        excludeTags = parsedArgs.excludeTags {
+    if (testPaths.isEmpty) {
+      // by default tests are run in the 'test' directory
+      testPaths.add('test');
+    }
   }
 }

@@ -14,8 +14,7 @@ import 'util/counts.dart';
 void runPackageTests({
   required ProcessOutput processor,
   required String pathToProjectRoot,
-  required String? tags,
-  required String? excludeTags,
+  required UnitTestSelector selector,
   required bool coverage,
   required bool warmup,
   required bool hooks,
@@ -40,8 +39,7 @@ void runPackageTests({
   _runAllTests(
       processor: processor,
       pathToPackageRoot: pathToProjectRoot,
-      tags: tags,
-      excludeTags: excludeTags,
+      selector: selector,
       coverage: coverage,
       tracker: tracker);
 
@@ -56,8 +54,7 @@ void runPackageTests({
 void _runAllTests(
     {required ProcessOutput processor,
     required String pathToPackageRoot,
-    required String? tags,
-    required String? excludeTags,
+    required UnitTestSelector selector,
     required bool coverage,
     required FailedTracker tracker}) {
   final pathToTestRoot = join(pathToPackageRoot, 'test');
@@ -70,10 +67,11 @@ void _runAllTests(
     for (var testScript in testScripts) {
       _runTestScript(
           processor: processor,
-          selector: UnitTestSelector.fromPath(pathTo: testScript),
           pathToPackageRoot: pathToPackageRoot,
-          tags: tags,
-          excludeTags: excludeTags,
+          pathTo: testScript,
+          testName: selector.testName,
+          tags: selector.tags,
+          excludeTags: selector.excludeTags,
           coverage: coverage,
           tracker: tracker);
     }
@@ -84,10 +82,11 @@ void _runAllTests(
 /// returns true if the test passed.
 void runSingleTest({
   required ProcessOutput processor,
-  required UnitTestSelector selector,
   required String pathToProjectRoot,
-  String? tags,
-  String? excludeTags,
+  required String pathTo,
+  required String? testName,
+  required String? tags,
+  required String? excludeTags,
   required bool coverage,
   required bool warmup,
   required FailedTracker tracker,
@@ -107,8 +106,9 @@ void runSingleTest({
 
   _runTestScript(
       processor: processor,
-      selector: selector,
       pathToPackageRoot: pathToProjectRoot,
+      pathTo: pathTo,
+      testName: testName,
       tags: tags,
       excludeTags: excludeTags,
       coverage: coverage,
@@ -149,10 +149,9 @@ void runFailedTests({
     for (final failedTest in failedTests) {
       _runTestScript(
           processor: processor,
-          selector: UnitTestSelector.fromUnitTest(failedTest),
+          pathTo: failedTest.pathTo,
           pathToPackageRoot: pathToProjectRoot,
-          tags: tags,
-          excludeTags: excludeTags,
+          testName: failedTest.testName,
           coverage: coverage,
           tracker: tracker);
     }
@@ -174,10 +173,11 @@ void runFailedTests({
 /// but it can be overriden.
 void _runTestScript({
   required ProcessOutput processor,
-  required UnitTestSelector selector,
   required String pathToPackageRoot,
-  required String? tags,
-  required String? excludeTags,
+  required String pathTo,
+  String? testName,
+  String? tags,
+  String? excludeTags,
   required bool coverage,
   required FailedTracker tracker,
 }) {
@@ -186,7 +186,7 @@ void _runTestScript({
     DartSdk().run(
         args: [
           'test',
-          if (selector.pathTo != null) ...[selector.pathTo!],
+          ...[pathTo],
           '-j1',
           '-r',
           'json',
@@ -194,7 +194,7 @@ void _runTestScript({
           if (coverage) join(pathToPackageRoot, 'coverage'),
           if (tags != null) ...['--tags', '"$tags"'],
           if (excludeTags != null) ...['--exclude-tags', '"$excludeTags"'],
-          if (selector.testName != null) ...['-N', selector.testName!],
+          if (testName != null) ...['-N', '"$testName"'],
           // testRoot
         ],
         workingDirectory: pathToPackageRoot,

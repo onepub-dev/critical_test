@@ -6,7 +6,6 @@ import 'package:critical_test/src/unit_tests/unit_test.dart';
 import 'package:dcli/dcli.dart';
 
 import 'unit_tests/failed_tracker.dart';
-import 'unit_tests/unit_test_selector.dart';
 
 void testMenu({
   required ProcessOutput processor,
@@ -44,8 +43,11 @@ void testMenu({
       print('Running: $selected');
       runSingleTest(
           processor: processor,
-          selector: UnitTestSelector.fromUnitTest(selected),
           pathToProjectRoot: pathToProjectRoot,
+          pathTo: selected.pathTo,
+          testName: selected.testName,
+          tags: null,
+          excludeTags: null,
           coverage: coverage,
           warmup: warmup,
           tracker: tracker,
