@@ -9,14 +9,20 @@
             "request": "launch",
             "type": "dart",
             "program": "bin/critical_test.dart",
-            "cwd": "test_scripts"
         },
         {
-            "name": "critical_test",
+            "name": "plain-name",
             "request": "launch",
             "type": "dart",
             "program": "bin/critical_test.dart",
-            "cwd": "/home/bsutton/git/conduit_testing/conduit/ci"
+            "args": [
+               "--tracker=.tmp", 
+                "--logPath=.log",
+                 "-v", 
+                 "--track",
+                 "--plain-name='Group ##1 Intentional fail'",
+                 "test_scripts",
+            ]
         },
         {
             "name": "critical_test - menu",
