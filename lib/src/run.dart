@@ -194,7 +194,7 @@ void _runTestScript({
           if (coverage) join(pathToPackageRoot, 'coverage'),
           if (tags != null) ...['--tags=$tags'],
           if (excludeTags != null) ...['--exclude-tags=$excludeTags'],
-          if (testName != null) ...['-N=$testName'],
+          if (testName != null) ...['--plain-name=$testName'],
           // testRoot
         ],
         workingDirectory: pathToPackageRoot,

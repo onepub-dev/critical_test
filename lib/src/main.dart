@@ -276,6 +276,7 @@ Unit tests will fail if pub get hasn't been run.''',
       ..addFlag(
         'track',
         abbr: 'k',
+        defaultsTo: true,
         hide: true,
         help: 'Used to force the recording of failures in .failed_tracker.',
       )
@@ -387,7 +388,7 @@ Unit tests will fail if pub get hasn't been run.''',
     final last = parsed.length - 1;
     if ((parsed[0] == "'" || parsed[0] == '"') &&
         (parsed[last] == "'" || parsed[last] == '"')) {
-      return parsed.substring(1, last - 1);
+      return parsed.substring(1, last);
     }
     return parsed;
   }

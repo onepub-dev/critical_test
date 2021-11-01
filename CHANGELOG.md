@@ -1,3 +1,9 @@
+# 5.0.0
+- Added ability to show a menu of failed tests and allow the user to select which one to run.
+- Added progress messages to verbose output.
+- Added command args to verbose output.
+- upgraded to dcli 1.10
+
 # 4.0.0
 Major works to improve the performance of the --runfailed flag.
 Pre 4.x --runfailed will re-run all tests contained in a Dart Library if even one of the tests failed.

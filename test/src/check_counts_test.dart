@@ -86,7 +86,7 @@ void main() {
             criticalTestExe,
             '--tracker=$tracker',
             '--logPath=$logfile',
-            '--exclude-tags="bad"',
+            '--exclude-tags=bad',
             join('test_scripts', 'for_counts_test.dart')
           ],
           progress: Progress.capture(),

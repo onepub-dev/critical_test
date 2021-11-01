@@ -65,6 +65,8 @@ void main() {
         final criticalTestExe =
             join(DartProject.self.pathToBinDir, 'critical_test.dart');
 
+        Settings().setVerbose(enabled: true);
+
         final progress = start(
           "${DartSdk().pathToDartExe} $criticalTestExe --tracker=$trackerFilename  --logPath=$logfile -v --track --plain-name='Group ##1 Intentional fail' test_scripts",
           progress: Progress.capture(),
