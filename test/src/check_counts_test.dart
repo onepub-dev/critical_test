@@ -49,11 +49,18 @@ void main() {
     withTempFile((logfile) {
       withTempFile((tracker) {
         final criticalTestExe = join('bin', 'critical_test.dart');
-        final progress = start(
-            '$criticalTestExe --tracker=$tracker --logPath=$logfile --tags="!bad"  ${join('test_scripts', 'for_counts_test.dart')} ',
-            progress: Progress.capture(),
-            nothrow: true,
-            runInShell: true);
+        final progress = DartSdk().run(
+          args: [
+            criticalTestExe,
+            '--tracker=$tracker',
+            '--logPath=$logfile',
+            '--tags=!bad',
+            '-v',
+            join('test_scripts', 'for_counts_test.dart')
+          ],
+          progress: Progress.capture(),
+          nothrow: true,
+        );
 
         // print(progress.lines.join('\n'));
         var counts = lastCounts(progress.lines);
@@ -74,11 +81,17 @@ void main() {
     withTempFile((logfile) {
       withTempFile((tracker) {
         final criticalTestExe = join('bin', 'critical_test.dart');
-        final progress = start(
-            '$criticalTestExe --tracker=$tracker --logPath=$logfile --exclude-tags="bad"  ${join('test_scripts', 'for_counts_test.dart')}',
-            progress: Progress.capture(),
-            nothrow: true,
-            runInShell: true);
+        final progress = DartSdk().run(
+          args: [
+            criticalTestExe,
+            '--tracker=$tracker',
+            '--logPath=$logfile',
+            '--exclude-tags="bad"',
+            join('test_scripts', 'for_counts_test.dart')
+          ],
+          progress: Progress.capture(),
+          nothrow: true,
+        );
 
         // print(progress.lines.join('\n'));
         var counts = lastCounts(progress.lines);
