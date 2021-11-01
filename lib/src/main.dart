@@ -39,7 +39,7 @@ class CriticalTest {
 
     final parsedArgs = parseArgs(parser, args);
 
-    print('Running: $parsedArgs');
+    verbose(() => parsedArgs.toString());
 
     processor.showSuccess = parsedArgs.showSuccess;
     processor.showProgress = parsedArgs.showProgress;
@@ -425,5 +425,5 @@ class ParsedArgs {
   late final String logPath;
 
   @override
-  String toString() => 'test: $testName ';
+  String toString() => 'test: $testName args: ${parsed.arguments}';
 }
