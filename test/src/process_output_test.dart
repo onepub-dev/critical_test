@@ -1,3 +1,5 @@
+@Timeout(Duration(minutes: 5))
+
 import 'package:critical_test/critical_test.dart';
 import 'package:critical_test/src/unit_tests/failed_tracker.dart';
 import 'package:test/test.dart';
@@ -47,9 +49,10 @@ void main() {
         r'{"testID":4,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2414}',
         tracker);
 
-    var log = read(_logPath).toList();
+    final log = read(_logPath).toList();
+    final uriPath = Uri.parse('file://$escapedPath').toFilePath();
     expect(log.first,
-        equals('0:0:0 Running: $path : Group ##1 4th Intentional succeed'));
+        equals('0:0:0 Running: $uriPath : Group ##1 4th Intentional succeed'));
   });
 
   test('pass by reference', () {
