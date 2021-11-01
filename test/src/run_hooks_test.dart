@@ -1,4 +1,6 @@
 @Timeout(Duration(minutes: 5))
+import 'dart:io';
+
 import 'package:critical_test/src/run_hooks.dart';
 import 'package:dcli/dcli.dart';
 import 'package:test/test.dart';
@@ -12,9 +14,11 @@ void main() {
 
       createDart(pathToHooks);
 
-      createSh(pathToHooks);
-
-      createBat(pathToHooks);
+      if (Platform.isWindows) {
+        createBat(pathToHooks);
+      } else {
+        createSh(pathToHooks);
+      }
 
       runPreHooks(packageRoot);
     });
