@@ -66,10 +66,10 @@ void main() {
             join(DartProject.self.pathToBinDir, 'critical_test.dart');
 
         final progress = start(
-          '$criticalTestExe --tracker=$trackerFilename  --logPath=$logfile -v --track --plain-name "Group ##1 Intentional fail" --root=test_scripts',
+          "${DartSdk().pathToDartExe} $criticalTestExe --tracker=$trackerFilename  --logPath=$logfile -v --track --plain-name='Group ##1 Intentional fail' test_scripts",
           progress: Progress.capture(),
           nothrow: true,
-          runInShell: true,
+          runInShell: false,
         );
 
         final tracker = FailedTracker.beginReplay(trackerFilename);
