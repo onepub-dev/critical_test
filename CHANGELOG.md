@@ -1,3 +1,6 @@
+# 5.1.2
+- change --hooks to default to true.
+
 # 5.1.1
 - Change the location of settings.yaml to tool/critical_test/settings.yaml so it matches the hook directory locaiton.
 
