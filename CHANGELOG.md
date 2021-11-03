@@ -1,5 +1,8 @@
+# 5.1.1
+- Change the location of settings.yaml to tool/critical_test/settings.yaml so it matches the hook directory locaiton.
+
 # 5.1.0
-Added support for ~/.critical_test/settings.yaml which allows you to set defaults for any of the command line arguments.
+- Added support for ~/.critical_test/settings.yaml which allows you to set defaults for any of the command line arguments.
 
 # 5.0.0
 - Added ability to show a menu of failed tests and allow the user to select which one to run.
