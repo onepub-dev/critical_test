@@ -1,160 +1,134 @@
-# Critical Test
+# 5.1.0
+Added support for ~/.critical_test/settings.yaml which allows you to set defaults for any of the command line arguments.
 
-Critical Test is a cli tool designed to provide an enhanced cli experience when running Dart unit tests.
+# 5.0.0
+- Added ability to show a menu of failed tests and allow the user to select which one to run.
+- Added progress messages to verbose output.
+- Added command args to verbose output.
+- upgraded to dcli 1.10
 
-Fixing broken unit tests is an ongoing job in any active project. Whilst it is usually better to run your unit tests from within your IDE, in some circumstances this isn't possible or convenient.
+# 4.0.0
+Major works to improve the performance of the --runfailed flag.
+Pre 4.x --runfailed will re-run all tests contained in a Dart Library if even one of the tests failed.
+With this release we only run the tests that failed.
 
-Critical Test runs your unit tests from the cli and makes it easy to identify broken tests and re-run those tests.
+The cli arguments have also changed to bring them closer to alignment with the 'dart test' command.
 
-By default Critical Test suppresses the output of any tests that succeed so you can focus on those critical failed test.
-
-Critical Test then lets you re-run individual failed tests or re-run all failed tests.
-
-Critical Tests also provides an enhanced view of failed unit tests making it easier to review those tests.
-
-# Another Dart tool by Noojee
-
-![Noojee](https://github.com/bsutton/critical_test/blob/main/images/noojee-logo.png?raw=true)
-
-
-# Run all tests
-
-To run all tests simply run `critical_test` from the root of you project.
+You can now pass a directory or script as a final argument and only tests in that directory/dart will
+be ran.
 
 ```bash
-dart pub global activate critical_test
-cd <your project root>
-critcal_test
+critical_test [switches] [file or directory]
 ```
-# Run a single test
+We have removed the --single switch use --plain-name instead.
 
-If a test fails, Critical Test outputs instructions on how to re-run that single test.
-
-You will see a blue line just above the 'END ERROR' line with the instructions.
+We have introduced a --plain-name argument which allows you to run a single test via name.
+If the test is nested with in a group(s) then you need to provide each of the group names
+separated by a space.
 
 ```
-package:test_api           fail
-test/test2_test.dart 13:7  main.<fn>.<fn>
-
-Rerun test via: critical_test --single=test/test2_test.dart
-******************************** END ERROR (2) *********************************
-6:2:0:0 test2_test.dart: Tests completed with some failures
+critical_tests --plain-name="[<group name> <group name> ...] <test name>"
 ```
-
-To re-run the failed test:
-
-`critical_test --single=test/test2_test.dart`
-
-# Re-run all failed tests
-Each time you do a test run (except when --single is used) Critical Test tracks each of the failed tests.
-
-You can re-run just the failed tests by running:
-
-`critical_test --runfailed`
-
-# exit codes
-You can check how the test ran via the critical test exit code.
-
-0 - all tests passed
-1 - some tests failed
-5 - no tests were run
-
-## progress
-The --[no]-progress flag allows you to control whether the progress messages are output.
-
-By default progress messages are displayed.
-
-When using Critical Test in a CI pipeline we recommend running with --no-progress as this reduces the amount of clutter in your CI's logs.
-
-In this mode you will only get a small intro message and a completion message. If any errors are generated they are still logged to the console in full.
-## show
-
-When Critical Test runs it normally suppresses the output of any tests that succeed.
-
-You can use the `--show` command line switch to run the test showing output from both failed and successful tests.
-
-`critical_test --show`
-
-## Selecting tests to run
-Critical Test takes two commandline arguments that allow you to control which tests are run:
-
-* --tags=`<tag expression>`
-* --exclude-tags=`<tag expression>`
+- hook switch abbreviation has changed from 'n' to 'o'
 
 
-Both of these flags are passed directly to the unit test package and so must conform to the documented [tag expression](https://pub.dev/packages/test#tagging-tests) syntax.
+# 3.0.13
+- had accidentially ignore analysis_options.yaml
 
-e.g.
---tags="(chrome || firefox) && !slow"
---exclude-tags=slow
+# 3.0.11
+ - Fixed a bug where the --runFailed switch was not finding any failed tests due to an inverted if statement.
 
+# 3.0.10
+Fixed the --no-hooks command line flag as it was being ignored.
 
+# 3.0.9
+Added:
+ - Added code to run pub get on the package and any sub packages to ensure that the unit test run successfully from a code project. 
+ - Use --no-warmup to suppress the pub get operations.
+ - Added a hidden --track switch so we can use it in our own unit tests with --single so we can confirm the trackers behaviour. Fixed a unit test that was failing because single tests don't normally track.
 
+Fixes:
+ - We now corretly track failed test that occur during a rerun. Previously we would loose track of these failures.
+ - re-wrote the failed tracker to try to handle aborts. Previously the list of failed tests would be lost if user used ctrl-c during a test run. We now try to preserve the failed test list.
 
-## logPath
+# 3.0.8
+Upgraded package versions.
 
-By default critical_tests logs both successful and failed tests to `<system temp dir>/critical_test/unit_tests.log`.
+# 3.0.7
+upgraded to dcli 1.5.3
+Fixed so unit tests find critical test on windows.
 
-You can modify the file the unit tests are logged to via:
+# 3.0.6
+- upgraded to dcli 1.5.1
+- Added test that the test directory exists.
+- stripped ansi out of the count line for consistent regex matching.
+- Added check that the .failed_tracker file exists rather than throwing an exception.
 
-`critical_test --logPath=<somepath>`
+# 3.0.3
+Upgraded to dcli 1.5.0
 
+Fixed a number of unit tests.
 
-# Monitoring progress
+# 3.0.2
+Added support for running dart scripts for hooks on windows and if dcli not installed.
 
-Critical Test provides a single updating line that shows progress of the unit tests.
-```
-    2:1:0:0 test_test.dart: Loading
-```
+# 3.0.1
+Fixed a bug where we used the critical_tests project root rather than the target projects root to find hooks.
 
-The firsts four numbers in order are:
+# 3.0.0
+Simplified the hook path names and made them more consistent.
+the hook paths are now:
 
-* Successes - shown in green
-* Failures - shown in orange
-* Errors - shown in red
-* Skipped - shown in blue
+tool/critical_test/pre_hook
+tool/critical_test/post_hook
 
-You can also monitor the full output of the unit tests (including successful unit tests) by tailing the log file:
-
-`tail  -f /<system temp dir>/critical_test/unit_tests.log`
-
-
-# Pre/Post test hooks.
-
-When running unit tests you may need to do some preparatory and/or cleanup work.
-
-Ideally this should be in the `setupAll` and `tearDownAll` methods in your unit tests.
-
-
-If that isn't possible then Critical Test allows you to specify hooks that are run 
-before and after the unit tests are run.
-
-The Critical Test hooks are particularly useful for starting/stopping services (a database, docker container etc) before/after you run your unit tests.
-
-A hook can be any executable such as a DCli or Bash script.
-
-To create a hook, create a critical_test_hook directory under your project's 'tool' directory
-
-pre-hooks are run before the unit tests start.
-post-hooks are run after all unit tests have completed.
-
-Pre/Post hooks will also run when you use the --single switch.
-
-You can suppress hooks by passing in the --no-hooks flag.
-
-```bash
-cd <myproject>/tool
-mkdir critical_test_hook
-mkdir critical_test_hook/pre-hook
-mkdir critical_test_hook/post-hook
-touch critical_test_hook/pre-hook/dostuff.sh
-chmod +x critical_test_hook/pre-hook/dostuff.sh
-```
-
-Hooks are sorted alphanumerically so you can prefix the hook's name with a number if you need to control the order the hooks run in.
+Added warning if a non-executable hook file is detected.
 
 
-# DCli
-Critical Test was written in Dart using [DCli](https://pub.dev/packages/dcli) to support the [Conduit](https://pub.dev/packages/conduit) project.
+# 2.0.1
+Fix: Fixed a bug with the path to failed tests .failed_tracker. The path had test/test/ as a prefix
+rather than just test/
+Attempt to improve the error handling if one of the spawned commands fails.
 
+# 2.0.0
+Change the flag --logTo to --logPath.
+Changed the exit codes to conform close to what other packages use. 0 - is good, 1 is bad, 5 no test were ran.
+Added new command line arg --[no]-progress to improve the CI pipeline experience.
 
+# 1.0.8
+Fixed bug where the skipped count was reporting 0 when tests had been skipped. 
+Added unit tests to check the counts. 
+Attempts to improve the coverage support but still not writting to the correct directory. 
+If the shelled unit tests fail to start we now print the error output.
+Fixed counting problems by checking for the hidden flag.
+Corrected the syntax of the tag argumetnts when passed to the test package.
+Fixed a bug where exclude-tags flag was passing the arg into the wrong variable.
+Cleaned up the messages. Now logs the package name we are running tests for.
+Added tags and exclude-tags command line options to allow control over what tests are run.
+
+# 1.0.7
+the critical test application now returns -1 if any tests failed.
+Added hidden verbose flag to make diagnostics easier.
+
+# 1.0.6
+Fixed a bug caused when a child process is spawned which directly prints to stdout. We now strip this out of the json messages to stop json decode problems.
+
+# 1.0.5
+Improvements to the readme.
+
+# 1.0.4
+Changed the run_failed switch to runfailed.
+spelling in the readme.
+
+# 1.0.3
+Minor cleanup on the readme.
+
+# 1.0.2
+renamed flag --run_failed to --runfailed
+Fixed a counting problem on the error logs when failures and errors occure.
+
+# 1.0.1
+Added noojee logo.
+
+# 1.0.0
+First release of critical test.
