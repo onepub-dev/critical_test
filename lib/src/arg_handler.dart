@@ -96,7 +96,7 @@ class ParsedArgs {
       ..addFlag(
         'hooks',
         abbr: 'o',
-        defaultsTo: false,
+        defaultsTo: true,
         help: 'Supresses running of the pre and post hooks.',
       )
       ..addFlag(

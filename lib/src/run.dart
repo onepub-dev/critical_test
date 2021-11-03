@@ -198,7 +198,7 @@ void _runTestScript({
           if (excludeTags.isNotEmpty) ...[
             '--exclude-tags=${excludeTags.join(',')}'
           ],
-          if (testName != null) ...['--plain-name=$testName'],
+          if (testName != null && testName.isNotEmpty) ...['--plain-name=$testName'],
           // testRoot
         ],
         workingDirectory: pathToPackageRoot,
