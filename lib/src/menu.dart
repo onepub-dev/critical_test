@@ -46,7 +46,6 @@ void testMenu({
           pathToProjectRoot: pathToProjectRoot,
           pathTo: selected.pathTo,
           testName: selected.testName,
-          
           tags: [],
           excludeTags: [],
           coverage: coverage,

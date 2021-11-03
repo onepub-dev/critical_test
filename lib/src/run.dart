@@ -195,7 +195,9 @@ void _runTestScript({
           if (coverage) '--coverage',
           if (coverage) join(pathToPackageRoot, 'coverage'),
           if (tags.isNotEmpty) ...['--tags=${tags.join(',')}'],
-          if (excludeTags.isNotEmpty) ...['--exclude-tags=${excludeTags.join(',')}'],
+          if (excludeTags.isNotEmpty) ...[
+            '--exclude-tags=${excludeTags.join(',')}'
+          ],
           if (testName != null) ...['--plain-name=$testName'],
           // testRoot
         ],

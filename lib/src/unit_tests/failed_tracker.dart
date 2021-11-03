@@ -41,7 +41,7 @@ class FailedTracker {
   /// track the outcome and we don't want to clear out existing failed
   /// tests.
   FailedTracker.ignoreFailures()
-      : trackerFilename = join(pathTocriticalTestConfig,  defaultFilename),
+      : trackerFilename = join(pathTocriticalTestConfig, defaultFilename),
         _runType = _RunType.ignore;
 
   /// Call [done] when the set of tests have completed.
