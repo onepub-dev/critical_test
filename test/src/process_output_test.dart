@@ -50,9 +50,11 @@ void main() {
         tracker);
 
     final log = read(_logPath).toList();
-    final uriPath = Uri.parse('file://$escapedPath').toFilePath();
-    expect(log.first,
-        equals('0:0:0 Running: $uriPath : Group ##1 4th Intentional succeed'));
+    // final uriPath = Uri.parse('file://${relative(escapedPath)}').toFilePath();
+    expect(
+        log.first,
+        equals(
+            '0:0:0 Running: ${relative(escapedPath)} : Group ##1 4th Intentional succeed'));
   });
 
   test('pass by reference', () {

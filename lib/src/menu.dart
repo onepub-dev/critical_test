@@ -46,8 +46,9 @@ void testMenu({
           pathToProjectRoot: pathToProjectRoot,
           pathTo: selected.pathTo,
           testName: selected.testName,
-          tags: null,
-          excludeTags: null,
+          
+          tags: [],
+          excludeTags: [],
           coverage: coverage,
           warmup: warmup,
           tracker: tracker,

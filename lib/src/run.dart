@@ -85,8 +85,8 @@ void runSingleTest({
   required String pathToProjectRoot,
   required String pathTo,
   required String? testName,
-  required String? tags,
-  required String? excludeTags,
+  required List<String> tags,
+  required List<String> excludeTags,
   required bool coverage,
   required bool warmup,
   required FailedTracker tracker,
@@ -125,8 +125,8 @@ void runFailedTests({
   required ProcessOutput processor,
   required String pathToProjectRoot,
   String? logPath,
-  String? tags,
-  String? excludeTags,
+  required List<String> tags,
+  required List<String> excludeTags,
   required bool coverage,
   required bool warmup,
   required bool hooks,
@@ -153,7 +153,9 @@ void runFailedTests({
           pathToPackageRoot: pathToProjectRoot,
           testName: failedTest.testName,
           coverage: coverage,
-          tracker: tracker);
+          tracker: tracker,
+          tags: [],
+          excludeTags: []);
     }
     processor.complete();
 
@@ -176,8 +178,8 @@ void _runTestScript({
   required String pathToPackageRoot,
   required String pathTo,
   String? testName,
-  String? tags,
-  String? excludeTags,
+  required List<String> tags,
+  required List<String> excludeTags,
   required bool coverage,
   required FailedTracker tracker,
 }) {
@@ -192,8 +194,8 @@ void _runTestScript({
           'json',
           if (coverage) '--coverage',
           if (coverage) join(pathToPackageRoot, 'coverage'),
-          if (tags != null) ...['--tags=$tags'],
-          if (excludeTags != null) ...['--exclude-tags=$excludeTags'],
+          if (tags.isNotEmpty) ...['--tags=${tags.join(',')}'],
+          if (excludeTags.isNotEmpty) ...['--exclude-tags=${excludeTags.join(',')}'],
           if (testName != null) ...['--plain-name=$testName'],
           // testRoot
         ],

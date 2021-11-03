@@ -11,7 +11,7 @@ void main() {
       withTempFile((tracker) {
         final criticalTestExe = join('bin', 'critical_test.dart');
         final progress = start(
-            '$criticalTestExe --tracker=$tracker --logPath=$logfile  ${join('test_scripts', 'for_counts_test.dart')}',
+            '$criticalTestExe --tracker=$tracker --log-path=$logfile  ${join('test_scripts', 'for_counts_test.dart')}',
             progress: Progress.capture(),
             nothrow: true,
             runInShell: true);
@@ -35,7 +35,7 @@ void main() {
   //     withTempFile((tracker) {
   //       run([
   //         '--tracker=$tracker',
-  //         '--logPath=$logfile',
+  //         '--log-path=$logfile',
   //         'test_scripts/for_counts_test.dart'
   //       ]);
   //     });
@@ -53,7 +53,7 @@ void main() {
           args: [
             criticalTestExe,
             '--tracker=$tracker',
-            '--logPath=$logfile',
+            '--log-path=$logfile',
             '--tags=!bad',
             '-v',
             join('test_scripts', 'for_counts_test.dart')
@@ -85,7 +85,7 @@ void main() {
           args: [
             criticalTestExe,
             '--tracker=$tracker',
-            '--logPath=$logfile',
+            '--log-path=$logfile',
             '--exclude-tags=bad',
             join('test_scripts', 'for_counts_test.dart')
           ],

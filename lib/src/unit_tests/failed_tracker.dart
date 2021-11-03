@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:critical_test/critical_test.dart';
 import 'package:dcli/dcli.dart' as dcli;
 import 'package:dcli/dcli.dart';
 
@@ -40,7 +41,7 @@ class FailedTracker {
   /// track the outcome and we don't want to clear out existing failed
   /// tests.
   FailedTracker.ignoreFailures()
-      : trackerFilename = defaultFilename,
+      : trackerFilename = join(pathTocriticalTestConfig,  defaultFilename),
         _runType = _RunType.ignore;
 
   /// Call [done] when the set of tests have completed.

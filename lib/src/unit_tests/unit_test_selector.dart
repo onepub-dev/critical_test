@@ -1,5 +1,6 @@
-import 'package:critical_test/src/main.dart';
 import 'package:critical_test/src/unit_tests/unit_test.dart';
+
+import '../arg_handler.dart';
 
 /// Describes a unit test or the collection of unit tests in a test library.
 /// To run all unit tests in a file just pass in [pathTo]
@@ -12,20 +13,25 @@ import 'package:critical_test/src/unit_tests/unit_test.dart';
 class UnitTestSelector {
   UnitTestSelector.fromUnitTest(UnitTest unitTest)
       : testName = unitTest.testName,
-        testPaths = <String>[] {
+        testPaths = <String>[],
+        tags = <String>[],
+        excludeTags = <String>[] {
     testPaths.add(unitTest.pathTo);
   }
 
   UnitTestSelector.fromPath(
       {required this.testPaths, required this.tags, required this.excludeTags});
+
   UnitTestSelector.fromTestName({required this.testName})
-      : testPaths = <String>[];
+      : testPaths = <String>[],
+        tags = <String>[],
+        excludeTags = <String>[];
 
   /// The set of directories and/or libraries to run tests from.
   final List<String> testPaths;
   String? testName;
-  String? tags;
-  String? excludeTags;
+  List<String> tags;
+  List<String> excludeTags;
 
   @override
   String toString() {
@@ -39,7 +45,7 @@ class UnitTestSelector {
 
   UnitTestSelector.fromArgs(ParsedArgs parsedArgs)
       : testPaths = List.from(parsedArgs.parsed.rest),
-        testName = parsedArgs.testName,
+        testName = parsedArgs.plainName,
         tags = parsedArgs.tags,
         excludeTags = parsedArgs.excludeTags {
     if (testPaths.isEmpty) {

@@ -7,7 +7,7 @@ void main() {
     withTempFile((logfile) {
       withTempFile((tracker) {
         final criticalTestExe = join('bin', 'critical_test.dart');
-        'dart $criticalTestExe --tracker=$tracker --logPath=$logfile --tags="bad,debug"'
+        'dart $criticalTestExe --tracker=$tracker --log-path=$logfile --tags="bad,debug"'
             .start(
                 workingDirectory: pwd,
                 nothrow: true,

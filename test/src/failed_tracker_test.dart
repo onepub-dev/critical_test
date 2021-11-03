@@ -12,7 +12,7 @@ void main() {
     withTempFile((logfile) {
       // var script = Script.capture((_) async {
       //   run([
-      //     '--logPath=$logfile',
+      //     '--log-path=$logfile',
       //     '-v',
       //     '--track',
       //     '${join('test_scripts', 'for_counts_test.dart')}'
@@ -24,7 +24,7 @@ void main() {
       withTempFile((trackerFilename) {
         final criticalTestExe = join('bin', 'critical_test.dart');
         final progress = start(
-            '$criticalTestExe --tracker=$trackerFilename --logPath=$logfile -v --track ${join('test_scripts', 'for_counts_test.dart')}',
+            '$criticalTestExe --tracker=$trackerFilename --log-path=$logfile -v --track ${join('test_scripts', 'for_counts_test.dart')}',
             progress: Progress.capture(),
             nothrow: true,
             runInShell: true);
@@ -51,7 +51,7 @@ void main() {
   // test('failed tracker 2', () {
   //   withTempFile((logfile) {
   //     run([
-  //       '--logPath=$logfile',
+  //       '--log-path=$logfile',
   //       '-v',
   //       '--track',
   //       '${join('test_scripts', 'for_counts_test.dart')}'
@@ -68,7 +68,7 @@ void main() {
         Settings().setVerbose(enabled: true);
 
         final progress = start(
-          "${DartSdk().pathToDartExe} $criticalTestExe --tracker=$trackerFilename  --logPath=$logfile -v --track --plain-name='Group ##1 Intentional fail' test_scripts",
+          "${DartSdk().pathToDartExe} $criticalTestExe --tracker=$trackerFilename  --log-path=$logfile -v --track --plain-name='Group ##1 Intentional fail' test_scripts",
           progress: Progress.capture(),
           nothrow: true,
           runInShell: false,
