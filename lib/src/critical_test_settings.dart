@@ -16,7 +16,7 @@ class Settings {
 
   late final SettingsYaml yaml;
 
-  static String defaultPath = join(pathTocriticalTestConfig, filename);
+  static String defaultPath = join(pathToCriticalTestConfig, filename);
 
   // Settings.load() {
   //   var pathTo = defaultPath;

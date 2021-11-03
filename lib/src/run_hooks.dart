@@ -1,9 +1,11 @@
 import 'package:dcli/dcli.dart';
 
+import '../critical_test.dart';
+
 String prehookPath(String pathToPackageRoot) =>
-    join(pathToPackageRoot, 'tool', 'critical_test', 'pre_hook');
+    join(pathToPackageRoot, pathToCriticalTestConfig, 'pre_hook');
 String posthookPath(String pathToPackageRoot) =>
-    join(pathToPackageRoot, 'tool', 'critical_test', 'post_hook');
+    join(pathToPackageRoot, pathToCriticalTestConfig, 'post_hook');
 
 void runPreHooks(String pathToPackageRoot) =>
     runHooks(prehookPath(pathToPackageRoot), pathToPackageRoot, 'pre_hook');

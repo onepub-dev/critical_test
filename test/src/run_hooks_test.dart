@@ -1,6 +1,7 @@
 @Timeout(Duration(minutes: 5))
 import 'dart:io';
 
+import 'package:critical_test/critical_test.dart';
 import 'package:critical_test/src/run_hooks.dart';
 import 'package:dcli/dcli.dart';
 import 'package:test/test.dart';
@@ -9,7 +10,7 @@ void main() {
   test('hooks ...', () async {
     withTempDir((packageRoot) {
       final pathToHooks =
-          join(packageRoot, 'tool', 'critical_test', 'pre_hook');
+          join(packageRoot, pathToCriticalTestConfig, 'pre_hook');
       createDir(pathToHooks, recursive: true);
 
       createDart(pathToHooks);
