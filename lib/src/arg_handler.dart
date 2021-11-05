@@ -173,13 +173,23 @@ Unit tests will fail if pub get hasn't been run.''',
     var hasFilter =
         tags.isNotEmpty || excludeTags.isNotEmpty || plainName.isNotEmpty;
 
-    if (!atMostOne([menu, hasFilter])) {
+    if (!atMostOne([
+      menu,
+      parsed.wasParsed('tags'),
+      parsed.wasParsed('exclude-tags'),
+      parsed.wasParsed('plain-name')
+    ])) {
       printerr(red(
           'You may combine --menu with any of the filters [--plain-text, --tags, --exclude-tags]'));
       showUsage(parser);
     }
 
-    if (!atMostOne([runFailed, hasFilter])) {
+    if (!atMostOne([
+      runFailed,
+      parsed.wasParsed('tags'),
+      parsed.wasParsed('exclude-tags'),
+      parsed.wasParsed('plain-name')
+    ])) {
       printerr(red(
           'You may combine --runFailed with any of the filters [--plain-text, --tags, --exclude-tags]'));
       showUsage(parser);
