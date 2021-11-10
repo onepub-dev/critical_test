@@ -170,9 +170,6 @@ Unit tests will fail if pub get hasn't been run.''',
     plainName =
         trimQuotes(getParsed(parsed, 'plain-name', () => settings.plainName));
 
-    var hasFilter =
-        tags.isNotEmpty || excludeTags.isNotEmpty || plainName.isNotEmpty;
-
     if (!atMostOne([
       menu,
       parsed.wasParsed('tags'),
@@ -180,7 +177,7 @@ Unit tests will fail if pub get hasn't been run.''',
       parsed.wasParsed('plain-name')
     ])) {
       printerr(red(
-          'You may combine --menu with any of the filters [--plain-text, --tags, --exclude-tags]'));
+          'You may not combine --menu with any of the filters [--plain-text, --tags, --exclude-tags]'));
       showUsage(parser);
     }
 
@@ -191,7 +188,7 @@ Unit tests will fail if pub get hasn't been run.''',
       parsed.wasParsed('plain-name')
     ])) {
       printerr(red(
-          'You may combine --runFailed with any of the filters [--plain-text, --tags, --exclude-tags]'));
+          'You may not combine --runFailed with any of the filters [--plain-text, --tags, --exclude-tags]'));
       showUsage(parser);
     }
 
