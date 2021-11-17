@@ -1,3 +1,7 @@
+# 5.1.3
+- Fixed a bug where you couldn't use -m or -r if you had a tag, exclude-tag or plain-name in the settings.
+- update transitive dependencies.
+
 # 5.1.2
 - change --hooks to default to true.
 

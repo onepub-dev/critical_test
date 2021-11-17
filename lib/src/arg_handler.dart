@@ -161,14 +161,10 @@ Unit tests will fail if pub get hasn't been run.''',
     hooks = getParsed(parsed, 'hooks', () => settings.hooks);
     runFailed = parsed['runfailed'] as bool;
 
-    tags = getParsed(parsed, 'tags', () => settings.tags)
-        .map((String t) => trimQuotes(t))
-        .toList();
-    excludeTags = getParsed(parsed, 'exclude-tags', () => settings.excludeTags)
-        .map((String t) => trimQuotes(t))
-        .toList();
-    plainName =
-        trimQuotes(getParsed(parsed, 'plain-name', () => settings.plainName));
+    tags = getParsed(parsed, 'tags', () => settings.tags).toList();
+    excludeTags =
+        getParsed(parsed, 'exclude-tags', () => settings.excludeTags).toList();
+    plainName = getParsed(parsed, 'plain-name', () => settings.plainName);
 
     if (!atMostOne([
       menu,
@@ -212,17 +208,6 @@ Unit tests will fail if pub get hasn't been run.''',
     }
 
     pathToProjectRoot = DartProject.fromPath(pwd).pathToProjectRoot;
-  }
-
-  /// if [parsed] is enclosed in quotes then we strip them off.
-  String trimQuotes(String parsed) {
-    if (parsed.isEmpty) return parsed;
-    final last = parsed.length - 1;
-    if ((parsed[0] == "'" || parsed[0] == '"') &&
-        (parsed[last] == "'" || parsed[last] == '"')) {
-      return parsed.substring(1, last);
-    }
-    return parsed;
   }
 
   T getParsed<T>(ArgResults parsed, String name, T Function() defaultValue) {

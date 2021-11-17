@@ -203,7 +203,7 @@ packages:
       path: "../dcli"
       relative: true
     source: path
-    version: "1.11.0"
+    version: "1.12.4"
   equatable:
     dependency: transitive
     description:
@@ -385,7 +385,7 @@ packages:
       name: posix
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.2"
+    version: "2.2.1"
   pub_semver:
     dependency: transitive
     description:
