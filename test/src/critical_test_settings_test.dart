@@ -9,7 +9,7 @@ void main() {
 exclude-tags: [sudo]
 tags: [fred]
 plain-name: Test Me
-show: false
+all: false
 progress: true
 coverage: false
 log-path: /tmp/some/path
@@ -22,7 +22,7 @@ track: true''');
       expect(settings.excludeTags, equals(['sudo']));
       expect(settings.tags, equals(['fred']));
       expect(settings.plainName, equals('Test Me'));
-      expect(settings.show, isFalse);
+      expect(settings.showAll, isFalse);
       expect(settings.progress, isTrue);
       expect(settings.coverage, isFalse);
       expect(settings.logPath, equals('/tmp/some/path'));

@@ -113,45 +113,45 @@ plain-name: Test Two
     });
   });
 
-  group('show', () {
+  group('showAll', () {
     test('default', () async {
       var parsedArgs = ParsedArgs.build()..parse([]);
-      expect(parsedArgs.showSuccess, false);
+      expect(parsedArgs.showAll, false);
     });
 
     test('arg', () async {
-      var two = ['--show'];
+      var two = ['--all'];
       final parsedArgs = ParsedArgs.build()..parse(two);
-      expect(parsedArgs.showSuccess, isTrue);
+      expect(parsedArgs.showAll, isTrue);
     });
 
     test('from settings.', () async {
       withTempFile((pathToSettings) {
         pathToSettings.write('''
-show: true
+all: true
       ''');
 
         final parsedArgs = ParsedArgs.build()
           ..parse(['--settings-path=$pathToSettings']);
-        expect(parsedArgs.showSuccess, isTrue);
+        expect(parsedArgs.showAll, isTrue);
       });
     });
 
     test(' override settings.', () async {
       withTempFile((pathToSettings) {
         pathToSettings.write('''
-show: true       
+all: true       
       ''');
         var args = ['--settings-path=$pathToSettings'];
         final parsedArgs = ParsedArgs.build()..parse(args);
-        expect(parsedArgs.showSuccess, isTrue);
+        expect(parsedArgs.showAll, isTrue);
       });
     });
 
     group('progress', () {
       test('default', () async {
         var parsedArgs = ParsedArgs.build()..parse([]);
-        expect(parsedArgs.showProgress, false);
+        expect(parsedArgs.showProgress, true);
       });
 
       test('arg', () async {

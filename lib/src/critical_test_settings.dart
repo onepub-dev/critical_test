@@ -31,8 +31,8 @@ class Settings {
   List<String> get excludeTags => yaml.asStringList('exclude-tags');
   List<String> get tags => yaml.asStringList('tags');
   String get plainName => yaml.asString('plain-name');
-  bool get show => yaml.asBool('show', defaultValue: false);
-  bool get progress => yaml.asBool('progress', defaultValue: false);
+  bool get showAll => yaml.asBool('all', defaultValue: false);
+  bool get progress => yaml.asBool('progress', defaultValue: true);
   bool get coverage => yaml.asBool('coverage', defaultValue: false);
   String get logPath => yaml.asString('log-path', defaultValue: defaultLogPath);
   bool get hooks => yaml.asBool('hooks', defaultValue: false);

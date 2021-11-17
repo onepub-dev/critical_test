@@ -4,3 +4,5 @@
 .failed_tracker
 .packages
 .failed_tracker.test
+.failed_tracker.bak
+*.tmp

@@ -37,8 +37,10 @@ class ParsedArgs {
 
   late final ArgResults parsed;
 
-  late final bool showSuccess;
+  /// if true we show the output form successful tests as well as failed ones.
+  late final bool showAll;
 
+  /// show counts of the number of failed/successful/skipped tests.
   late final bool showProgress;
 
   late final String logPath;
@@ -66,9 +68,10 @@ class ParsedArgs {
           help:
               'Select unit tests to exclude via their tags. The syntax must confirm to the --exclude-tags option in the test package.')
       ..addFlag(
-        'show',
-        abbr: 's',
-        help: 'Also show output from successful unit tests.',
+        'all',
+        abbr: 'a',
+        help:
+            'Show the output from successful unit tests as well as failed ones.',
       )
       ..addFlag(
         'menu',
@@ -150,7 +153,7 @@ Unit tests will fail if pub get hasn't been run.''',
 
     dcli.Settings().setVerbose(enabled: parsed['verbose'] as bool);
 
-    showSuccess = getParsed(parsed, 'show', () => settings.show);
+    showAll = getParsed(parsed, 'all', () => settings.showAll);
     menu = parsed['menu'] as bool;
     showProgress =
         getParsed(parsed, 'progress', () => settings.progress) || menu;
@@ -240,6 +243,9 @@ void showUsage(ArgParser parser) {
   print(blue(
       "Run all tests in the project 'test' directory if no directories or libraries a passed"));
   print('critical_test');
+  print('');
+  print(blue('Select failed tests to re-run from a menu'));
+  print('critical_tests --menu');
   print('');
   print(blue('Re-run failed tests'));
   print('critical_tests --runfailed');

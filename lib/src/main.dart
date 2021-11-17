@@ -37,7 +37,7 @@ class CriticalTest {
 
     verbose(() => parsedArgs.toString());
 
-    processor.showSuccess = parsedArgs.showSuccess;
+    processor.showSuccess = parsedArgs.showAll;
     processor.showProgress = parsedArgs.showProgress;
     processor.logPath = parsedArgs.logPath;
 
