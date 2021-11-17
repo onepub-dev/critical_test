@@ -1,3 +1,8 @@
+# 5.2.0
+- change the --show flag to --all as I think the name is more evocative of the fact that it shows both error and success output.
+- Added an abbreviated from of the command 'ct'. You can now run both critical_test and ct.
+- Fixed a bug which caused the progress to not display.
+
 # 5.1.3
 - Fixed a bug where you couldn't use -m or -r if you had a tag, exclude-tag or plain-name in the settings.
 - update transitive dependencies.
