@@ -9,7 +9,7 @@ environment:
 dependencies: 
   args: ^2.0.0
   cli_script: ^0.2.0
-  dcli: ^1.10.0
+  dcli: 1.13.6
   json_annotation: ^4.1.0
   meta: ^1.0.0
   path: ^1.8.0
