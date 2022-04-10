@@ -39,7 +39,7 @@ void main()
   pathToScript.write(body);
 
   // make script executable
-  chmod(500, pathToScript);
+  chmod(pathToScript, permission: '500');
 
   return pathToScript;
 }
@@ -53,7 +53,7 @@ echo 'hello'
   pathToScript.write(body);
 
   // make script executable
-  chmod(500, pathToScript);
+  chmod(pathToScript, permission: '500');
 
   return pathToScript;
 }
