@@ -1,3 +1,6 @@
+# 5.3.0
+- upgraded to dcli 1.20.0
+
 # 5.2.0
 - change the --show flag to --all as I think the name is more evocative of the fact that it shows both error and success output.
 - Added an abbreviated from of the command 'ct'. You can now run both critical_test and ct.
