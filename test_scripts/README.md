@@ -1,1 +1,0 @@
-These scripts are used by the actual unit tests to test that critical test processes unit tests correctly.
