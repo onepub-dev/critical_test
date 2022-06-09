@@ -1,3 +1,10 @@
+/* Copyright (C) S. Brett Sutton - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Brett Sutton <bsutton@onepub.dev>, Jan 2022
+ */
+
+
 import 'package:critical_test/src/critical_test_settings.dart';
 import 'package:dcli/dcli.dart' hide equals, Settings;
 import 'package:test/test.dart';

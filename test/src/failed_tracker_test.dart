@@ -1,4 +1,11 @@
 @Timeout(Duration(minutes: 5))
+/* Copyright (C) S. Brett Sutton - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Brett Sutton <bsutton@onepub.dev>, Jan 2022
+ */
+
+
 import 'package:critical_test/critical_test.dart';
 import 'package:critical_test/src/unit_tests/failed_tracker.dart';
 import 'package:critical_test/src/unit_tests/unit_test.dart';
