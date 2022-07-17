@@ -4,13 +4,13 @@
  * Written by Brett Sutton <bsutton@onepub.dev>, Jan 2022
  */
 
-
-import 'package:critical_test/src/unit_tests/unit_test.dart';
+import 'package:path/path.dart';
 
 import '../arg_handler.dart';
+import 'unit_test.dart';
 
 /// Describes a unit test or the collection of unit tests in a test library.
-/// To run all unit tests in a file just pass in [pathTo]
+/// To run all unit tests in a file just pass in [testPaths]
 /// To run a single test pass in the [testName].
 /// If the test name is nested with a group(s) then the test name
 /// should include the group name(s).
@@ -18,6 +18,16 @@ import '../arg_handler.dart';
 /// <group name> <test name>
 ///
 class UnitTestSelector {
+  UnitTestSelector.fromArgs(ParsedArgs parsedArgs)
+      : testPaths = List.from(parsedArgs.parsed.rest),
+        testName = parsedArgs.plainName,
+        tags = parsedArgs.tags,
+        excludeTags = parsedArgs.excludeTags {
+    if (testPaths.isEmpty) {
+      // by default tests are run in the 'test' directory
+      testPaths.add(join(parsedArgs.pathToProjectRoot, 'test'));
+    }
+  }
   UnitTestSelector.fromUnitTest(UnitTest unitTest)
       : testName = unitTest.testName,
         testPaths = <String>[],
@@ -48,16 +58,5 @@ class UnitTestSelector {
     result += testPaths.join(', ');
 
     return result;
-  }
-
-  UnitTestSelector.fromArgs(ParsedArgs parsedArgs)
-      : testPaths = List.from(parsedArgs.parsed.rest),
-        testName = parsedArgs.plainName,
-        tags = parsedArgs.tags,
-        excludeTags = parsedArgs.excludeTags {
-    if (testPaths.isEmpty) {
-      // by default tests are run in the 'test' directory
-      testPaths.add('test');
-    }
   }
 }

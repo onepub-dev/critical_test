@@ -5,7 +5,6 @@
  * Written by Brett Sutton <bsutton@onepub.dev>, Jan 2022
  */
 
-
 import 'package:critical_test/critical_test.dart';
 import 'package:critical_test/src/unit_tests/failed_tracker.dart';
 import 'package:critical_test/src/unit_tests/unit_test.dart';
@@ -31,24 +30,25 @@ void main() {
       withTempFile((trackerFilename) {
         final criticalTestExe = join('bin', 'critical_test.dart');
         final progress = start(
-            '$criticalTestExe --tracker=$trackerFilename --log-path=$logfile -v --track ${join('test_scripts', 'for_counts_test.dart')}',
+            '$criticalTestExe --tracker=$trackerFilename --log-path=$logfile '
+            '-v --track ${join('test_scripts', 'for_counts_test.dart')}',
             progress: Progress.capture(),
             nothrow: true,
             runInShell: true);
 
         final tracker = FailedTracker.beginReplay(trackerFilename);
-        var counts = lastCounts(progress.lines);
+        final counts = lastCounts(progress.lines);
         expect(counts.errors, 2);
-        expect(progress.exitCode!, equals(1));
+        expect(progress.exitCode, equals(1));
 
-        var failedTests = tracker.failedTests;
+        final failedTests = tracker.failedTests;
         expect(failedTests.length, equals(2));
-        expect(failedTests[0].testName, equals("Group ##1 Intentional fail"));
+        expect(failedTests[0].testName, equals('Group ##1 Intentional fail'));
 
         expect(failedTests[1].pathTo,
             equals(truepath('test_scripts', 'for_counts_test.dart')));
         expect(
-            failedTests[1].testName, equals("Group ##1 2nd Intentional fail"));
+            failedTests[1].testName, equals('Group ##1 2nd Intentional fail'));
 
         tracker.done();
       });
@@ -75,23 +75,24 @@ void main() {
         Settings().setVerbose(enabled: true);
 
         final progress = start(
-          "${DartSdk().pathToDartExe} $criticalTestExe --tracker=$trackerFilename  --log-path=$logfile -v --track --plain-name='Group ##1 Intentional fail' test_scripts",
+          '${DartSdk().pathToDartExe} $criticalTestExe '
+          '--tracker=$trackerFilename  --log-path=$logfile -v --track '
+          "--plain-name='Group ##1 Intentional fail' test_scripts",
           progress: Progress.capture(),
           nothrow: true,
-          runInShell: false,
         );
 
         final tracker = FailedTracker.beginReplay(trackerFilename);
-        var counts = lastCounts(progress.lines);
+        final counts = lastCounts(progress.lines);
         expect(counts.errors, 1);
-        expect(progress.exitCode!, equals(1));
+        expect(progress.exitCode, equals(1));
 
-        var failedTests = tracker.failedTests;
+        final failedTests = tracker.failedTests;
         expect(failedTests.length, equals(1));
         expect(failedTests[0].pathTo,
             equals(truepath('test_scripts', 'for_counts_test.dart')));
 
-        expect(failedTests[0].testName, equals("Group ##1 Intentional fail"));
+        expect(failedTests[0].testName, equals('Group ##1 Intentional fail'));
 
         tracker.done();
       });
@@ -116,9 +117,9 @@ void main() {
 
   test('FailedTracker.beginTestRun - one failures', () {
     withTempFile((trackerFilename) {
-      final tracker = FailedTracker.beginTestRun(trackerFilename);
-      tracker.recordError(
-          UnitTest(pathTo: 'test/me/failed_test.dart', testName: 'one'));
+      final tracker = FailedTracker.beginTestRun(trackerFilename)
+        ..recordError(
+            UnitTest(pathTo: 'test/me/failed_test.dart', testName: 'one'));
 
       expect(tracker.fileExists, isTrue);
       expect(tracker.backupExists, isFalse);
@@ -134,13 +135,13 @@ void main() {
 
   test('FailedTracker.beginTestRun - three failures', () {
     withTempFile((trackerFilename) {
-      final tracker = FailedTracker.beginTestRun(trackerFilename);
-      tracker.recordError(
-          UnitTest(pathTo: 'test/me/failed_test.dart', testName: 'one'));
-      tracker.recordError(
-          UnitTest(pathTo: 'test/me/failed_test2.dart', testName: 'one'));
-      tracker.recordError(
-          UnitTest(pathTo: 'test/me/failed_test3.dart', testName: 'one'));
+      final tracker = FailedTracker.beginTestRun(trackerFilename)
+        ..recordError(
+            UnitTest(pathTo: 'test/me/failed_test.dart', testName: 'one'))
+        ..recordError(
+            UnitTest(pathTo: 'test/me/failed_test2.dart', testName: 'one'))
+        ..recordError(
+            UnitTest(pathTo: 'test/me/failed_test3.dart', testName: 'one'));
 
       expect(tracker.fileExists, isTrue);
       expect(tracker.backupExists, isFalse);
@@ -156,14 +157,14 @@ void main() {
 
   test('FailedTracker.beginReplay ', () {
     withTempFile((trackerFilename) {
-      final tracker = FailedTracker.beginTestRun(trackerFilename);
-      tracker.recordError(
-          UnitTest(pathTo: 'test/me/failed_test.dart', testName: 'one'));
-      tracker.recordError(
-          UnitTest(pathTo: 'test/me/failed_test2.dart', testName: 'one'));
-      tracker.recordError(
-          UnitTest(pathTo: 'test/me/failed_test3.dart', testName: 'one'));
-      tracker.done();
+      FailedTracker.beginTestRun(trackerFilename)
+        ..recordError(
+            UnitTest(pathTo: 'test/me/failed_test.dart', testName: 'one'))
+        ..recordError(
+            UnitTest(pathTo: 'test/me/failed_test2.dart', testName: 'one'))
+        ..recordError(
+            UnitTest(pathTo: 'test/me/failed_test3.dart', testName: 'one'))
+        ..done();
 
       /// now test the replay
       final replay = FailedTracker.beginReplay(trackerFilename);
@@ -180,14 +181,14 @@ void main() {
 
   test('FailedTracker restart replay ', () {
     withTempFile((trackerFilename) {
-      final tracker = FailedTracker.beginTestRun(trackerFilename);
-      tracker.recordError(
-          UnitTest(pathTo: 'test/me/failed_test.dart', testName: 'one'));
-      tracker.recordError(
-          UnitTest(pathTo: 'test/me/failed_test2.dart', testName: 'one'));
-      tracker.recordError(
-          UnitTest(pathTo: 'test/me/failed_test3.dart', testName: 'one'));
-      tracker.done();
+      FailedTracker.beginTestRun(trackerFilename)
+        ..recordError(
+            UnitTest(pathTo: 'test/me/failed_test.dart', testName: 'one'))
+        ..recordError(
+            UnitTest(pathTo: 'test/me/failed_test2.dart', testName: 'one'))
+        ..recordError(
+            UnitTest(pathTo: 'test/me/failed_test3.dart', testName: 'one'))
+        ..done();
 
       /// now test the replay
       var replay = FailedTracker.beginReplay(trackerFilename);
@@ -212,14 +213,14 @@ void main() {
 
   test('FailedTracker.beginReplay with second round', () {
     withTempFile((trackerFilename) {
-      final tracker = FailedTracker.beginTestRun(trackerFilename);
-      tracker.recordError(
-          UnitTest(pathTo: 'test/me/failed_test.dart', testName: 'one'));
-      tracker.recordError(
-          UnitTest(pathTo: 'test/me/failed_test2.dart', testName: 'two'));
-      tracker.recordError(
-          UnitTest(pathTo: 'test/me/failed_test3.dart', testName: 'three'));
-      tracker.done();
+      final tracker = FailedTracker.beginTestRun(trackerFilename)
+        ..recordError(
+            UnitTest(pathTo: 'test/me/failed_test.dart', testName: 'one'))
+        ..recordError(
+            UnitTest(pathTo: 'test/me/failed_test2.dart', testName: 'two'))
+        ..recordError(
+            UnitTest(pathTo: 'test/me/failed_test3.dart', testName: 'three'))
+        ..done();
       expect(tracker.failedTests.length, equals(3));
 
       /// now test the replay

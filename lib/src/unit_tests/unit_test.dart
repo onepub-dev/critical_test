@@ -1,4 +1,3 @@
-
 /* Copyright (C) S. Brett Sutton - All Rights Reserved
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
@@ -26,11 +25,18 @@ part 'unit_test.g.dart';
 @JsonSerializable()
 class UnitTest {
   UnitTest({required this.pathTo, required this.testName});
-  final String pathTo;
-  final String testName;
 
   factory UnitTest.fromJson(Map<String, dynamic> json) =>
       _$UnitTestFromJson(json);
+
+  /// Used so we can create a menu item to exit
+  /// critical_test without running any unit test.
+  const UnitTest.exitOption()
+      : pathTo = '',
+        testName = 'exit';
+
+  final String pathTo;
+  final String testName;
 
   @override
   String toString() {
@@ -45,23 +51,17 @@ class UnitTest {
   Map<String, dynamic> toJson() => _$UnitTestToJson(this);
 
   static List<UnitTest> decodeList(String source) {
-    var l = json.decode(source) as Iterable;
+    final l = json.decode(source) as Iterable;
     return List<UnitTest>.from(l.map<UnitTest>(
         (dynamic i) => UnitTest.fromJson(i as Map<String, dynamic>)));
   }
 
   static List<UnitTest> loadFailedTests(String failedTrackerFilename) {
-    var source = read(failedTrackerFilename).toParagraph();
+    final source = read(failedTrackerFilename).toParagraph();
     if (source.trim().isEmpty) {
       return <UnitTest>[];
     } else {
       return UnitTest.decodeList(source);
     }
   }
-
-  /// Used so we can create a menu item to exit
-  /// critical_test without running any unit test.
-  const UnitTest.exitOption()
-      : pathTo = '',
-        testName = 'exit';
 }

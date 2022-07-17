@@ -4,24 +4,21 @@
  * Written by Brett Sutton <bsutton@onepub.dev>, Jan 2022
  */
 
-
 import 'dart:io';
-
-import 'package:args/args.dart';
-import 'package:critical_test/src/process_output.dart';
-import 'package:critical_test/src/run.dart';
-import 'package:critical_test/src/unit_tests/failed_tracker.dart';
 
 import 'package:dcli/dcli.dart' hide run;
 
 import 'arg_handler.dart';
 import 'exceptions/critical_test_exception.dart';
 import 'menu.dart';
+import 'process_output.dart';
+import 'run.dart';
+import 'unit_tests/failed_tracker.dart';
 import 'unit_tests/unit_test_selector.dart';
 
 void run(List<String> args) {
   try {
-    var processor = ProcessOutput();
+    final processor = ProcessOutput();
     CriticalTest.run(args, processor);
 
     if (!processor.allPassed) {
@@ -38,15 +35,17 @@ void run(List<String> args) {
   exit(0);
 }
 
+// ignore: avoid_classes_with_only_static_members
 class CriticalTest {
   static void run(List<String> args, ProcessOutput processor) {
     final parsedArgs = ParsedArgs.build()..parse(args);
 
-    verbose(() => parsedArgs.toString());
+    verbose(parsedArgs.toString);
 
-    processor.showSuccess = parsedArgs.showAll;
-    processor.showProgress = parsedArgs.showProgress;
-    processor.logPath = parsedArgs.logPath;
+    processor
+      ..showSuccess = parsedArgs.showAll
+      ..showProgress = parsedArgs.showProgress
+      ..logPath = parsedArgs.logPath;
 
     try {
       if (parsedArgs.menu) {
@@ -56,7 +55,7 @@ class CriticalTest {
             coverage: parsedArgs.coverage,
             warmup: parsedArgs.warmup,
             track: true,
-            hooks: parsedArgs.hooks,
+            hooks: parsedArgs.runHooks,
             trackerFilename: parsedArgs.trackerFilename);
       } else if (parsedArgs.runFailed) {
         runFailedTests(
@@ -66,7 +65,7 @@ class CriticalTest {
             excludeTags: parsedArgs.excludeTags,
             coverage: parsedArgs.coverage,
             warmup: parsedArgs.warmup,
-            hooks: parsedArgs.hooks,
+            hooks: parsedArgs.runHooks,
             trackerFilename: parsedArgs.trackerFilename);
       } else {
         /// Process each director or library passed.
@@ -77,7 +76,7 @@ class CriticalTest {
             coverage: parsedArgs.coverage,
             warmup: parsedArgs.warmup,
             track: parsedArgs.track,
-            hooks: parsedArgs.hooks,
+            hooks: parsedArgs.runHooks,
             trackerFilename: parsedArgs.trackerFilename,
             parser: parsedArgs.parser);
       }
@@ -85,11 +84,13 @@ class CriticalTest {
       if (processor.nothingRan) {
         print(orange('No tests ran!'));
       } else if (processor.allPassed) {
-        print(green(
-            'All tests passed. Success: ${processor.successCount}, Skipped: ${processor.skippedCount}'));
+        print(green('All tests passed. Success: ${processor.successCount}, '
+            'Skipped: ${processor.skippedCount}'));
       } else {
-        printerr(
-            '${red('Some tests failed!')} Errors: ${red('${processor.erorrCount}')}, Success: ${green('${processor.successCount}')}, Skipped: ${blue('${processor.skippedCount}')}');
+        printerr('${red('Some tests failed!')} '
+            'Errors: ${red('${processor.erorrCount}')}, '
+            'Success: ${green('${processor.successCount}')}, '
+            'Skipped: ${blue('${processor.skippedCount}')}');
       }
     } on CriticalTestException catch (e) {
       printerr('A non recoverable error occured: ${e.message}');

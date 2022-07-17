@@ -4,13 +4,18 @@
  * Written by Brett Sutton <bsutton@onepub.dev>, Jan 2022
  */
 
-
 import 'package:dcli/dcli.dart';
 
 class Counts {
   Counts();
   Counts.withValues(this.success, this.errors, int skipped)
       : _skipped = skipped;
+
+  Counts.copyFrom(Counts counts) {
+    success = counts.success;
+    errors = counts.errors;
+    _skipped = counts._skipped;
+  }
   int success = 0;
   int errors = 0;
   int _skipped = 0;
@@ -38,16 +43,10 @@ class Counts {
   //   skipped += counts.skipped;
   // }
 
-  Counts.copyFrom(Counts counts) {
-    success = counts.success;
-    errors = counts.errors;
-    _skipped = counts._skipped;
-  }
-
   @override
-  String toString() {
-    return 'Success: ${green('$success')}, Errors: ${red('$errors')}, Skipped: ${blue('$skipped')}';
-  }
+  String toString() =>
+      'Success: ${green('$success')}, Errors: ${red('$errors')}, '
+      'Skipped: ${blue('$skipped')}';
 }
 
 /// Takes a list of all the progress messages and finds
@@ -57,23 +56,23 @@ class Counts {
 Counts lastCounts(List<String> lines) {
   for (var line in lines.reversed) {
     line = Ansi.strip(line);
-    var regexWithErrors =
+    final regexWithErrors =
         RegExp('.+Errors: ([0-9]*), Success: ([0-9]*), Skipped: ([0-9]*)');
 
     if (regexWithErrors.hasMatch(line)) {
-      var errors = regexWithErrors.firstMatch(line)!.group(1);
-      var success = regexWithErrors.firstMatch(line)!.group(2);
-      var skipped = regexWithErrors.firstMatch(line)!.group(3);
+      final errors = regexWithErrors.firstMatch(line)!.group(1);
+      final success = regexWithErrors.firstMatch(line)!.group(2);
+      final skipped = regexWithErrors.firstMatch(line)!.group(3);
 
       return Counts.withValues(
           int.parse(success!), int.parse(errors!), int.parse(skipped!));
     }
 
-    var regexNoErrors = RegExp('.+Success: ([0-9]*), Skipped: ([0-9]*)');
+    final regexNoErrors = RegExp('.+Success: ([0-9]*), Skipped: ([0-9]*)');
 
     if (regexNoErrors.hasMatch(line)) {
-      var success = regexNoErrors.firstMatch(line)!.group(1);
-      var skipped = regexNoErrors.firstMatch(line)!.group(2);
+      final success = regexNoErrors.firstMatch(line)!.group(1);
+      final skipped = regexNoErrors.firstMatch(line)!.group(2);
 
       return Counts.withValues(int.parse(success!), 0, int.parse(skipped!));
     }

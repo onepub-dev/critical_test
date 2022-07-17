@@ -1,3 +1,8 @@
+# 6.0.0
+Change the defaults so that hooks are run by default. 
+Change the 'hook' flag to 'no-hook'. Use --no-hook to obtain the original behaviour.
+Applied lint_hard to the code base.
+
 # 5.3.0
 - upgraded to dcli 1.20.0
 

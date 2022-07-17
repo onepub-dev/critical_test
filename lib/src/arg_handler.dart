@@ -4,20 +4,109 @@
  * Written by Brett Sutton <bsutton@onepub.dev>, Jan 2022
  */
 
-
 import 'dart:io';
 
-import 'package:args/args.dart';
 import 'package:dcli/dcli.dart' hide Settings;
 import 'package:dcli/dcli.dart' as dcli;
 
 import 'critical_test_settings.dart';
 import 'unit_tests/failed_tracker.dart';
 
-late final defaultLogPath =
+final defaultLogPath =
     '${Directory.systemTemp.path}/critical_test/unit_test.log';
 
 class ParsedArgs {
+  ParsedArgs.build() {
+    parser = ArgParser()
+      ..addFlag(
+        'help',
+        abbr: 'h',
+        negatable: false,
+        help: 'Shows this usage message.',
+      )
+      ..addOption('plain-name', abbr: 'N', help: 'Run a unit test by name.')
+      ..addFlag('runfailed',
+          abbr: 'f',
+          negatable: false,
+          help: 'Re-runs only those tests that failed '
+              'during the last run of critical_test.')
+      ..addMultiOption('tags',
+          abbr: 't',
+          help: 'Select  unit tests to run via their tags. '
+              'The syntax must confirm to the --tags option '
+              'in the test package.')
+      ..addMultiOption('exclude-tags',
+          abbr: 'x',
+          help: 'Select unit tests to exclude via their tags. '
+              'The syntax must confirm to the --exclude-tags '
+              'option in the test package.')
+      ..addFlag(
+        'all',
+        abbr: 'a',
+        help: 'Show the output from successful unit tests '
+            'as well as failed ones.',
+      )
+      ..addFlag(
+        'menu',
+        abbr: 'm',
+        help: 'Select from a menu of failed tests to view and re-run.',
+      )
+      ..addFlag(
+        'progress',
+        abbr: 'p',
+        defaultsTo: true,
+        help:
+            'Show progress messages. Use --no-progress when running with a CI '
+            'pipeline to minimize noise.',
+      )
+      ..addFlag(
+        'coverage',
+        abbr: 'c',
+        help: "Generates test coverage reports in the 'coverage' directory.",
+      )
+      ..addOption('log-path',
+          abbr: 'g',
+          help: 'Path to log all output. '
+              'If set, all tests are logged to the given path.\n'
+              'If not set, then all tests are logged to $defaultLogPath')
+      ..addFlag(
+        'no-hooks',
+        abbr: 'o',
+        negatable: false,
+        help: 'Supresses running of the pre and post hooks.',
+      )
+      ..addFlag(
+        'warmup',
+        abbr: 'w',
+        defaultsTo: true,
+        help: '''
+Causes pub get to be run on all pubspec.yaml files found in the package.
+Unit tests will fail if pub get hasn't been run.''',
+      )
+      ..addFlag(
+        'track',
+        abbr: 'k',
+        defaultsTo: true,
+        hide: true,
+        help: 'Used to force the recording of failures in .failed_tracker.',
+      )
+      ..addOption(
+        'tracker',
+        defaultsTo: join(
+            DartProject.self.pathToProjectRoot, FailedTracker.defaultFilename),
+        hide: true,
+        help: 'Used to define an alternate filename for the fail test tracker. '
+            'This is intended only for internal testing',
+      )
+      ..addFlag(
+        'verbose',
+        negatable: false,
+        abbr: 'v',
+        hide: true,
+        help: 'Verbose logging for debugging of critical test.',
+      )
+      ..addOption('settings-path', defaultsTo: Settings.defaultPath);
+  }
   late final ArgParser parser;
 
   late final bool menu;
@@ -28,7 +117,7 @@ class ParsedArgs {
 
   late final bool warmup;
 
-  late final bool hooks;
+  late final bool runHooks;
 
   late final String trackerFilename;
 
@@ -52,95 +141,6 @@ class ParsedArgs {
 
   late final String logPath;
 
-  ParsedArgs.build() {
-    parser = ArgParser()
-      ..addFlag(
-        'help',
-        abbr: 'h',
-        negatable: false,
-        help: 'Shows this usage message.',
-      )
-      ..addOption('plain-name', abbr: 'N', help: 'Run a unit test by name.')
-      ..addFlag('runfailed',
-          abbr: 'f',
-          negatable: false,
-          help:
-              'Re-runs only those tests that failed during the last run of critical_test.')
-      ..addMultiOption('tags',
-          abbr: 't',
-          help:
-              'Select  unit tests to run via their tags. The syntax must confirm to the --tags option in the test package.')
-      ..addMultiOption('exclude-tags',
-          abbr: 'x',
-          help:
-              'Select unit tests to exclude via their tags. The syntax must confirm to the --exclude-tags option in the test package.')
-      ..addFlag(
-        'all',
-        abbr: 'a',
-        help:
-            'Show the output from successful unit tests as well as failed ones.',
-      )
-      ..addFlag(
-        'menu',
-        abbr: 'm',
-        help: 'Select from a menu of failed tests to view and re-run.',
-      )
-      ..addFlag(
-        'progress',
-        abbr: 'p',
-        defaultsTo: true,
-        help:
-            'Show progress messages. Use --no-progress when running with a CI pipeline to minimize noise.',
-      )
-      ..addFlag(
-        'coverage',
-        defaultsTo: false,
-        abbr: 'c',
-        help: "Generates test coverage reports in the 'coverage' directory.",
-      )
-      ..addOption('log-path',
-          abbr: 'g',
-          help: 'Path to log all output. '
-              'If set, all tests are logged to the given path.\n'
-              'If not set, then all tests are logged to $defaultLogPath')
-      ..addFlag(
-        'hooks',
-        abbr: 'o',
-        defaultsTo: true,
-        help: 'Supresses running of the pre and post hooks.',
-      )
-      ..addFlag(
-        'warmup',
-        abbr: 'w',
-        defaultsTo: true,
-        help: '''
-Causes pub get to be run on all pubspec.yaml files found in the package.
-Unit tests will fail if pub get hasn't been run.''',
-      )
-      ..addFlag(
-        'track',
-        abbr: 'k',
-        defaultsTo: true,
-        hide: true,
-        help: 'Used to force the recording of failures in .failed_tracker.',
-      )
-      ..addOption(
-        'tracker',
-        defaultsTo: FailedTracker.defaultFilename,
-        hide: true,
-        help:
-            'Used to define an alternate filename for the fail test tracker. This is intended only for internal testing',
-      )
-      ..addFlag(
-        'verbose',
-        negatable: false,
-        abbr: 'v',
-        hide: true,
-        help: 'Verbose logging for debugging of critical test.',
-      )
-      ..addOption('settings-path', defaultsTo: Settings.defaultPath);
-  }
-
   void parse(List<String> args) {
     try {
       parsed = parser.parse(args);
@@ -156,7 +156,7 @@ Unit tests will fail if pub get hasn't been run.''',
 
     final pathToSettings = parsed['settings-path'] as String;
 
-    var settings = Settings.loadFromPath(pathTo: pathToSettings);
+    final settings = Settings.loadFromPath(pathTo: pathToSettings);
 
     dcli.Settings().setVerbose(enabled: parsed['verbose'] as bool);
 
@@ -168,7 +168,7 @@ Unit tests will fail if pub get hasn't been run.''',
     coverage = getParsed(parsed, 'coverage', () => settings.coverage);
     warmup = getParsed(parsed, 'warmup', () => settings.warmup);
     track = getParsed(parsed, 'track', () => settings.track);
-    hooks = getParsed(parsed, 'hooks', () => settings.hooks);
+    runHooks = !getParsed(parsed, 'no-hooks', () => settings.noHooks);
     runFailed = parsed['runfailed'] as bool;
 
     tags = getParsed(parsed, 'tags', () => settings.tags).toList();
@@ -182,8 +182,8 @@ Unit tests will fail if pub get hasn't been run.''',
       parsed.wasParsed('exclude-tags'),
       parsed.wasParsed('plain-name')
     ])) {
-      printerr(red(
-          'You may not combine --menu with any of the filters [--plain-text, --tags, --exclude-tags]'));
+      printerr(red('You may not combine --menu with any of the filters '
+          '[--plain-text, --tags, --exclude-tags]'));
       showUsage(parser);
     }
 
@@ -193,16 +193,16 @@ Unit tests will fail if pub get hasn't been run.''',
       parsed.wasParsed('exclude-tags'),
       parsed.wasParsed('plain-name')
     ])) {
-      printerr(red(
-          'You may not combine --runFailed with any of the filters [--plain-text, --tags, --exclude-tags]'));
+      printerr(red('You may not combine --runFailed with any of the filters '
+          '[--plain-text, --tags, --exclude-tags]'));
       showUsage(parser);
     }
 
     trackerFilename = parsed['tracker'] as String;
 
     if ((plainName.isNotEmpty) && (excludeTags.isNotEmpty || tags.isNotEmpty)) {
-      printerr(red(
-          'You cannot combine "--plain-name" with "--tags" or "--exclude-tags"'));
+      printerr(red('You cannot combine "--plain-name" with '
+          '"--tags" or "--exclude-tags"'));
       showUsage(parser);
     }
 
@@ -236,7 +236,9 @@ Unit tests will fail if pub get hasn't been run.''',
     var count = 0;
 
     for (final val in list) {
-      if (val) count++;
+      if (val) {
+        count++;
+      }
     }
     return count <= 1;
   }
@@ -245,10 +247,10 @@ Unit tests will fail if pub get hasn't been run.''',
 /// Show useage.
 void showUsage(ArgParser parser) {
   print(orange('Usage: critical_test [switches] [<directory | library>...]'));
-  print(
-      'Runs unit tests only showing output from failed tests and allows you to just re-run failed tests.');
-  print(blue(
-      "Run all tests in the project 'test' directory if no directories or libraries a passed"));
+  print('Runs unit tests only showing output from failed tests and allows '
+      'you to just re-run failed tests.');
+  print(blue("Run all tests in the project 'test' directory "
+      'if no directories or libraries a passed'));
   print('critical_test');
   print('');
   print(blue('Select failed tests to re-run from a menu'));

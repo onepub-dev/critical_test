@@ -4,8 +4,8 @@
  * Written by Brett Sutton <bsutton@onepub.dev>, Jan 2022
  */
 
-
-/// Class used to decode the 'test' types emmited by the dart unit tests json reporter
+/// Class used to decode the 'test' types emmited by the dart unit tests
+/// json reporter
 class Test {
   Test(this.id, this.name, this.line, this.column, this.url, this.suiteID) {
     if (name.startsWith('loading')) {

@@ -4,7 +4,6 @@
  * Written by Brett Sutton <bsutton@onepub.dev>, Jan 2022
  */
 
-
 import 'package:test/test.dart';
 
 void main() {
@@ -17,8 +16,9 @@ void main() {
     });
 
     test(
-        '2nd Intentional fail  - with a very very very very very very very very very very very very very very very very very very very very very long name',
-        () {
+        '2nd Intentional fail  - with a very very very very very very '
+        'very very very very very very very very very very very very '
+        'very very very long name', () {
       fail('intentionally failed');
     });
 

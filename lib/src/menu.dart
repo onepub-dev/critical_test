@@ -4,15 +4,14 @@
  * Written by Brett Sutton <bsutton@onepub.dev>, Jan 2022
  */
 
-
 import 'dart:io';
 
-import 'package:critical_test/src/process_output.dart';
-import 'package:critical_test/src/run.dart';
-import 'package:critical_test/src/unit_tests/unit_test.dart';
 import 'package:dcli/dcli.dart';
 
+import 'process_output.dart';
+import 'run.dart';
 import 'unit_tests/failed_tracker.dart';
+import 'unit_tests/unit_test.dart';
 
 void testMenu({
   required ProcessOutput processor,
@@ -32,7 +31,7 @@ void testMenu({
     exit(0);
   }
 
-  var action = 'back';
+  const action = 'back';
   do {
     print(green('Select the test to view'));
     final selected = menu<UnitTest>(

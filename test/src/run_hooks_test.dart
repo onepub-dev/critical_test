@@ -5,10 +5,9 @@
  * Written by Brett Sutton <bsutton@onepub.dev>, Jan 2022
  */
 
-
 import 'dart:io';
 
-import 'package:critical_test/critical_test.dart';
+import 'package:critical_test/src/paths.dart';
 import 'package:critical_test/src/run_hooks.dart';
 import 'package:dcli/dcli.dart';
 import 'package:dcli/posix.dart';

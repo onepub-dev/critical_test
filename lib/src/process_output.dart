@@ -4,7 +4,6 @@
  * Written by Brett Sutton <bsutton@onepub.dev>, Jan 2022
  */
 
-
 import 'dart:convert';
 import 'dart:io';
 
@@ -65,7 +64,8 @@ class ProcessOutput {
     if (!_line.startsWith('{"')) {
       final embeddedIndex = _line.indexOf('{"');
       if (embeddedIndex == -1) {
-        /// Probably a raw output line from a unit test that spawns a sub process.
+        /// Probably a raw output line from a unit test that
+        /// spawns a sub process.
         lines.add(_line);
         return;
       }
@@ -74,9 +74,9 @@ class ProcessOutput {
     }
 
     /// check for and trim raw output from a spawned subprocess
-    var lastBrace = _line.lastIndexOf('}');
+    final lastBrace = _line.lastIndexOf('}');
     if (lastBrace + 1 != _line.length) {
-      var tail = _line.substring(lastBrace + 1);
+      final tail = _line.substring(lastBrace + 1);
       lines.add(tail);
       _line = _line.substring(0, lastBrace + 1);
     }
@@ -192,7 +192,7 @@ class ProcessOutput {
       _counts.incSkipped();
 
       /// even though it didn't run the result tag should be success
-      assert(result == 'success');
+      assert(result == 'success', 'We must succeed');
     } else {
       switch (result) {
         case 'success':
@@ -270,7 +270,7 @@ class ProcessOutput {
 
     /// print(columns);
     ///
-    var logline = '${green('${_counts.success}')}:'
+    final logline = '${green('${_counts.success}')}:'
         '${red('${_counts.errors}')}:'
         '${blue('${_counts.skipped}')} $message';
 
@@ -280,7 +280,7 @@ class ProcessOutput {
       message = Format().limitString(message, width: columns - 24);
     }
 
-    var progress = '${green('${_counts.success}')}:'
+    final progress = '${green('${_counts.success}')}:'
         '${red('${_counts.errors}')}:'
         '${blue('${_counts.skipped}')} $message';
 
@@ -290,10 +290,10 @@ class ProcessOutput {
     // }
 
     if (showProgress) {
-      final term = Terminal();
-      term.showCursor(show: false);
-      term.overwriteLine(progress.trim().padRight(_lastProgressLine.length));
-      term.showCursor(show: true);
+      Terminal()
+        ..showCursor(show: false)
+        ..overwriteLine(progress.trim().padRight(_lastProgressLine.length))
+        ..showCursor(show: true);
       _lastProgressLine = progress;
     }
     log(logline);

@@ -5,7 +5,6 @@
  * Written by Brett Sutton <bsutton@onepub.dev>, Jan 2022
  */
 
-
 import 'package:critical_test/src/exceptions/critical_test_exception.dart';
 import 'package:critical_test/src/main.dart';
 import 'package:critical_test/src/process_output.dart';
@@ -16,7 +15,7 @@ void main() {
   /// test case used when we need to debug.
   test('check test counts', () async {
     // progress = await DCliZone().run(() {
-    var processor = ProcessOutput();
+    final processor = ProcessOutput();
     try {
       CriticalTest.run(<String>[
         r'--tracker=C:\Users\Brett\AppData\Local\Temp\a2332afb-576f-4b46-846a-d10560419633.tmp',

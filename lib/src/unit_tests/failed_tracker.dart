@@ -4,43 +4,41 @@
  * Written by Brett Sutton <bsutton@onepub.dev>, Jan 2022
  */
 
-
 import 'dart:convert';
 
-import 'package:critical_test/critical_test.dart';
 import 'package:dcli/dcli.dart' as dcli;
 import 'package:dcli/dcli.dart';
 
+import '../paths.dart';
 import 'unit_test.dart';
 
 enum _RunType { full, replay, ignore }
 
 class FailedTracker {
-  static const defaultFilename = '.failed_tracker';
-  final _failedTests = <UnitTest>[];
-
-  final _RunType _runType;
-
-  final String trackerFilename;
-
-  FailedTracker.beginTestRun(this.trackerFilename) : _runType = _RunType.full {
-    if (fileExists) dcli.delete(trackerFilename);
-    if (dcli.exists(backupFilename)) dcli.delete(backupFilename);
-  }
-
   FailedTracker.beginReplay(this.trackerFilename) : _runType = _RunType.replay {
     if (fileExists) {
-      var failures = UnitTest.loadFailedTests(trackerFilename);
+      final failures = UnitTest.loadFailedTests(trackerFilename);
 
       _failedTests.addAll(failures);
-      if (dcli.exists(backupFilename)) dcli.delete(backupFilename);
+      if (dcli.exists(backupFilename)) {
+        dcli.delete(backupFilename);
+      }
       dcli.copy(trackerFilename, backupFilename);
     } else {
       // check for backup
       if (backupExists) {
-        var failures = UnitTest.loadFailedTests(backupFilename);
+        final failures = UnitTest.loadFailedTests(backupFilename);
         _failedTests.addAll(failures);
       }
+    }
+  }
+
+  FailedTracker.beginTestRun(this.trackerFilename) : _runType = _RunType.full {
+    if (fileExists) {
+      dcli.delete(trackerFilename);
+    }
+    if (dcli.exists(backupFilename)) {
+      dcli.delete(backupFilename);
     }
   }
 
@@ -51,25 +49,42 @@ class FailedTracker {
       : trackerFilename = join(pathToCriticalTestConfig, defaultFilename),
         _runType = _RunType.ignore;
 
+  static const defaultFilename = '.failed_tracker';
+  final _failedTests = <UnitTest>[];
+
+  final _RunType _runType;
+
+  final String trackerFilename;
+
   /// Call [done] when the set of tests have completed.
   /// We can now delete the backup file as we should have
   /// a new and complete set of tests.
   void done() {
-    if (_runType == _RunType.ignore) return;
+    if (_runType == _RunType.ignore) {
+      return;
+    }
 
-    if (dcli.exists(backupFilename)) dcli.delete(backupFilename);
+    if (dcli.exists(backupFilename)) {
+      dcli.delete(backupFilename);
+    }
   }
 
   void recordError(UnitTest failedTest) {
-    if (_runType == _RunType.ignore) return;
+    if (_runType == _RunType.ignore) {
+      return;
+    }
 
-    if (_find(failedTest) == null) _failedTests.add(failedTest);
+    if (_find(failedTest) == null) {
+      _failedTests.add(failedTest);
+    }
 
     _write();
   }
 
   void recordSuccess(UnitTest sucessfulTest) {
-    if (_runType == _RunType.ignore) return;
+    if (_runType == _RunType.ignore) {
+      return;
+    }
 
     final found = _find(sucessfulTest);
     if (found != null) {
@@ -81,10 +96,11 @@ class FailedTracker {
   UnitTest? _find(UnitTest find) {
     for (final unitTest in _failedTests) {
       if (unitTest.pathTo == find.pathTo &&
-          ((unitTest.testName == find.testName))) {
+          (unitTest.testName == find.testName)) {
         return unitTest;
       }
     }
+    return null;
   }
 
   void _write() {
@@ -94,16 +110,16 @@ class FailedTracker {
   }
 
   void reset() {
-    if (fileExists) dcli.delete(trackerFilename);
+    if (fileExists) {
+      dcli.delete(trackerFilename);
+    }
   }
 
   List<UnitTest> get failedTests => List.unmodifiable(_failedTests);
 
   String get backupFilename => '$trackerFilename.bak';
 
-  bool get fileExists {
-    return dcli.exists(trackerFilename);
-  }
+  bool get fileExists => dcli.exists(trackerFilename);
 
   bool get backupExists => dcli.exists(backupFilename);
 }

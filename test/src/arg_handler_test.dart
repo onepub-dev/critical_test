@@ -4,7 +4,6 @@
  * Written by Brett Sutton <bsutton@onepub.dev>, Jan 2022
  */
 
-
 import 'package:critical_test/src/arg_handler.dart';
 import 'package:dcli/dcli.dart' hide equals;
 import 'package:test/test.dart';
@@ -12,13 +11,13 @@ import 'package:test/test.dart';
 void main() {
   group('tags', () {
     test('tags - single tag', () async {
-      var args = ['--tags=solo'];
-      var parsedArgs = ParsedArgs.build()..parse(args);
+      final args = ['--tags=solo'];
+      final parsedArgs = ParsedArgs.build()..parse(args);
       expect(parsedArgs.tags, equals(['solo']));
     });
 
     test('tags - two tags', () async {
-      var two = ['--tags=eins,zwei'];
+      final two = ['--tags=eins,zwei'];
       final parsedArgs = ParsedArgs.build()..parse(two);
       expect(parsedArgs.tags, equals(['eins', 'zwei']));
     });
@@ -40,7 +39,7 @@ tags: [abc, one]
         pathToSettings.write('''
 tags: [abc, one]      
       ''');
-        var args = ['--tags=solo', '--settings-path=$pathToSettings'];
+        final args = ['--tags=solo', '--settings-path=$pathToSettings'];
         final parsedArgs = ParsedArgs.build()..parse(args);
         expect(parsedArgs.tags, equals(['solo']));
       });
@@ -49,13 +48,13 @@ tags: [abc, one]
 
   group('exclude-tags', () {
     test('single ', () async {
-      var args = ['--exclude-tags=solo'];
-      var parsedArgs = ParsedArgs.build()..parse(args);
+      final args = ['--exclude-tags=solo'];
+      final parsedArgs = ParsedArgs.build()..parse(args);
       expect(parsedArgs.excludeTags, equals(['solo']));
     });
 
     test('two', () async {
-      var two = ['--exclude-tags=eins,zwei'];
+      final two = ['--exclude-tags=eins,zwei'];
       final parsedArgs = ParsedArgs.build()..parse(two);
       expect(parsedArgs.excludeTags, equals(['eins', 'zwei']));
     });
@@ -77,7 +76,7 @@ exclude-tags: [abc, one]
         pathToSettings.write('''
 tags: [abc, one]      
       ''');
-        var args = ['--exclude-tags=solo', '--settings-path=$pathToSettings'];
+        final args = ['--exclude-tags=solo', '--settings-path=$pathToSettings'];
         final parsedArgs = ParsedArgs.build()..parse(args);
         expect(parsedArgs.excludeTags, equals(['solo']));
       });
@@ -86,12 +85,12 @@ tags: [abc, one]
 
   group('plan-name', () {
     test('none', () async {
-      var parsedArgs = ParsedArgs.build()..parse([]);
+      final parsedArgs = ParsedArgs.build()..parse([]);
       expect(parsedArgs.plainName, equals(''));
     });
 
     test('named', () async {
-      var two = ['--plain-name=Test One'];
+      final two = ['--plain-name=Test One'];
       final parsedArgs = ParsedArgs.build()..parse(two);
       expect(parsedArgs.plainName, equals('Test One'));
     });
@@ -113,7 +112,7 @@ plain-name: Test Two
         pathToSettings.write('''
 plain-name: Test Two       
       ''');
-        var args = ['--plain-name=fancy', '--settings-path=$pathToSettings'];
+        final args = ['--plain-name=fancy', '--settings-path=$pathToSettings'];
         final parsedArgs = ParsedArgs.build()..parse(args);
         expect(parsedArgs.plainName, equals('fancy'));
       });
@@ -122,12 +121,12 @@ plain-name: Test Two
 
   group('showAll', () {
     test('default', () async {
-      var parsedArgs = ParsedArgs.build()..parse([]);
+      final parsedArgs = ParsedArgs.build()..parse([]);
       expect(parsedArgs.showAll, false);
     });
 
     test('arg', () async {
-      var two = ['--all'];
+      final two = ['--all'];
       final parsedArgs = ParsedArgs.build()..parse(two);
       expect(parsedArgs.showAll, isTrue);
     });
@@ -149,7 +148,7 @@ all: true
         pathToSettings.write('''
 all: true       
       ''');
-        var args = ['--settings-path=$pathToSettings'];
+        final args = ['--settings-path=$pathToSettings'];
         final parsedArgs = ParsedArgs.build()..parse(args);
         expect(parsedArgs.showAll, isTrue);
       });
@@ -157,12 +156,12 @@ all: true
 
     group('progress', () {
       test('default', () async {
-        var parsedArgs = ParsedArgs.build()..parse([]);
+        final parsedArgs = ParsedArgs.build()..parse([]);
         expect(parsedArgs.showProgress, true);
       });
 
       test('arg', () async {
-        var two = ['--progress'];
+        final two = ['--progress'];
         final parsedArgs = ParsedArgs.build()..parse(two);
         expect(parsedArgs.showProgress, isTrue);
       });
@@ -184,7 +183,7 @@ progress: true
           pathToSettings.write('''
 progress: true       
       ''');
-          var args = ['--no-progress', '--settings-path=$pathToSettings'];
+          final args = ['--no-progress', '--settings-path=$pathToSettings'];
           final parsedArgs = ParsedArgs.build()..parse(args);
           expect(parsedArgs.showProgress, isFalse);
         });
@@ -194,12 +193,12 @@ progress: true
 
   group('coverage', () {
     test('default', () async {
-      var parsedArgs = ParsedArgs.build()..parse([]);
+      final parsedArgs = ParsedArgs.build()..parse([]);
       expect(parsedArgs.coverage, false);
     });
 
     test('arg', () async {
-      var two = ['--coverage'];
+      final two = ['--coverage'];
       final parsedArgs = ParsedArgs.build()..parse(two);
       expect(parsedArgs.coverage, isTrue);
     });
@@ -221,7 +220,7 @@ coverage: true
         pathToSettings.write('''
 coverage: true       
       ''');
-        var args = ['--no-coverage', '--settings-path=$pathToSettings'];
+        final args = ['--no-coverage', '--settings-path=$pathToSettings'];
         final parsedArgs = ParsedArgs.build()..parse(args);
         expect(parsedArgs.coverage, isFalse);
       });
@@ -230,14 +229,14 @@ coverage: true
 
   group('hooks', () {
     test('default', () async {
-      var parsedArgs = ParsedArgs.build()..parse([]);
-      expect(parsedArgs.hooks, false);
+      final parsedArgs = ParsedArgs.build()..parse([]);
+      expect(parsedArgs.runHooks, true);
     });
 
     test('arg', () async {
-      var two = ['--hooks'];
+      final two = ['--no-hooks'];
       final parsedArgs = ParsedArgs.build()..parse(two);
-      expect(parsedArgs.hooks, isTrue);
+      expect(parsedArgs.runHooks, isFalse);
     });
 
     test('from settings.', () async {
@@ -248,7 +247,7 @@ hooks: true
 
         final parsedArgs = ParsedArgs.build()
           ..parse(['--settings-path=$pathToSettings']);
-        expect(parsedArgs.hooks, isTrue);
+        expect(parsedArgs.runHooks, isTrue);
       });
     });
 
@@ -257,21 +256,21 @@ hooks: true
         pathToSettings.write('''
 hooks: true       
       ''');
-        var args = ['--no-hooks', '--settings-path=$pathToSettings'];
+        final args = ['--no-hooks', '--settings-path=$pathToSettings'];
         final parsedArgs = ParsedArgs.build()..parse(args);
-        expect(parsedArgs.hooks, isFalse);
+        expect(parsedArgs.runHooks, isFalse);
       });
     });
   });
 
   group('warmup', () {
     test('default', () async {
-      var parsedArgs = ParsedArgs.build()..parse([]);
+      final parsedArgs = ParsedArgs.build()..parse([]);
       expect(parsedArgs.warmup, true);
     });
 
     test('arg', () async {
-      var two = ['--warmup'];
+      final two = ['--warmup'];
       final parsedArgs = ParsedArgs.build()..parse(two);
       expect(parsedArgs.warmup, isTrue);
     });
@@ -293,7 +292,7 @@ warmup: false
         pathToSettings.write('''
 warmup: true       
       ''');
-        var args = ['--no-warmup', '--settings-path=$pathToSettings'];
+        final args = ['--no-warmup', '--settings-path=$pathToSettings'];
         final parsedArgs = ParsedArgs.build()..parse(args);
         expect(parsedArgs.warmup, isFalse);
       });
@@ -302,12 +301,12 @@ warmup: true
 
   group('track', () {
     test('default', () async {
-      var parsedArgs = ParsedArgs.build()..parse([]);
+      final parsedArgs = ParsedArgs.build()..parse([]);
       expect(parsedArgs.track, isTrue);
     });
 
     test('arg', () async {
-      var two = ['--track'];
+      final two = ['--track'];
       final parsedArgs = ParsedArgs.build()..parse(two);
       expect(parsedArgs.track, isTrue);
     });
@@ -329,7 +328,7 @@ track: false
         pathToSettings.write('''
 track: false       
       ''');
-        var args = ['--track', '--settings-path=$pathToSettings'];
+        final args = ['--track', '--settings-path=$pathToSettings'];
         final parsedArgs = ParsedArgs.build()..parse(args);
         expect(parsedArgs.track, isTrue);
       });
@@ -338,12 +337,12 @@ track: false
 
   group('log-path', () {
     test('default', () async {
-      var parsedArgs = ParsedArgs.build()..parse([]);
+      final parsedArgs = ParsedArgs.build()..parse([]);
       expect(parsedArgs.logPath, equals(defaultLogPath));
     });
 
     test('override', () async {
-      var two = ['--log-path=/tmp/hello'];
+      final two = ['--log-path=/tmp/hello'];
       final parsedArgs = ParsedArgs.build()..parse(two);
       expect(parsedArgs.logPath, equals('/tmp/hello'));
     });
@@ -367,7 +366,7 @@ log-path: $logPath
         pathToSettings.write('''
 log-path: $logPath        
       ''');
-        var args = ['--log-path=$logPath', '--settings-path=$pathToSettings'];
+        final args = ['--log-path=$logPath', '--settings-path=$pathToSettings'];
         final parsedArgs = ParsedArgs.build()..parse(args);
         expect(parsedArgs.logPath, equals(logPath));
       });

@@ -1,19 +1,17 @@
 #! /usr/bin/env dcli
-
 /* Copyright (C) S. Brett Sutton - All Rights Reserved
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  * Written by Brett Sutton <bsutton@onepub.dev>, Jan 2022
  */
 
-
-
-import 'package:critical_test/src/unit_tests/unit_test_selector.dart';
 import 'package:dcli/dcli.dart';
 
 import 'process_output.dart';
 import 'run_hooks.dart';
 import 'unit_tests/failed_tracker.dart';
+
+import 'unit_tests/unit_test_selector.dart';
 import 'util/counts.dart';
 
 /// Runs all tests for the given dart package
@@ -28,7 +26,9 @@ void runPackageTests({
   required bool hooks,
   required String trackerFilename,
 }) {
-  if (warmup) warmupAllPubspecs(pathToProjectRoot);
+  if (warmup) {
+    warmupAllPubspecs(pathToProjectRoot);
+  }
 
   final tracker = FailedTracker.beginTestRun(trackerFilename);
 
@@ -42,7 +42,9 @@ void runPackageTests({
   }
 
   processor.prepareLog();
-  if (hooks) runPreHooks(pathToProjectRoot);
+  if (hooks) {
+    runPreHooks(pathToProjectRoot);
+  }
 
   _runAllTests(
       processor: processor,
@@ -53,7 +55,9 @@ void runPackageTests({
 
   print('');
 
-  if (hooks) runPostHooks(pathToProjectRoot);
+  if (hooks) {
+    runPostHooks(pathToProjectRoot);
+  }
   tracker.done();
 }
 
@@ -70,9 +74,9 @@ void _runAllTests(
   if (!exists(pathToTestRoot)) {
     print(orange('No tests found.'));
   } else {
-    var testScripts =
+    final testScripts =
         find('*_test.dart', workingDirectory: pathToTestRoot).toList();
-    for (var testScript in testScripts) {
+    for (final testScript in testScripts) {
       _runTestScript(
           processor: processor,
           pathToPackageRoot: pathToPackageRoot,
@@ -103,14 +107,18 @@ void runSingleTest({
 }) {
   print('Logging all output to ${processor.logPath}');
 
-  if (warmup) warmupAllPubspecs(pathToProjectRoot);
+  if (warmup) {
+    warmupAllPubspecs(pathToProjectRoot);
+  }
 
   if (processor.showProgress) {
     // ignore: missing_whitespace_between_adjacent_strings
     print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
   }
   processor.prepareLog();
-  if (hooks) runPreHooks(pathToProjectRoot);
+  if (hooks) {
+    runPreHooks(pathToProjectRoot);
+  }
 
   _runTestScript(
       processor: processor,
@@ -125,23 +133,27 @@ void runSingleTest({
 
   print('');
 
-  if (hooks) runPostHooks(pathToProjectRoot);
+  if (hooks) {
+    runPostHooks(pathToProjectRoot);
+  }
 }
 
 /// returns true if all tests passed.
 void runFailedTests({
   required ProcessOutput processor,
   required String pathToProjectRoot,
-  String? logPath,
   required List<String> tags,
   required List<String> excludeTags,
   required bool coverage,
   required bool warmup,
   required bool hooks,
   required String trackerFilename,
+  String? logPath,
 }) {
   print('Logging all output to ${processor.logPath}');
-  if (warmup) warmupAllPubspecs(pathToProjectRoot);
+  if (warmup) {
+    warmupAllPubspecs(pathToProjectRoot);
+  }
 
   if (processor.showProgress) {
     // ignore: missing_whitespace_between_adjacent_strings
@@ -152,7 +164,9 @@ void runFailedTests({
   final failedTests = tracker.failedTests;
   if (failedTests.isNotEmpty) {
     processor.prepareLog();
-    if (hooks) runPreHooks(pathToProjectRoot);
+    if (hooks) {
+      runPreHooks(pathToProjectRoot);
+    }
 
     for (final failedTest in failedTests) {
       _runTestScript(
@@ -169,7 +183,9 @@ void runFailedTests({
 
     print('');
 
-    if (hooks) runPostHooks(pathToProjectRoot);
+    if (hooks) {
+      runPostHooks(pathToProjectRoot);
+    }
   } else {
     print(orange('No failed tests found'));
   }
@@ -178,21 +194,18 @@ void runFailedTests({
 
 /// Runs the tests contained in a single test script.
 /// returns true if all tests passed.
-/// [testRoot] is the path to the root of the test
-/// directory. Normally this is <project root>/test
-/// but it can be overriden.
 void _runTestScript({
   required ProcessOutput processor,
   required String pathToPackageRoot,
   required String pathTo,
-  String? testName,
   required List<String> tags,
   required List<String> excludeTags,
   required bool coverage,
   required FailedTracker tracker,
+  String? testName,
 }) {
   try {
-    var saved = Counts.copyFrom(processor.counts);
+    final saved = Counts.copyFrom(processor.counts);
     DartSdk().run(
         args: [
           'test',
@@ -217,7 +230,8 @@ void _runTestScript({
             stderr: (line) =>
                 processor.tee(line, processor.processOutput, tracker)));
 
-    // format_coverage --lcov --in=coverage --out=coverage.lcov --packages=.packages --report-on=lib',
+    // format_coverage --lcov --in=coverage --out=coverage.lcov
+    // --packages=.packages --report-on=lib',
 
     /// dart run test returns 1 if any unit tests failed
     /// The problem is that also returns 1 if no unit tests were run
@@ -225,6 +239,7 @@ void _runTestScript({
     if (processor.counts.errors != saved.errors) {
       printerr(processor.errors.join('\n'));
     }
+    // ignore: avoid_catches_without_on_clauses
   } catch (e, st) {
     printerr('Error ${e.toString()}, st: $st');
   }

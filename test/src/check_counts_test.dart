@@ -4,7 +4,6 @@
  * Written by Brett Sutton <bsutton@onepub.dev>, Jan 2022
  */
 
-
 import 'package:critical_test/src/util/counts.dart';
 import 'package:dcli/dcli.dart' hide equals, run;
 import 'package:test/test.dart';
@@ -18,18 +17,19 @@ void main() {
       withTempFile((tracker) {
         final criticalTestExe = join('bin', 'critical_test.dart');
         final progress = start(
-            '$criticalTestExe --tracker=$tracker --log-path=$logfile  ${join('test_scripts', 'for_counts_test.dart')}',
+            '$criticalTestExe --tracker=$tracker --log-path=$logfile  '
+            '${join('test_scripts', 'for_counts_test.dart')}',
             progress: Progress.capture(),
             nothrow: true,
             runInShell: true);
 
         // print(progress.lines.join('\n'));
-        var counts = lastCounts(progress.lines);
+        final counts = lastCounts(progress.lines);
 
         expect(counts.success, 4);
         expect(counts.errors, 2);
         expect(counts.skipped, 2);
-        expect(progress.exitCode!, equals(1));
+        expect(progress.exitCode, equals(1));
       });
     });
   });
@@ -70,13 +70,13 @@ void main() {
         );
 
         // print(progress.lines.join('\n'));
-        var counts = lastCounts(progress.lines);
+        final counts = lastCounts(progress.lines);
 
         expect(counts.success, 4);
         expect(counts.errors, 0);
         expect(counts.skipped, 2);
 
-        expect(progress.exitCode!, equals(0));
+        expect(progress.exitCode, equals(0));
       });
     });
   });
@@ -101,12 +101,12 @@ void main() {
         );
 
         // print(progress.lines.join('\n'));
-        var counts = lastCounts(progress.lines);
+        final counts = lastCounts(progress.lines);
 
         expect(counts.success, 4);
         expect(counts.errors, 0);
         expect(counts.skipped, 2);
-        expect(progress.exitCode!, equals(0));
+        expect(progress.exitCode, equals(0));
       });
     });
   });

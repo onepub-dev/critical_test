@@ -4,7 +4,6 @@
  * Written by Brett Sutton <bsutton@onepub.dev>, Jan 2022
  */
 
-
 @Timeout(Duration(minutes: 3))
 import 'package:dcli/dcli.dart';
 import 'package:test/test.dart';
@@ -14,7 +13,8 @@ void main() {
     withTempFile((logfile) {
       withTempFile((tracker) {
         final criticalTestExe = join('bin', 'critical_test.dart');
-        'dart $criticalTestExe --tracker=$tracker --log-path=$logfile --tags="bad,debug"'
+        'dart $criticalTestExe --tracker=$tracker --log-path=$logfile '
+                '--tags="bad,debug"'
             .start(
                 workingDirectory: pwd,
                 nothrow: true,

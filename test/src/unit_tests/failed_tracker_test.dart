@@ -4,7 +4,6 @@
  * Written by Brett Sutton <bsutton@onepub.dev>, Jan 2022
  */
 
-
 import 'package:critical_test/src/unit_tests/failed_tracker.dart';
 import 'package:critical_test/src/unit_tests/unit_test.dart';
 import 'package:dcli/dcli.dart' hide equals;
@@ -20,8 +19,9 @@ void main() {
         withTempFile((trackerFilename) {
           final tracker = FailedTracker.beginTestRun(trackerFilename);
           expect(exists(trackerFilename), isFalse);
-          tracker.recordError(unitTestOne);
-          tracker.done();
+          tracker
+            ..recordError(unitTestOne)
+            ..done();
           expect(exists(trackerFilename), isTrue);
         }, create: false, pathToTempDir: dir);
       });
@@ -34,8 +34,9 @@ void main() {
           final tracker = FailedTracker.beginTestRun(trackerFilename);
           expect(exists(trackerFilename), isFalse);
           expect(exists(tracker.backupFilename), isFalse);
-          tracker.recordError(unitTestOne);
-          tracker.done();
+          tracker
+            ..recordError(unitTestOne)
+            ..done();
           expect(exists(trackerFilename), isTrue);
           expect(exists(tracker.backupFilename), isFalse);
 
@@ -44,14 +45,15 @@ void main() {
           expect(exists(trackerFilename), isTrue);
           expect(exists(tracker.backupFilename), isTrue);
 
-          var tests = replay.failedTests;
+          final tests = replay.failedTests;
           expect(tests.length, equals(1));
           expect(tests.first.pathTo, equals(unitTestOne.pathTo));
           expect(tests.first.testName, equals(unitTestOne.testName));
           // mark the test as having succeeded.
-          tracker.recordSuccess(UnitTest(
-              pathTo: unitTestOne.pathTo, testName: unitTestOne.testName));
-          tracker.done();
+          tracker
+            ..recordSuccess(UnitTest(
+                pathTo: unitTestOne.pathTo, testName: unitTestOne.testName))
+            ..done();
 
           expect(exists(trackerFilename), isTrue);
           expect(exists(tracker.backupFilename), isFalse);
@@ -62,7 +64,7 @@ void main() {
           expect(exists(trackerFilename), isTrue);
           expect(exists(tracker.backupFilename), isTrue);
 
-          var testsCheck = check.failedTests;
+          final testsCheck = check.failedTests;
           expect(testsCheck.length, equals(0));
         }, create: false, pathToTempDir: dir);
       });
