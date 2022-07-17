@@ -1,3 +1,6 @@
+# 6.0.1
+- upgrade all packages to latest versions.
+
 # 6.0.0
 Change the defaults so that hooks are run by default. 
 Change the 'hook' flag to 'no-hook'. Use --no-hook to obtain the original behaviour.
