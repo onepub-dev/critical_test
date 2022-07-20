@@ -36,14 +36,13 @@ void runPackageTests({
       'Running unit tests for ${DartProject.fromPath(pwd).pubSpec.name}'));
   print('Logging all output to ${processor.logPath}');
 
-  if (processor.showProgress) {
-    // ignore: missing_whitespace_between_adjacent_strings
-    print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
-  }
-
   processor.prepareLog();
   if (hooks) {
     runPreHooks(pathToProjectRoot);
+  }
+  if (processor.showProgress) {
+    // ignore: missing_whitespace_between_adjacent_strings
+    print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
   }
 
   _runAllTests(
@@ -111,15 +110,15 @@ void runSingleTest({
     warmupAllPubspecs(pathToProjectRoot);
   }
 
-  if (processor.showProgress) {
-    // ignore: missing_whitespace_between_adjacent_strings
-    print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
-  }
   processor.prepareLog();
   if (hooks) {
     runPreHooks(pathToProjectRoot);
   }
 
+  if (processor.showProgress) {
+    // ignore: missing_whitespace_between_adjacent_strings
+    print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
+  }
   _runTestScript(
       processor: processor,
       pathToPackageRoot: pathToProjectRoot,
@@ -155,17 +154,17 @@ void runFailedTests({
     warmupAllPubspecs(pathToProjectRoot);
   }
 
-  if (processor.showProgress) {
-    // ignore: missing_whitespace_between_adjacent_strings
-    print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
-  }
-
   final tracker = FailedTracker.beginReplay(trackerFilename);
   final failedTests = tracker.failedTests;
   if (failedTests.isNotEmpty) {
     processor.prepareLog();
     if (hooks) {
       runPreHooks(pathToProjectRoot);
+    }
+
+    if (processor.showProgress) {
+      // ignore: missing_whitespace_between_adjacent_strings
+      print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
     }
 
     for (final failedTest in failedTests) {
