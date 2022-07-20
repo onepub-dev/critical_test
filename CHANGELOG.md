@@ -1,3 +1,6 @@
+# 6.0.2
+- Moved displaying the legend until after the pre-hooks are run so it is displayed just above the counts.
+
 # 6.0.1
 - upgrade all packages to latest versions.
 
