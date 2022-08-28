@@ -252,7 +252,9 @@ void warmupAllPubspecs(String pathToProjectRoot) {
       in find('pubspec.yaml', workingDirectory: pathToProjectRoot).toList()) {
     if (DartSdk().isPubGetRequired(dirname(pubspec))) {
       print(blue('Running pub get in ${dirname(pubspec)}'));
-      DartSdk().runPubGet(dirname(pubspec));
+      capture(() {
+        DartSdk().runPubGet(dirname(pubspec));
+      }, progress: Progress.printStdErr());
     }
   }
 }
