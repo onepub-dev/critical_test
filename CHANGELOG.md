@@ -1,3 +1,9 @@
+# 6.0.3
+- Upgraded to dcli 1.34
+- Suppressed the output of the pub get warms. We only print anything if an error occurs.
+- We now output the critical test version when running.
+- Added defaults to the menu selections when re-running failed tests.
+
 # 6.0.2
 - Moved displaying the legend until after the pre-hooks are run so it is displayed just above the counts.
 
