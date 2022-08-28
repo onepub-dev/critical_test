@@ -6,6 +6,8 @@
  */
 
 import 'package:critical_test/src/main.dart';
+import 'package:critical_test/src/version/version.g.dart';
+import 'package:dcli/dcli.dart' hide run;
 
 /// running unit tests from vs-code doesn't seem to work as it spawns
 /// two isolates and runs tests in parallel (even when using the -j1 option)
@@ -13,5 +15,7 @@ import 'package:critical_test/src/main.dart';
 /// So this script forces the test to run serially via the -j1 option.
 ///
 void main(List<String> args) {
+  print(orange('critical_test $packageVersion'));
+  print('');
   run(args);
 }
