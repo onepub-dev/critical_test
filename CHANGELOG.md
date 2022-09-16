@@ -1,3 +1,6 @@
+# 6.0.4
+- fixed a null cast to non-null when processing output.
+
 # 6.0.3
 - Upgraded to dcli 1.34
 - Suppressed the output of the pub get warms. We only print anything if an error occurs.
