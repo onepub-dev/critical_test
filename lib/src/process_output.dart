@@ -83,7 +83,7 @@ class ProcessOutput {
 
     final map = jsonDecode(_line) as Map<String, dynamic>;
 
-    final type = map['type'] as String;
+    final type = map['type'] as String? ?? 'unknown';
 
     final unitTest = UnitTest(pathTo: test.path, testName: test.name);
 
@@ -126,7 +126,7 @@ class ProcessOutput {
         // ignored
         break;
       default:
-        printerr(red('Unexpected line $line'));
+        printerr(red('Unexpected type in $line'));
     }
 
     // if (map.containsKey('testID')) {
