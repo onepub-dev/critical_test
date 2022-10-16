@@ -201,9 +201,8 @@ Unit tests will fail if pub get hasn't been run.''',
     trackerFilename = parsed['tracker'] as String;
 
     if ((plainName.isNotEmpty) && (excludeTags.isNotEmpty || tags.isNotEmpty)) {
-      printerr(red('You cannot combine "--plain-name" with '
-          '"--tags" or "--exclude-tags"'));
-      showUsage(parser);
+      print(orange(
+          'As --plain-name specified ignoring "--tags" and "--exclude-tags"'));
     }
 
     if (parsed.wasParsed('log-path')) {
