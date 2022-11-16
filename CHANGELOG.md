@@ -1,3 +1,8 @@
+# 7.0.1
+- upgraded to dart 2.18.
+- Change arg parsing to ignore tags and excluded-tags when plan-name passed as the tags can be from the settings file.
+- upgrade all package versions.
+
 # 6.0.4
 - fixed a null cast to non-null when processing output.
 
