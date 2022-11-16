@@ -10,7 +10,6 @@ import 'package:dcli/dcli.dart';
 import 'process_output.dart';
 import 'run_hooks.dart';
 import 'unit_tests/failed_tracker.dart';
-
 import 'unit_tests/unit_test_selector.dart';
 import 'util/counts.dart';
 
@@ -252,9 +251,10 @@ void warmupAllPubspecs(String pathToProjectRoot) {
       in find('pubspec.yaml', workingDirectory: pathToProjectRoot).toList()) {
     if (DartSdk().isPubGetRequired(dirname(pubspec))) {
       print(blue('Running pub get in ${dirname(pubspec)}'));
-      capture(() {
+      // ignore: discarded_futures
+      waitForEx(capture(() {
         DartSdk().runPubGet(dirname(pubspec));
-      }, progress: Progress.printStdErr());
+      }, progress: Progress.printStdErr()));
     }
   }
 }
