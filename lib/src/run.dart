@@ -6,6 +6,7 @@
  */
 
 import 'package:dcli/dcli.dart';
+import 'package:path/path.dart';
 
 import 'process_output.dart';
 import 'run_hooks.dart';
@@ -239,7 +240,7 @@ void _runTestScript({
     }
     // ignore: avoid_catches_without_on_clauses
   } catch (e, st) {
-    printerr('Error ${e.toString()}, st: $st');
+    printerr('Error $e, st: $st');
   }
 }
 
@@ -252,7 +253,7 @@ void warmupAllPubspecs(String pathToProjectRoot) {
     if (DartSdk().isPubGetRequired(dirname(pubspec))) {
       print(blue('Running pub get in ${dirname(pubspec)}'));
       // ignore: discarded_futures
-      waitForEx(capture(() {
+      waitForEx(capture(() async {
         DartSdk().runPubGet(dirname(pubspec));
       }, progress: Progress.printStdErr()));
     }

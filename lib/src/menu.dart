@@ -34,8 +34,7 @@ void testMenu({
   const action = 'back';
   do {
     print(green('Select the test to view'));
-    final selected = menu<UnitTest>(
-        prompt: 'Select Test:',
+    final selected = menu<UnitTest>('Select Test:',
         options: [...failedTests, const UnitTest.exitOption()],
         defaultOption: failedTests.first,
         format: (unitTest) => unitTest.testName);
@@ -44,8 +43,8 @@ void testMenu({
       exit(0);
     }
     print(selected);
-    final action = menu(
-        prompt: 'Action: ', options: ['run', 'back'], defaultOption: 'run');
+    final action =
+        menu('Action: ', options: ['run', 'back'], defaultOption: 'run');
 
     if (action == 'run') {
       print('Running: $selected');

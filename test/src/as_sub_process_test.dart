@@ -5,7 +5,10 @@
  */
 
 @Timeout(Duration(minutes: 3))
+library; 
+
 import 'package:dcli/dcli.dart';
+import 'package:path/path.dart';
 import 'package:test/test.dart';
 
 void main() {

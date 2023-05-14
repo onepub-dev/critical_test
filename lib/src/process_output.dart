@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dcli/dcli.dart';
+import 'package:path/path.dart';
 
 import 'json/test.dart';
 import 'unit_tests/failed_tracker.dart';
