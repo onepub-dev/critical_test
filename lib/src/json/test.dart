@@ -74,5 +74,4 @@ class Test {
   // //
   // // Will only be present if different from `url`.
   // String root_url;
-
 }

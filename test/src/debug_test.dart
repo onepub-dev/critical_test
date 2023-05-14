@@ -18,14 +18,18 @@ void main() {
     // progress = await DCliZone().run(() {
     final processor = ProcessOutput();
     try {
-      CriticalTest.run(<String>[
-        r'--tracker=C:\Users\Brett\AppData\Local\Temp\a2332afb-576f-4b46-846a-d10560419633.tmp',
-        r'--log-path=C:\Users\Brett\AppData\Local\Temp\8440525c-fd27-40e5-86c0-db8394430b1d.tmp',
-        '-v',
-        '--track',
-        '--plain-name="Group ##1 Intentional fail"',
-        'test_scripts',
-      ], processor);
+      withTempFile((trackerFile) {
+        withTempFile((logFile) {
+          CriticalTest.run(<String>[
+            '--tracker=$trackerFile',
+            r'--log-path=$logFile',
+            '-v',
+            '--track',
+            '--plain-name="Group ##1 Intentional fail"',
+            'test_scripts',
+          ], processor);
+        });
+      });
 
       //CriticalTest.run(<String>['test_scripts'], processor);
     } on CriticalTestException catch (e) {
