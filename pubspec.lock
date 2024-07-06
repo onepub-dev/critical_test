@@ -226,18 +226,18 @@ packages:
     dependency: "direct main"
     description:
       name: csv
-      sha256: c6aa2679b2a18cb57652920f674488d89712efaf4d3fdf2e537215b35fc19d6c
+      sha256: "63ed2871dd6471193dffc52c0e6c76fb86269c00244d244297abbb355c84a86e"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0"
-  dart_console:
+    version: "5.1.1"
+  dart_console2:
     dependency: transitive
     description:
-      name: dart_console
-      sha256: eae9ddd7bb69477a6e9821c75d575874e290887da09292732a35ab510d1de713
+      name: dart_console2
+      sha256: f7636b74f19910a20e3d03262190ad78546a33dfc972dba7bb9fe1530826269e
       url: "https://pub.dev"
     source: hosted
-    version: "4.1.0"
+    version: "3.1.1"
   dart_style:
     dependency: "direct main"
     description:
@@ -249,35 +249,17 @@ packages:
   dcli:
     dependency: "direct main"
     description:
-      name: dcli
-      sha256: befa6b47d456a79840efbb3e03f12bd015949cf4083b4a19437b90dce6193376
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.0.3"
-  dcli_common:
-    dependency: transitive
-    description:
-      name: dcli_common
-      sha256: fa90efc6f5105de865db51fed4204b41e13f5113425d5704e46e56889f1cc46a
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.0.3"
+      path: "../dcli/dcli"
+      relative: true
+    source: path
+    version: "3.4.0"
   dcli_core:
     dependency: "direct main"
     description:
-      name: dcli_core
-      sha256: e055c7e953e6fa95800f0c7fa7f02f99efcd75a84b7acd5f07936854d859adc4
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.0.3"
-  dcli_terminal:
-    dependency: transitive
-    description:
-      name: dcli_terminal
-      sha256: fc289acb2e03f20c0d9b97ad5f19bcfa0d9dd8323028fee182fa7249b7687891
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.0.3"
+      path: "../dcli/dcli_core"
+      relative: true
+    source: path
+    version: "3.4.0"
   equatable:
     dependency: "direct main"
     description:
@@ -386,10 +368,10 @@ packages:
     dependency: transitive
     description:
       name: intl
-      sha256: d6f56758b7d3014a48af9701c085700aac781a92a87a62b1333b46d8879661cf
+      sha256: "3bc132a9dbce73a7e4a21a17d06e1878839ffbf975568bc875c60537824b0c4d"
       url: "https://pub.dev"
     source: hosted
-    version: "0.19.0"
+    version: "0.18.1"
   io:
     dependency: "direct main"
     description:
@@ -478,14 +460,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
-  native_synchronization:
-    dependency: transitive
-    description:
-      name: native_synchronization
-      sha256: ff200fe0a64d733ff7d4dde2005271c297db81007604c8cd21037959858133ab
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.0"
   node_preamble:
     dependency: "direct main"
     description:
@@ -598,22 +572,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.1"
-  runtime_named_locks:
-    dependency: transitive
-    description:
-      name: runtime_named_locks
-      sha256: "5fe859c1ddeeb595f6528596157191b628d85ba3137f0da327d92153604f2f6b"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0-beta.6"
-  runtime_native_semaphores:
-    dependency: transitive
-    description:
-      name: runtime_native_semaphores
-      sha256: bd5895d87f97543be6c9a5199b8a10483b9d6871327fe508ec89dbc2437c9220
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0-beta.6"
   scope:
     dependency: "direct main"
     description:
@@ -898,10 +856,10 @@ packages:
     dependency: "direct main"
     description:
       name: win32
-      sha256: "8cb58b45c47dcb42ab3651533626161d6b67a2921917d8d429791f76972b3480"
+      sha256: "5a751eddf9db89b3e5f9d50c20ab8612296e4e8db69009788d6c8b060a84191c"
       url: "https://pub.dev"
     source: hosted
-    version: "5.3.0"
+    version: "4.1.4"
   yaml:
     dependency: "direct main"
     description:
