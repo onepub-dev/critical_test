@@ -5,7 +5,7 @@
  */
 
 import 'package:critical_test/src/critical_test_settings.dart';
-import 'package:dcli/dcli.dart' hide equals, Settings;
+import 'package:dcli/dcli.dart' hide Settings;
 import 'package:test/test.dart';
 
 void main() {

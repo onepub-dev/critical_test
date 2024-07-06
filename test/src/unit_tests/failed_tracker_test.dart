@@ -6,7 +6,8 @@
 
 import 'package:critical_test/src/unit_tests/failed_tracker.dart';
 import 'package:critical_test/src/unit_tests/unit_test.dart';
-import 'package:dcli/dcli.dart' hide equals;
+import 'package:dcli/dcli.dart';
+import 'package:path/path.dart' hide equals;
 import 'package:test/test.dart';
 
 final pathToTestOne = join('tests', 'one.dart');

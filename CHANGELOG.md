@@ -1,3 +1,6 @@
+# 8.0.0
+- upgraded to dcli 4.x to overcome the waitFor deprecation.
+
 # 7.0.1
 - upgraded to dart 2.18.
 - Change arg parsing to ignore tags and excluded-tags when plan-name passed as the tags can be from the settings file.

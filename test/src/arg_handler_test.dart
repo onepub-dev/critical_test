@@ -5,7 +5,8 @@
  */
 
 import 'package:critical_test/src/arg_handler.dart';
-import 'package:dcli/dcli.dart' hide equals;
+import 'package:dcli/dcli.dart';
+import 'package:path/path.dart' hide equals;
 import 'package:test/test.dart';
 
 void main() {

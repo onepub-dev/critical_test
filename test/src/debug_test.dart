@@ -1,4 +1,6 @@
 @Timeout(Duration(minutes: 5))
+library;
+
 /* Copyright (C) S. Brett Sutton - All Rights Reserved
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
@@ -17,7 +19,7 @@ void main() {
     // progress = await DCliZone().run(() {
     final processor = ProcessOutput();
     try {
-      CriticalTest.run(<String>[
+      await CriticalTest.run(<String>[
         r'--tracker=C:\Users\Brett\AppData\Local\Temp\a2332afb-576f-4b46-846a-d10560419633.tmp',
         r'--log-path=C:\Users\Brett\AppData\Local\Temp\8440525c-fd27-40e5-86c0-db8394430b1d.tmp',
         '-v',

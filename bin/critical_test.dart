@@ -14,8 +14,8 @@ import 'package:dcli/dcli.dart' hide run;
 /// Given we are actively modifying the file system this is a bad idea.
 /// So this script forces the test to run serially via the -j1 option.
 ///
-void main(List<String> args) {
+void main(List<String> args) async {
   print(orange('critical_test $packageVersion'));
   print('');
-  run(args);
+  await run(args);
 }

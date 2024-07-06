@@ -8,6 +8,7 @@ import 'dart:convert';
 
 import 'package:dcli/dcli.dart' as dcli;
 import 'package:dcli/dcli.dart';
+import 'package:path/path.dart';
 
 import '../paths.dart';
 import 'unit_test.dart';

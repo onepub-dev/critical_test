@@ -6,6 +6,7 @@
  */
 
 import 'package:dcli/dcli.dart';
+import 'package:path/path.dart';
 
 import 'process_output.dart';
 import 'run_hooks.dart';
@@ -16,7 +17,7 @@ import 'util/counts.dart';
 /// Runs all tests for the given dart package
 /// found at [pathToProjectRoot].
 /// returns true if all tests passed.
-void runPackageTests({
+Future<void> runPackageTests({
   required ProcessOutput processor,
   required String pathToProjectRoot,
   required UnitTestSelector selector,
@@ -24,9 +25,9 @@ void runPackageTests({
   required bool warmup,
   required bool hooks,
   required String trackerFilename,
-}) {
+}) async {
   if (warmup) {
-    warmupAllPubspecs(pathToProjectRoot);
+    await warmupAllPubspecs(pathToProjectRoot);
   }
 
   final tracker = FailedTracker.beginTestRun(trackerFilename);
@@ -90,7 +91,7 @@ void _runAllTests(
 }
 
 /// returns true if the test passed.
-void runSingleTest({
+Future<void> runSingleTest({
   required ProcessOutput processor,
   required String pathToProjectRoot,
   required String pathTo,
@@ -102,11 +103,11 @@ void runSingleTest({
   required FailedTracker tracker,
   required bool hooks,
   required String trackerFilename,
-}) {
+}) async {
   print('Logging all output to ${processor.logPath}');
 
   if (warmup) {
-    warmupAllPubspecs(pathToProjectRoot);
+    await warmupAllPubspecs(pathToProjectRoot);
   }
 
   processor.prepareLog();
@@ -137,7 +138,7 @@ void runSingleTest({
 }
 
 /// returns true if all tests passed.
-void runFailedTests({
+Future<void> runFailedTests({
   required ProcessOutput processor,
   required String pathToProjectRoot,
   required List<String> tags,
@@ -147,10 +148,10 @@ void runFailedTests({
   required bool hooks,
   required String trackerFilename,
   String? logPath,
-}) {
+}) async {
   print('Logging all output to ${processor.logPath}');
   if (warmup) {
-    warmupAllPubspecs(pathToProjectRoot);
+    await warmupAllPubspecs(pathToProjectRoot);
   }
 
   final tracker = FailedTracker.beginReplay(trackerFilename);
@@ -239,22 +240,22 @@ void _runTestScript({
     }
     // ignore: avoid_catches_without_on_clauses
   } catch (e, st) {
-    printerr('Error ${e.toString()}, st: $st');
+    printerr('Error $e, st: $st');
   }
 }
 
 /// Run pub get on all pubspec.yaml files we find in the project.
 /// Unit tests won't run correctly if pub get hasn't been run.
-void warmupAllPubspecs(String pathToProjectRoot) {
+Future<void> warmupAllPubspecs(String pathToProjectRoot) async {
   /// warm up all test packages.
   for (final pubspec
       in find('pubspec.yaml', workingDirectory: pathToProjectRoot).toList()) {
     if (DartSdk().isPubGetRequired(dirname(pubspec))) {
       print(blue('Running pub get in ${dirname(pubspec)}'));
       // ignore: discarded_futures
-      waitForEx(capture(() {
+      await capture(() async {
         DartSdk().runPubGet(dirname(pubspec));
-      }, progress: Progress.printStdErr()));
+      }, progress: Progress.printStdErr());
     }
   }
 }

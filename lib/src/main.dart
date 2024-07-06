@@ -6,6 +6,7 @@
 
 import 'dart:io';
 
+import 'package:args/args.dart';
 import 'package:dcli/dcli.dart' hide run;
 
 import 'arg_handler.dart';
@@ -16,10 +17,10 @@ import 'run.dart';
 import 'unit_tests/failed_tracker.dart';
 import 'unit_tests/unit_test_selector.dart';
 
-void run(List<String> args) {
+Future<void> run(List<String> args) async {
   try {
     final processor = ProcessOutput();
-    CriticalTest.run(args, processor);
+    await CriticalTest.run(args, processor);
 
     if (!processor.allPassed) {
       exit(1);
@@ -37,7 +38,7 @@ void run(List<String> args) {
 
 // ignore: avoid_classes_with_only_static_members
 class CriticalTest {
-  static void run(List<String> args, ProcessOutput processor) {
+  static Future<void> run(List<String> args, ProcessOutput processor) async {
     final parsedArgs = ParsedArgs.build()..parse(args);
 
     verbose(parsedArgs.toString);
@@ -49,7 +50,7 @@ class CriticalTest {
 
     try {
       if (parsedArgs.menu) {
-        testMenu(
+        await testMenu(
             processor: processor,
             pathToProjectRoot: parsedArgs.pathToProjectRoot,
             coverage: parsedArgs.coverage,
@@ -58,7 +59,7 @@ class CriticalTest {
             hooks: parsedArgs.runHooks,
             trackerFilename: parsedArgs.trackerFilename);
       } else if (parsedArgs.runFailed) {
-        runFailedTests(
+        await runFailedTests(
             processor: processor,
             pathToProjectRoot: parsedArgs.pathToProjectRoot,
             tags: parsedArgs.tags,
@@ -69,7 +70,7 @@ class CriticalTest {
             trackerFilename: parsedArgs.trackerFilename);
       } else {
         /// Process each director or library passed.
-        processDirAndLibraries(
+        await processDirAndLibraries(
             processor: processor,
             pathToProjectRoot: parsedArgs.pathToProjectRoot,
             selector: UnitTestSelector.fromArgs(parsedArgs),
@@ -131,7 +132,7 @@ class CriticalTest {
   //   tracker.done();
   // }
 
-  static void processDirAndLibraries(
+  static Future<void> processDirAndLibraries(
       {required ProcessOutput processor,
       required String pathToProjectRoot,
       required UnitTestSelector selector,
@@ -140,7 +141,7 @@ class CriticalTest {
       required bool track,
       required bool hooks,
       required String trackerFilename,
-      required ArgParser parser}) {
+      required ArgParser parser}) async {
     FailedTracker tracker;
     if (track) {
       tracker = FailedTracker.beginTestRun(trackerFilename);
@@ -155,7 +156,7 @@ class CriticalTest {
         showUsage(parser);
       }
 
-      runSingleTest(
+      await runSingleTest(
           processor: processor,
           pathTo: dirOrFile,
           testName: selector.testName,

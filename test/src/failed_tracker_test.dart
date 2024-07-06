@@ -1,4 +1,6 @@
 @Timeout(Duration(minutes: 5))
+library;
+
 /* Copyright (C) S. Brett Sutton - All Rights Reserved
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
@@ -8,8 +10,8 @@
 import 'package:critical_test/critical_test.dart';
 import 'package:critical_test/src/unit_tests/failed_tracker.dart';
 import 'package:critical_test/src/unit_tests/unit_test.dart';
-import 'package:dcli/dcli.dart' hide equals, run;
-
+import 'package:dcli/dcli.dart' hide run;
+import 'package:path/path.dart' hide equals;
 import 'package:test/test.dart';
 
 void main() {
