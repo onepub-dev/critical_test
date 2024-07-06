@@ -1,5 +1,12 @@
 # 8.0.0
 - upgraded to dcli 4.x to overcome the waitFor deprecation.
+# 7.2.0
+- upgraded to support dart 3.x
+- fixed an missing await.
+
+# 7.1.0
+- upgraded to support dart 3.x
+- fixed an missing await.
 
 # 7.0.1
 - upgraded to dart 2.18.

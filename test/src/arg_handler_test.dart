@@ -345,7 +345,7 @@ track: false
     test('override', () async {
       final two = ['--log-path=/tmp/hello'];
       final parsedArgs = ParsedArgs.build()..parse(two);
-      expect(parsedArgs.logPath, equals('/tmp/hello'));
+      expect(parsedArgs.logPath, equals(join(rootPath, 'tmp', 'hello')));
     });
 
     test('from settings.', () async {
