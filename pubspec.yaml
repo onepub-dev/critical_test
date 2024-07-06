@@ -5,9 +5,9 @@ documentation: https://criticaltest.noojee.dev
 description: Critical Test is a cli tool designed to simplify the process of fixing broken unit tests in Dart.
 repository: https://github.com/bsutton/critical_tester
 
-environment: 
+environment:
   sdk: '>=3.0.0 <4.0.0'
-dependencies: 
+dependencies:
   _fe_analyzer_shared: ^68.0.0
   analyzer: ^6.5.0
   archive: ^3.3.7
@@ -31,10 +31,10 @@ dependencies:
   convert: 3.1.1
   coverage: ^1.6.3
   crypto: ^3.0.3
-  csv: ^5.1.1
+  csv: ^6.0.0
   dart_style: ^2.2.5
-  dcli: ^2.2.0
-  dcli_core: ^2.2.0
+  dcli: ^4.0.3
+  dcli_core: ^4.0.3
   equatable: 2.0.5
   ffi: ^2.0.1
   file: ^7.0.0
