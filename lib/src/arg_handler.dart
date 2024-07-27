@@ -7,8 +7,8 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:dcli/dcli.dart' hide Settings;
 import 'package:dcli/dcli.dart' as dcli;
+import 'package:dcli/dcli.dart' hide Settings;
 import 'package:path/path.dart';
 
 import 'critical_test_settings.dart';
@@ -202,9 +202,22 @@ Unit tests will fail if pub get hasn't been run.''',
 
     trackerFilename = parsed['tracker'] as String;
 
-    if ((plainName.isNotEmpty) && (excludeTags.isNotEmpty || tags.isNotEmpty)) {
+    if (!atMostOne([
+      parsed.wasParsed('tags'),
+      parsed.wasParsed('exclude-tags'),
+      parsed.wasParsed('plain-name')
+    ])) {
       print(orange(
           'As --plain-name specified ignoring "--tags" and "--exclude-tags"'));
+      showUsage(parser);
+    }
+
+    if (parsed.wasParsed('plain-name')) {
+      /// tags may be present in the settings file
+      /// If the user has passed a plain-name then
+      /// we ignore the tags.
+      excludeTags.clear();
+      tags.clear();
     }
 
     if (parsed.wasParsed('log-path')) {
