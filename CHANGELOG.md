@@ -1,3 +1,6 @@
+# 8.0.1
+- Fixed a bug in the arg processor which was stopping a user from using --plain-name if any tags or excludeTags exist in the settings file. We know ignore the tag settings if the --plain-name flag is sent.
+
 # 8.0.0
 - upgraded to dcli 4.x to overcome the waitFor deprecation.
 # 7.2.0
