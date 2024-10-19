@@ -1,3 +1,7 @@
+# 8.1.0
+- upraded to lastest win32 package to get past dart 3.5 compatability issues.
+- upgraded to latest version of dcli.
+
 # 8.0.1
 - Fixed a bug in the arg processor which was stopping a user from using --plain-name if any tags or excludeTags exist in the settings file. We know ignore the tag settings if the --plain-name flag is sent.
 
