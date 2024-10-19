@@ -1,3 +1,6 @@
+# 8.1.1
+- upgraded to dcli 6.1 for macos and windows fixes.
+
 # 8.1.0
 - upraded to lastest win32 package to get past dart 3.5 compatability issues.
 - upgraded to latest version of dcli.
