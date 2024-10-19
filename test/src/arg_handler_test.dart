@@ -24,7 +24,7 @@ void main() {
     });
 
     test('tags - from settings.', () async {
-      withTempFile((pathToSettings) {
+       await withTempFileAsync((pathToSettings) async {
         pathToSettings.write('''
 tags: [abc, one]      
       ''');
@@ -36,7 +36,7 @@ tags: [abc, one]
     });
 
     test('tags - override settings.', () async {
-      withTempFile((pathToSettings) {
+      await withTempFileAsync((pathToSettings) async{
         pathToSettings.write('''
 tags: [abc, one]      
       ''');
@@ -61,7 +61,7 @@ tags: [abc, one]
     });
 
     test('from settings.', () async {
-      withTempFile((pathToSettings) {
+      await withTempFileAsync((pathToSettings) async{
         pathToSettings.write('''
 exclude-tags: [abc, one]      
       ''');
@@ -73,7 +73,7 @@ exclude-tags: [abc, one]
     });
 
     test(' override settings.', () async {
-      withTempFile((pathToSettings) {
+      await withTempFileAsync((pathToSettings) async{
         pathToSettings.write('''
 tags: [abc, one]      
       ''');
@@ -97,7 +97,7 @@ tags: [abc, one]
     });
 
     test('from settings.', () async {
-      withTempFile((pathToSettings) {
+      await withTempFileAsync((pathToSettings) async{
         pathToSettings.write('''
 plain-name: Test Two      
       ''');
@@ -109,7 +109,7 @@ plain-name: Test Two
     });
 
     test(' override settings.', () async {
-      withTempFile((pathToSettings) {
+      await withTempFileAsync((pathToSettings) async{
         pathToSettings.write('''
 plain-name: Test Two       
       ''');
@@ -133,7 +133,7 @@ plain-name: Test Two
     });
 
     test('from settings.', () async {
-      withTempFile((pathToSettings) {
+      await withTempFileAsync((pathToSettings) async{
         pathToSettings.write('''
 all: true
       ''');
@@ -145,7 +145,7 @@ all: true
     });
 
     test(' override settings.', () async {
-      withTempFile((pathToSettings) {
+      await withTempFileAsync((pathToSettings) async{
         pathToSettings.write('''
 all: true       
       ''');
@@ -168,7 +168,7 @@ all: true
       });
 
       test('from settings.', () async {
-        withTempFile((pathToSettings) {
+        await withTempFileAsync((pathToSettings) async{
           pathToSettings.write('''
 progress: true
       ''');
@@ -180,7 +180,7 @@ progress: true
       });
 
       test(' override settings.', () async {
-        withTempFile((pathToSettings) {
+        await withTempFileAsync((pathToSettings) async{
           pathToSettings.write('''
 progress: true       
       ''');
@@ -205,7 +205,7 @@ progress: true
     });
 
     test('from settings.', () async {
-      withTempFile((pathToSettings) {
+      await withTempFileAsync((pathToSettings) async{
         pathToSettings.write('''
 coverage: true
       ''');
@@ -217,7 +217,7 @@ coverage: true
     });
 
     test(' override settings.', () async {
-      withTempFile((pathToSettings) {
+      await withTempFileAsync((pathToSettings) async{
         pathToSettings.write('''
 coverage: true       
       ''');
@@ -241,7 +241,7 @@ coverage: true
     });
 
     test('from settings.', () async {
-      withTempFile((pathToSettings) {
+      await withTempFileAsync((pathToSettings) async{
         pathToSettings.write('''
 hooks: true
       ''');
@@ -253,7 +253,7 @@ hooks: true
     });
 
     test(' override settings.', () async {
-      withTempFile((pathToSettings) {
+      await withTempFileAsync((pathToSettings) async{
         pathToSettings.write('''
 hooks: true       
       ''');
@@ -277,7 +277,7 @@ hooks: true
     });
 
     test('from settings.', () async {
-      withTempFile((pathToSettings) {
+      await withTempFileAsync((pathToSettings) async{
         pathToSettings.write('''
 warmup: false
       ''');
@@ -289,7 +289,7 @@ warmup: false
     });
 
     test(' override settings.', () async {
-      withTempFile((pathToSettings) {
+      await withTempFileAsync((pathToSettings) async{
         pathToSettings.write('''
 warmup: true       
       ''');
@@ -313,7 +313,7 @@ warmup: true
     });
 
     test('from settings.', () async {
-      withTempFile((pathToSettings) {
+      await withTempFileAsync((pathToSettings) async{
         pathToSettings.write('''
 track: false
       ''');
@@ -325,7 +325,7 @@ track: false
     });
 
     test(' override settings.', () async {
-      withTempFile((pathToSettings) {
+      await withTempFileAsync((pathToSettings) async{
         pathToSettings.write('''
 track: false       
       ''');
@@ -349,7 +349,7 @@ track: false
     });
 
     test('from settings.', () async {
-      withTempFile((pathToSettings) {
+      await withTempFileAsync((pathToSettings) async{
         final logPath = join(rootPath, 'tmp', 'hello');
         pathToSettings.write('''
 log-path: $logPath      
@@ -362,7 +362,7 @@ log-path: $logPath
     });
 
     test(' override settings.', () async {
-      withTempFile((pathToSettings) {
+      await withTempFileAsync((pathToSettings) async{
         final logPath = join(rootPath, 'tmp', 'hello');
         pathToSettings.write('''
 log-path: $logPath        

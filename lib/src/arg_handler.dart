@@ -152,7 +152,7 @@ Unit tests will fail if pub get hasn't been run.''',
       showUsage(parser);
     }
 
-    if (parsed['help'] as bool == true) {
+    if (parsed['help'] as bool) {
       showUsage(parser);
     }
 

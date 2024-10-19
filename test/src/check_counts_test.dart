@@ -14,8 +14,8 @@ void main() {
     // ct.CriticalTest.run(
     //     <String>['test_scripts/for_counts_test.dart']);
 
-    withTempFile((logfile) {
-      withTempFile((tracker) {
+    await withTempFileAsync((logfile) async{
+      await withTempFileAsync((tracker) async{
         final criticalTestExe = join('bin', 'critical_test.dart');
         final progress = start(
             '$criticalTestExe --tracker=$tracker --log-path=$logfile  '
@@ -39,8 +39,8 @@ void main() {
   //   // ct.CriticalTest.run(
   //   //     <String>['test_scripts/for_counts_test.dart']);
 
-  //   withTempFile((logfile) {
-  //     withTempFile((tracker) {
+  //   await withTempFileAsync((logfile) {
+  //     await withTempFileAsync((tracker) {
   //       run([
   //         '--tracker=$tracker',
   //         '--log-path=$logfile',
@@ -54,8 +54,8 @@ void main() {
     // ct.CriticalTest.run(
     //     <String>['test_scripts/for_counts_test.dart']);
 
-    withTempFile((logfile) {
-      withTempFile((tracker) {
+    await withTempFileAsync((logfile) async{
+      await withTempFileAsync((tracker) async{
         final criticalTestExe = join('bin', 'critical_test.dart');
         final progress = DartSdk().run(
           args: [
@@ -86,8 +86,8 @@ void main() {
     // ct.CriticalTest.run(
     //     <String>['test_scripts/for_counts_test.dart']);
 
-    withTempFile((logfile) {
-      withTempFile((tracker) {
+    await withTempFileAsync((logfile) async{
+      await withTempFileAsync((tracker) async{
         final criticalTestExe = join('bin', 'critical_test.dart');
         final progress = DartSdk().run(
           args: [

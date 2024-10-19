@@ -12,9 +12,9 @@ import 'package:path/path.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('Run critical_test as a spawned process', () {
-    withTempFile((logfile) {
-      withTempFile((tracker) {
+  test('Run critical_test as a spawned process', () async{
+    await withTempFileAsync((logfile) async{
+      await withTempFileAsync((tracker) async{
         final criticalTestExe = join('bin', 'critical_test.dart');
         'dart $criticalTestExe --tracker=$tracker --log-path=$logfile '
                 '--tags="bad,debug"'

@@ -91,36 +91,28 @@ class ProcessOutput {
     switch (type) {
       case 'suite':
         processSuite(map);
-        break;
 
       case 'group':
         processGroup(map);
-        break;
 
       case 'testStart':
         processTestStart(map);
-        break;
 
       case 'testDone':
         processTestDone(map, tracker, unitTest);
-        break;
 
       case 'print':
         processPrint(map);
-        break;
 
       case 'error':
         processError(map, tracker, group, unitTest);
-        break;
 
       /// all tests are complete
       case 'done':
         processDone(map);
-        break;
 
       case 'allSuites':
         processAllSuites(map);
-        break;
 
       case 'start':
       case 'debug':
@@ -199,19 +191,16 @@ class ProcessOutput {
         case 'success':
           _counts.success++;
           tracker.recordSuccess(unitTest);
-          break;
 
         /// if the test had a TestFailure but no other errors.
         case 'failure':
           _counts.errors++;
           tracker.recordError(unitTest);
-          break;
 
         /// if the test had an error other than a TestFailure.
         case 'error':
           _counts.errors++;
           tracker.recordError(unitTest);
-          break;
       }
     }
 

@@ -17,7 +17,7 @@ import 'package:test/test.dart';
 
 void main() {
   test('hooks ...', () async {
-    withTempDir((packageRoot) {
+    await withTempDirAsync((packageRoot) async {
       final pathToHooks =
           join(packageRoot, pathToCriticalTestConfig, 'pre_hook');
       createDir(pathToHooks, recursive: true);

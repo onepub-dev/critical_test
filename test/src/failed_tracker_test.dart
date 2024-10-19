@@ -16,8 +16,8 @@ import 'package:test/test.dart';
 
 void main() {
   /// Check that the .failed_tracker file contains the correct information.
-  test('failed tracker', () {
-    withTempFile((logfile) {
+  test('failed tracker', () async{
+    await withTempFileAsync((logfile) async{
       // var script = Script.capture((_) async {
       //   run([
       //     '--log-path=$logfile',
@@ -29,7 +29,7 @@ void main() {
       // final combined = script.combineOutput();
       // final output = waitForEx(combined.text);
       // var exitCode = waitForEx(script.exitCode);
-      withTempFile((trackerFilename) {
+      await withTempFileAsync((trackerFilename) async{
         final criticalTestExe = join('bin', 'critical_test.dart');
         final progress = start(
             '$criticalTestExe --tracker=$trackerFilename --log-path=$logfile '
@@ -58,7 +58,7 @@ void main() {
   });
 
   // test('failed tracker 2', () {
-  //   withTempFile((logfile) {
+  //   await withTempFileAsync((logfile) {
   //     run([
   //       '--log-path=$logfile',
   //       '-v',
@@ -68,9 +68,9 @@ void main() {
   //   });
   // });
 
-  test('run test by name', () {
-    withTempFile((logfile) {
-      withTempFile((trackerFilename) {
+  test('run test by name', () async{
+    await withTempFileAsync((logfile) async{
+      await withTempFileAsync((trackerFilename) async{
         final criticalTestExe =
             join(DartProject.self.pathToBinDir, 'critical_test.dart');
 
@@ -101,8 +101,8 @@ void main() {
     });
   });
 
-  test('FailedTracker.beginTestRun - no failures', () {
-    withTempFile((trackerFilename) {
+  test('FailedTracker.beginTestRun - no failures', () async{
+    await withTempFileAsync((trackerFilename) async{
       final tracker = FailedTracker.beginTestRun(trackerFilename);
 
       expect(tracker.fileExists, isFalse);
@@ -117,8 +117,8 @@ void main() {
     });
   });
 
-  test('FailedTracker.beginTestRun - one failures', () {
-    withTempFile((trackerFilename) {
+  test('FailedTracker.beginTestRun - one failures', () async{
+    await withTempFileAsync((trackerFilename) async{
       final tracker = FailedTracker.beginTestRun(trackerFilename)
         ..recordError(
             UnitTest(pathTo: 'test/me/failed_test.dart', testName: 'one'));
@@ -135,8 +135,8 @@ void main() {
     });
   });
 
-  test('FailedTracker.beginTestRun - three failures', () {
-    withTempFile((trackerFilename) {
+  test('FailedTracker.beginTestRun - three failures', () async{
+    await withTempFileAsync((trackerFilename) async{
       final tracker = FailedTracker.beginTestRun(trackerFilename)
         ..recordError(
             UnitTest(pathTo: 'test/me/failed_test.dart', testName: 'one'))
@@ -157,8 +157,8 @@ void main() {
     });
   });
 
-  test('FailedTracker.beginReplay ', () {
-    withTempFile((trackerFilename) {
+  test('FailedTracker.beginReplay ', () async{
+    await withTempFileAsync((trackerFilename) async{
       FailedTracker.beginTestRun(trackerFilename)
         ..recordError(
             UnitTest(pathTo: 'test/me/failed_test.dart', testName: 'one'))
@@ -181,8 +181,8 @@ void main() {
     });
   });
 
-  test('FailedTracker restart replay ', () {
-    withTempFile((trackerFilename) {
+  test('FailedTracker restart replay ', () async{
+    await withTempFileAsync((trackerFilename) async{
       FailedTracker.beginTestRun(trackerFilename)
         ..recordError(
             UnitTest(pathTo: 'test/me/failed_test.dart', testName: 'one'))
@@ -213,8 +213,8 @@ void main() {
     });
   });
 
-  test('FailedTracker.beginReplay with second round', () {
-    withTempFile((trackerFilename) {
+  test('FailedTracker.beginReplay with second round', () async{
+    await withTempFileAsync((trackerFilename) async{
       final tracker = FailedTracker.beginTestRun(trackerFilename)
         ..recordError(
             UnitTest(pathTo: 'test/me/failed_test.dart', testName: 'one'))

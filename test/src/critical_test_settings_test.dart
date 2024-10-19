@@ -10,7 +10,7 @@ import 'package:test/test.dart';
 
 void main() {
   test('critical test settings ...', () async {
-    withTempFile((pathTosettings) {
+    await withTempFileAsync((pathTosettings) async{
       pathTosettings.write('''
 exclude-tags: [sudo]
 tags: [fred]

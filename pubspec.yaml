@@ -8,7 +8,7 @@ repository: https://github.com/bsutton/critical_tester
 environment:
   sdk: '>=3.0.0 <4.0.0'
 dependencies:
-  _fe_analyzer_shared: ^68.0.0
+  _fe_analyzer_shared: ^73.0.0
   analyzer: ^6.5.0
   archive: ^3.3.7
   args: ^2.4.1
@@ -28,13 +28,13 @@ dependencies:
   cli_script: ^1.0.0
   code_builder: ^4.4.0
   collection: ^1.17.2
-  convert: 3.1.1
+  convert: ^3.1.2
   coverage: ^1.6.3
   crypto: ^3.0.3
   csv: ^6.0.0
   dart_style: ^2.2.5
-  dcli: ^4.0.3
-  dcli_core: ^4.0.3
+  dcli: ^6.0.5
+  dcli_core: ^6.0.3
   equatable: 2.0.5
   ffi: ^2.0.1
   file: ^7.0.0
@@ -65,20 +65,20 @@ dependencies:
   pubspec_parse: ^1.2.3
   quiver: ^3.2.1
   random_string: 2.3.1
-  scope: ^4.1.0
+  scope: ^5.1.0
   settings_yaml: ^8.1.0
   shelf: ^1.4.1
   shelf_packages_handler: ^3.0.2
   shelf_static: ^1.1.2
   shelf_web_socket: ^2.0.0
-  source_map_stack_trace: 2.1.1
+  source_map_stack_trace: ^2.1.2
   source_maps: ^0.10.12
   source_span: ^1.10.0
   stack_trace: ^1.11.1
   stacktrace_impl: 2.3.0
   stream_channel: ^2.1.2
   stream_transform: 2.1.0
-  string_scanner: 1.2.0
+  string_scanner: ^1.4.0
   term_glyph: 1.2.1
   timing: ^1.0.1
   tuple: ^2.0.2
@@ -94,7 +94,7 @@ dependencies:
   yaml: ^3.1.2
 dev_dependencies:
   build_runner: ^2.2.0
-  lint_hard: ^4.0.0
+  lint_hard: ^5.0.0
   test: ^1.0.0
   test_api: ^0.7.3
   test_core: ^0.6.5

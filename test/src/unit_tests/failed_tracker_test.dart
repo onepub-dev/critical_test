@@ -16,8 +16,8 @@ final unitTestOne = UnitTest(pathTo: pathToTestOne, testName: 'one');
 void main() {
   group('FailedTracker', () {
     test('simple ...', () async {
-      withTempDir((dir) {
-        withTempFile((trackerFilename) {
+      await withTempDirAsync((dir) async{
+        await withTempFileAsync((trackerFilename) async{
           final tracker = FailedTracker.beginTestRun(trackerFilename);
           expect(exists(trackerFilename), isFalse);
           tracker
@@ -29,8 +29,8 @@ void main() {
     });
 
     test('successful after failure.', () async {
-      withTempDir((dir) {
-        withTempFile((trackerFilename) {
+      await withTempDirAsync((dir) async{
+        await withTempFileAsync((trackerFilename) async{
           /// record a failed unit tests.
           final tracker = FailedTracker.beginTestRun(trackerFilename);
           expect(exists(trackerFilename), isFalse);
