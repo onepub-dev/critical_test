@@ -1,3 +1,6 @@
+# 8.2.0
+ - upgraded all package.
+
 # 8.1.1
 - upgraded to dcli 6.1 for macos and windows fixes.
 

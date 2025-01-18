@@ -225,7 +225,6 @@ class ProcessOutput {
     switch (type) {
       default:
         printerr('unexpected type: $type');
-        break;
     }
   }
 
