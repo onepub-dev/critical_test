@@ -1,3 +1,7 @@
+# 8.3.0
+- upgraded to dcli 8.2.0 and lint_hard 6.
+- relased 8.2.0
+
 # 8.2.0
  - upgraded all package.
 
