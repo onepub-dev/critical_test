@@ -6,3 +6,4 @@
 .failed_tracker.test
 .failed_tracker.bak
 *.tmp
+custom_lint.log
