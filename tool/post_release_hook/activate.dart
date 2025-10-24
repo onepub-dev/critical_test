@@ -1,6 +1,5 @@
 #! /usr/bin/env dcli
 
-// ignore: unused_import
 import 'package:dcli/dcli.dart';
 
 void main(List<String> args) {

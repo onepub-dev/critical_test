@@ -72,12 +72,13 @@ void runHook(String pathToHook, String pathToPackageRoot, HookType hookType,
   }
 }
 
+// designed to match the directory name.
 // ignore: constant_identifier_names
 enum HookType { pre_hook, post_hook }
 
 const _ignoredExtensions = ['.yaml', '.ini', '.config', '.ignore'];
 bool _isIgnoredFile(String pathToHook) {
-  final _extension = extension(pathToHook);
+  final extension0 = extension(pathToHook);
 
-  return _ignoredExtensions.contains(_extension);
+  return _ignoredExtensions.contains(extension0);
 }

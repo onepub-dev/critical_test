@@ -7,6 +7,24 @@
 /// Class used to decode the 'test' types emmited by the dart unit tests
 /// json reporter
 class Test {
+// An opaque ID for the test.
+  int id;
+
+// The name of the test, including prefixes from any containing groups.
+  String name;
+
+// The ID of the suite containing this test.
+  int suiteID;
+
+// The (1-based) line on which the test was defined, or `null`.
+  int line;
+
+// The (1-based) column on which the test was defined, or `null`.
+  int column;
+
+// The URL for the file in which the test was defined, or `null`.
+  String url;
+
   Test(this.id, this.name, this.line, this.column, this.url, this.suiteID) {
     if (name.startsWith('loading')) {
       /// we already display the active script so lets not repeat it.
@@ -33,28 +51,6 @@ class Test {
       json['column'] as int? ?? 0,
       json['url'] as String? ?? '',
       json['suiteid'] as int? ?? 0);
-
-// An opaque ID for the test.
-  int id;
-
-// The name of the test, including prefixes from any containing groups.
-  String name;
-
-// The ID of the suite containing this test.
-  int suiteID;
-
-// // The IDs of groups containing this test, in order from outermost to
-// // innermost.
-// List<int> groupIDs;
-
-// The (1-based) line on which the test was defined, or `null`.
-  int line;
-
-// The (1-based) column on which the test was defined, or `null`.
-  int column;
-
-// The URL for the file in which the test was defined, or `null`.
-  String url;
 
   String get path => Uri.parse(url).toFilePath();
 

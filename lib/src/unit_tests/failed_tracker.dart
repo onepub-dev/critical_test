@@ -16,6 +16,14 @@ import 'unit_test.dart';
 enum _RunType { full, replay, ignore }
 
 class FailedTracker {
+  static const defaultFilename = '.failed_tracker';
+
+  final _failedTests = <UnitTest>[];
+
+  final _RunType _runType;
+
+  final String trackerFilename;
+
   FailedTracker.beginReplay(this.trackerFilename) : _runType = _RunType.replay {
     if (fileExists) {
       final failures = UnitTest.loadFailedTests(trackerFilename);
@@ -49,13 +57,6 @@ class FailedTracker {
   FailedTracker.ignoreFailures()
       : trackerFilename = join(pathToCriticalTestConfig, defaultFilename),
         _runType = _RunType.ignore;
-
-  static const defaultFilename = '.failed_tracker';
-  final _failedTests = <UnitTest>[];
-
-  final _RunType _runType;
-
-  final String trackerFilename;
 
   /// Call [done] when the set of tests have completed.
   /// We can now delete the backup file as we should have

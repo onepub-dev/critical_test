@@ -7,7 +7,14 @@
 import 'package:dcli/dcli.dart';
 
 class Counts {
+  var success = 0;
+
+  var errors = 0;
+
+  var _skipped = 0;
+
   Counts();
+
   Counts.withValues(this.success, this.errors, int skipped)
       : _skipped = skipped;
 
@@ -16,9 +23,6 @@ class Counts {
     errors = counts.errors;
     _skipped = counts._skipped;
   }
-  int success = 0;
-  int errors = 0;
-  int _skipped = 0;
 
   void incSkipped() {
     _skipped++;
@@ -29,19 +33,6 @@ class Counts {
   bool get allPassed => errors == 0;
 
   bool get nothingRan => success == 0 && errors == 0;
-
-  // void add(int success, int failures, int errors, int skipped) {
-  //   this.success += success;
-  //   this.failures += failures;
-  //   this.errors += errors;
-  //   this.skipped += skipped;
-  // }
-
-  // void add(Counts counts) {
-  //   success += counts.success;
-  //   errors += counts.errors;
-  //   skipped += counts.skipped;
-  // }
 
   @override
   String toString() =>

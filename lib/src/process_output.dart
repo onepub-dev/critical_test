@@ -16,10 +16,10 @@ import 'unit_tests/unit_test.dart';
 import 'util/counts.dart';
 
 class ProcessOutput {
-  String suite = '';
+  var suite = '';
 
   // late String activeScript;
-  Test test = Test.empty();
+  var test = Test.empty();
 
   /// Total tests to be processed.
   int? total;
@@ -28,14 +28,14 @@ class ProcessOutput {
       join(Directory.systemTemp.path, 'critical_test', 'unit_tests.log');
 
   /// If true we show progress and failed tests
-  bool showProgress = true;
+  var showProgress = true;
 
   /// If true we show successful tests.
-  bool showSuccess = false;
+  var showSuccess = false;
 
   /// gets replaced when runTest is called.
   /// We just init it here so its nnbd.
-  final Counts _counts = Counts();
+  final _counts = Counts();
 
   final _errors = <String>[];
 
@@ -61,28 +61,28 @@ class ProcessOutput {
 
   void processOutput(String line, FailedTracker tracker) {
     verbose(() => line);
-    var _line = line.trim();
-    if (!_line.startsWith('{"')) {
-      final embeddedIndex = _line.indexOf('{"');
+    var line0 = line.trim();
+    if (!line0.startsWith('{"')) {
+      final embeddedIndex = line0.indexOf('{"');
       if (embeddedIndex == -1) {
         /// Probably a raw output line from a unit test that
         /// spawns a sub process.
-        lines.add(_line);
+        lines.add(line0);
         return;
       }
 
-      _line = _line.substring(embeddedIndex);
+      line0 = line0.substring(embeddedIndex);
     }
 
     /// check for and trim raw output from a spawned subprocess
-    final lastBrace = _line.lastIndexOf('}');
-    if (lastBrace + 1 != _line.length) {
-      final tail = _line.substring(lastBrace + 1);
+    final lastBrace = line0.lastIndexOf('}');
+    if (lastBrace + 1 != line0.length) {
+      final tail = line0.substring(lastBrace + 1);
       lines.add(tail);
-      _line = _line.substring(0, lastBrace + 1);
+      line0 = line0.substring(0, lastBrace + 1);
     }
 
-    final map = jsonDecode(_line) as Map<String, dynamic>;
+    final map = jsonDecode(line0) as Map<String, dynamic>;
 
     final type = map['type'] as String? ?? 'unknown';
 
@@ -207,7 +207,7 @@ class ProcessOutput {
     // printProgress('${test.path}: Completed: ${test.name}');
   }
 
-  String group = '';
+  var group = '';
   void processGroup(Map<String, dynamic> map) {
     group = (_getNestedMap(map, 'group')['name'] ?? '') as String;
   }
@@ -225,7 +225,6 @@ class ProcessOutput {
     switch (type) {
       default:
         printerr('unexpected type: $type');
-        break;
     }
   }
 
@@ -251,9 +250,9 @@ class ProcessOutput {
         '${'*' * 32} END ERROR (${_counts.errors + 1}) '.padRight(80, '*')));
   }
 
-  List<String> lines = <String>[];
+  var lines = <String>[];
 
-  String _lastProgressLine = '';
+  var _lastProgressLine = '';
 
   void printProgress(String message) {
     final columns = Terminal().columns;

@@ -25,24 +25,34 @@ class Settings {
   //   yaml = _loadFromPath(pathTo: pathTo);
   // }
 
-  Settings.loadFromPath({required String pathTo}) {
-    yaml = _loadFromPath(pathTo: pathTo);
-  }
   static const filename = 'settings.yaml';
 
   late final SettingsYaml yaml;
 
   static String defaultPath = join(pathToCriticalTestConfig, filename);
 
+  Settings.loadFromPath({required String pathTo}) {
+    yaml = _loadFromPath(pathTo: pathTo);
+  }
+
   List<String> get excludeTags => yaml.asStringList('exclude-tags');
+
   List<String> get tags => yaml.asStringList('tags');
+
   String get plainName => yaml.asString('plain-name');
+
   bool get showAll => yaml.asBool('all', defaultValue: false);
+
   bool get progress => yaml.asBool('progress');
+
   bool get coverage => yaml.asBool('coverage', defaultValue: false);
+
   String get logPath => yaml.asString('log-path', defaultValue: defaultLogPath);
+
   bool get noHooks => yaml.asBool('no-hooks', defaultValue: false);
+
   bool get warmup => yaml.asBool('warmup');
+
   bool get track => yaml.asBool('track');
 
   SettingsYaml _loadFromPath({required String pathTo}) {

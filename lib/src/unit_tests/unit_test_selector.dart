@@ -15,9 +15,18 @@ import 'unit_test.dart';
 /// If the test name is nested with a group(s) then the test name
 /// should include the group name(s).
 /// e.g.
-/// <group name> <test name>
+/// `<group name> <test name>`
 ///
 class UnitTestSelector {
+  /// The set of directories and/or libraries to run tests from.
+  final List<String> testPaths;
+
+  String? testName;
+
+  List<String> tags;
+
+  List<String> excludeTags;
+
   UnitTestSelector.fromArgs(ParsedArgs parsedArgs)
       : testPaths = List.from(parsedArgs.parsed.rest),
         testName = parsedArgs.plainName,
@@ -28,6 +37,7 @@ class UnitTestSelector {
       testPaths.add(join(parsedArgs.pathToProjectRoot, 'test'));
     }
   }
+
   UnitTestSelector.fromUnitTest(UnitTest unitTest)
       : testName = unitTest.testName,
         testPaths = <String>[],
@@ -43,12 +53,6 @@ class UnitTestSelector {
       : testPaths = <String>[],
         tags = <String>[],
         excludeTags = <String>[];
-
-  /// The set of directories and/or libraries to run tests from.
-  final List<String> testPaths;
-  String? testName;
-  List<String> tags;
-  List<String> excludeTags;
 
   @override
   String toString() {

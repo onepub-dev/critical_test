@@ -18,6 +18,40 @@ final defaultLogPath =
     '${Directory.systemTemp.path}/critical_test/unit_test.log';
 
 class ParsedArgs {
+  late final ArgParser parser;
+
+  late final bool menu;
+
+  late final String pathToProjectRoot;
+
+  late final bool coverage;
+
+  late final bool warmup;
+
+  late final bool runHooks;
+
+  late final String trackerFilename;
+
+  late final bool runFailed;
+
+  late final List<String> tags;
+
+  late final List<String> excludeTags;
+
+  late final String plainName;
+
+  late final bool track;
+
+  late final ArgResults parsed;
+
+  /// if true we show the output form successful tests as well as failed ones.
+  late final bool showAll;
+
+  /// show counts of the number of failed/successful/skipped tests.
+  late final bool showProgress;
+
+  late final String logPath;
+
   ParsedArgs.build() {
     parser = ArgParser()
       ..addFlag(
@@ -109,39 +143,6 @@ Unit tests will fail if pub get hasn't been run.''',
       )
       ..addOption('settings-path', defaultsTo: Settings.defaultPath);
   }
-  late final ArgParser parser;
-
-  late final bool menu;
-
-  late final String pathToProjectRoot;
-
-  late final bool coverage;
-
-  late final bool warmup;
-
-  late final bool runHooks;
-
-  late final String trackerFilename;
-
-  late final bool runFailed;
-
-  late final List<String> tags;
-
-  late final List<String> excludeTags;
-
-  late final String plainName;
-
-  late final bool track;
-
-  late final ArgResults parsed;
-
-  /// if true we show the output form successful tests as well as failed ones.
-  late final bool showAll;
-
-  /// show counts of the number of failed/successful/skipped tests.
-  late final bool showProgress;
-
-  late final String logPath;
 
   void parse(List<String> args) {
     try {
@@ -221,12 +222,12 @@ Unit tests will fail if pub get hasn't been run.''',
     }
 
     if (parsed.wasParsed('log-path')) {
-      final _logPath = truepath(parsed['log-path'] as String);
-      if (exists(_logPath) && !isFile(_logPath)) {
+      final logPath0 = truepath(parsed['log-path'] as String);
+      if (exists(logPath0) && !isFile(logPath0)) {
         printerr(red('--log-path must specify a file'));
         showUsage(parser);
       }
-      logPath = _logPath;
+      logPath = logPath0;
     } else {
       logPath = settings.logPath;
     }

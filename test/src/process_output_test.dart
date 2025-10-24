@@ -14,13 +14,13 @@ import 'package:path/path.dart' hide equals;
 import 'package:test/test.dart';
 
 void main() {
-  test('process output ...', () async {
+  test('process output ...', () {
     final processor = ProcessOutput()..showProgress = false;
 
     /// we must set a log path.
-    final _logPath = join(createTempDir(), 'logfile.log');
-    print('logging to $_logPath');
-    processor.logPath = _logPath;
+    final logPath = join(createTempDir(), 'logfile.log');
+    print('logging to $logPath');
+    processor.logPath = logPath;
 
     final tracker = FailedTracker.ignoreFailures();
 
@@ -29,6 +29,7 @@ void main() {
 
     final escapedPath = path.replaceAll(r'\', '/');
     processor.processOutput(
+        // the string doesn't need whitespace.
         // ignore: missing_whitespace_between_adjacent_strings
         '{"test":{"id":11,"name":"Group ##1 4th Intentional succeed","suiteID"'
         ':0,"groupIDs":[2,3],"metadata":{"skip":false'
@@ -52,16 +53,14 @@ void main() {
     expect(processor.lines[1], equals(crap));
 
     processor
-      ..processOutput(
-          // ignore: lines_longer_than_80_chars
-          '{"testID":3,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2414}',
+      ..processOutput('''
+{"testID":3,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2414}''',
           tracker)
-      ..processOutput(
-          // ignore: lines_longer_than_80_chars
-          '{"testID":4,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2414}',
+      ..processOutput('''
+{"testID":4,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2414}''',
           tracker);
 
-    final log = read(_logPath).toList();
+    final log = read(logPath).toList();
     // final uriPath = Uri.parse('file://${relative(escapedPath)}').toFilePath();
     expect(
         log.first,

@@ -36,7 +36,6 @@ Future<void> run(List<String> args) async {
   exit(0);
 }
 
-// ignore: avoid_classes_with_only_static_members
 class CriticalTest {
   static Future<void> run(List<String> args, ProcessOutput processor) async {
     final parsedArgs = ParsedArgs.build()..parse(args);

@@ -11,13 +11,13 @@ import 'package:test/test.dart';
 
 void main() {
   group('tags', () {
-    test('tags - single tag', () async {
+    test('tags - single tag', ()  {
       final args = ['--tags=solo'];
       final parsedArgs = ParsedArgs.build()..parse(args);
       expect(parsedArgs.tags, equals(['solo']));
     });
 
-    test('tags - two tags', () async {
+    test('tags - two tags', ()  {
       final two = ['--tags=eins,zwei'];
       final parsedArgs = ParsedArgs.build()..parse(two);
       expect(parsedArgs.tags, equals(['eins', 'zwei']));
@@ -48,13 +48,13 @@ tags: [abc, one]
   });
 
   group('exclude-tags', () {
-    test('single ', () async {
+    test('single ', ()  {
       final args = ['--exclude-tags=solo'];
       final parsedArgs = ParsedArgs.build()..parse(args);
       expect(parsedArgs.excludeTags, equals(['solo']));
     });
 
-    test('two', () async {
+    test('two', ()  {
       final two = ['--exclude-tags=eins,zwei'];
       final parsedArgs = ParsedArgs.build()..parse(two);
       expect(parsedArgs.excludeTags, equals(['eins', 'zwei']));
@@ -85,12 +85,12 @@ tags: [abc, one]
   });
 
   group('plan-name', () {
-    test('none', () async {
+    test('none', ()  {
       final parsedArgs = ParsedArgs.build()..parse([]);
       expect(parsedArgs.plainName, equals(''));
     });
 
-    test('named', () async {
+    test('named', ()  {
       final two = ['--plain-name=Test One'];
       final parsedArgs = ParsedArgs.build()..parse(two);
       expect(parsedArgs.plainName, equals('Test One'));
@@ -121,12 +121,12 @@ plain-name: Test Two
   });
 
   group('showAll', () {
-    test('default', () async {
+    test('default', ()  {
       final parsedArgs = ParsedArgs.build()..parse([]);
       expect(parsedArgs.showAll, false);
     });
 
-    test('arg', () async {
+    test('arg', ()  {
       final two = ['--all'];
       final parsedArgs = ParsedArgs.build()..parse(two);
       expect(parsedArgs.showAll, isTrue);
@@ -156,12 +156,12 @@ all: true
     });
 
     group('progress', () {
-      test('default', () async {
+      test('default', ()  {
         final parsedArgs = ParsedArgs.build()..parse([]);
         expect(parsedArgs.showProgress, true);
       });
 
-      test('arg', () async {
+      test('arg', ()  {
         final two = ['--progress'];
         final parsedArgs = ParsedArgs.build()..parse(two);
         expect(parsedArgs.showProgress, isTrue);
@@ -193,12 +193,12 @@ progress: true
   });
 
   group('coverage', () {
-    test('default', () async {
+    test('default', ()  {
       final parsedArgs = ParsedArgs.build()..parse([]);
       expect(parsedArgs.coverage, false);
     });
 
-    test('arg', () async {
+    test('arg', ()  {
       final two = ['--coverage'];
       final parsedArgs = ParsedArgs.build()..parse(two);
       expect(parsedArgs.coverage, isTrue);
@@ -229,12 +229,12 @@ coverage: true
   });
 
   group('hooks', () {
-    test('default', () async {
+    test('default', ()  {
       final parsedArgs = ParsedArgs.build()..parse([]);
       expect(parsedArgs.runHooks, true);
     });
 
-    test('arg', () async {
+    test('arg', ()  {
       final two = ['--no-hooks'];
       final parsedArgs = ParsedArgs.build()..parse(two);
       expect(parsedArgs.runHooks, isFalse);
@@ -265,12 +265,12 @@ hooks: true
   });
 
   group('warmup', () {
-    test('default', () async {
+    test('default', ()  {
       final parsedArgs = ParsedArgs.build()..parse([]);
       expect(parsedArgs.warmup, true);
     });
 
-    test('arg', () async {
+    test('arg', ()  {
       final two = ['--warmup'];
       final parsedArgs = ParsedArgs.build()..parse(two);
       expect(parsedArgs.warmup, isTrue);
@@ -301,12 +301,12 @@ warmup: true
   });
 
   group('track', () {
-    test('default', () async {
+    test('default', ()  {
       final parsedArgs = ParsedArgs.build()..parse([]);
       expect(parsedArgs.track, isTrue);
     });
 
-    test('arg', () async {
+    test('arg', ()  {
       final two = ['--track'];
       final parsedArgs = ParsedArgs.build()..parse(two);
       expect(parsedArgs.track, isTrue);
@@ -337,12 +337,12 @@ track: false
   });
 
   group('log-path', () {
-    test('default', () async {
+    test('default', ()  {
       final parsedArgs = ParsedArgs.build()..parse([]);
       expect(parsedArgs.logPath, equals(defaultLogPath));
     });
 
-    test('override', () async {
+    test('override', ()  {
       final two = ['--log-path=/tmp/hello'];
       final parsedArgs = ParsedArgs.build()..parse(two);
       expect(parsedArgs.logPath, equals(join(rootPath, 'tmp', 'hello')));

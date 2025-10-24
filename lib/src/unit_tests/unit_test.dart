@@ -17,13 +17,17 @@ part 'unit_test.g.dart';
 /// If the test name is nested with a group(s) then the test name
 /// should include the group name(s).
 /// e.g.
-/// <group name> <test name>
+/// `<group name> <test name>`
 ///
 /// To generate the json
 /// pub global activate build_runner
 /// dart run build_runner build
 @JsonSerializable()
 class UnitTest {
+  final String pathTo;
+
+  final String testName;
+
   UnitTest({required this.pathTo, required this.testName});
 
   factory UnitTest.fromJson(Map<String, dynamic> json) =>
@@ -34,9 +38,6 @@ class UnitTest {
   const UnitTest.exitOption()
       : pathTo = '',
         testName = 'exit';
-
-  final String pathTo;
-  final String testName;
 
   @override
   String toString() {

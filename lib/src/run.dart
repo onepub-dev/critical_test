@@ -41,7 +41,6 @@ Future<void> runPackageTests({
     runPreHooks(pathToProjectRoot);
   }
   if (processor.showProgress) {
-    // ignore: missing_whitespace_between_adjacent_strings
     print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
   }
 
@@ -116,7 +115,6 @@ Future<void> runSingleTest({
   }
 
   if (processor.showProgress) {
-    // ignore: missing_whitespace_between_adjacent_strings
     print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
   }
   _runTestScript(
@@ -163,7 +161,6 @@ Future<void> runFailedTests({
     }
 
     if (processor.showProgress) {
-      // ignore: missing_whitespace_between_adjacent_strings
       print('Legend: ${green('Success')}:${red('Errors')}:${blue('Skipped')}');
     }
 
@@ -238,7 +235,6 @@ void _runTestScript({
     if (processor.counts.errors != saved.errors) {
       printerr(processor.errors.join('\n'));
     }
-    // ignore: avoid_catches_without_on_clauses
   } catch (e, st) {
     printerr('Error $e, st: $st');
   }
@@ -252,7 +248,6 @@ Future<void> warmupAllPubspecs(String pathToProjectRoot) async {
       in find('pubspec.yaml', workingDirectory: pathToProjectRoot).toList()) {
     if (DartSdk().isPubGetRequired(dirname(pubspec))) {
       print(blue('Running pub get in ${dirname(pubspec)}'));
-      // ignore: discarded_futures
       await capture(() async {
         DartSdk().runPubGet(dirname(pubspec));
       }, progress: Progress.printStdErr());
