@@ -1,3 +1,6 @@
+# 8.4.0
+Improved process of out of band json reducing noise on the cli ouput.
+
 # 8.3.0
 - upgraded to dcli 8.2.0 and lint_hard 6.
 - relased 8.2.0

@@ -74,6 +74,19 @@ void main() {
     addOne(counts);
     expect(counts.success, equals(1));
   });
+
+  test('ignores json without type prefix', () {
+    final processor = ProcessOutput()..showProgress = false;
+    final logPath = join(createTempDir(), 'logfile.log');
+    processor.logPath = logPath;
+
+    final tracker = FailedTracker.ignoreFailures();
+    const nestedJson = '{"name":"dcli_unit_tester","latest":{"version":"8.3.0"}}';
+    processor.processOutput(nestedJson, tracker);
+
+    expect(processor.lines.isNotEmpty, isTrue);
+    expect(processor.lines.first, equals(nestedJson));
+  });
 }
 
 void addOne(Counts counts) {

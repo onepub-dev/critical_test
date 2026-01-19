@@ -17,12 +17,16 @@ void main() {
     await withTempFileAsync((logfile) async{
       await withTempFileAsync((tracker) async{
         final criticalTestExe = join('bin', 'critical_test.dart');
-        final progress = start(
-            '$criticalTestExe --tracker=$tracker --log-path=$logfile  '
-            '${join('test_scripts', 'for_counts_test.dart')}',
-            progress: Progress.capture(),
-            nothrow: true,
-            runInShell: true);
+        final progress = DartSdk().run(
+          args: [
+            criticalTestExe,
+            '--tracker=$tracker',
+            '--log-path=$logfile',
+            join('test_scripts', 'for_counts_test.dart')
+          ],
+          progress: Progress.capture(),
+          nothrow: true,
+        );
 
         // print(progress.lines.join('\n'));
         final counts = lastCounts(progress.lines);

@@ -82,7 +82,16 @@ class ProcessOutput {
       line0 = line0.substring(0, lastBrace + 1);
     }
 
-    final map = jsonDecode(line0) as Map<String, dynamic>;
+    final decoded = jsonDecode(line0);
+    if (decoded is! Map<String, dynamic> || !decoded.containsKey('type')) {
+      lines.add(line0);
+      if (showSuccess) {
+        print(line0);
+      }
+      log(line0);
+      return;
+    }
+    final map = decoded;
 
     final type = map['type'] as String? ?? 'unknown';
 

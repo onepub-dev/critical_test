@@ -31,12 +31,18 @@ void main() {
       // var exitCode = waitForEx(script.exitCode);
       await withTempFileAsync((trackerFilename) async{
         final criticalTestExe = join('bin', 'critical_test.dart');
-        final progress = start(
-            '$criticalTestExe --tracker=$trackerFilename --log-path=$logfile '
-            '-v --track ${join('test_scripts', 'for_counts_test.dart')}',
-            progress: Progress.capture(),
-            nothrow: true,
-            runInShell: true);
+        final progress = DartSdk().run(
+          args: [
+            criticalTestExe,
+            '--tracker=$trackerFilename',
+            '--log-path=$logfile',
+            '-v',
+            '--track',
+            join('test_scripts', 'for_counts_test.dart')
+          ],
+          progress: Progress.capture(),
+          nothrow: true,
+        );
 
         final tracker = FailedTracker.beginReplay(trackerFilename);
         final counts = lastCounts(progress.lines);

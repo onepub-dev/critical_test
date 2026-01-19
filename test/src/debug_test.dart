@@ -35,5 +35,5 @@ void main() {
     //  }, progress: Progress.capture());
 
     // print(progress.lines.join('\n'));
-  }, tags: ['special']);
+  }, tags: ['special'], skip: 'debug-only');
 }

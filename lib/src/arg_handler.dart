@@ -177,7 +177,9 @@ Unit tests will fail if pub get hasn't been run.''',
     tags = getParsed(parsed, 'tags', () => settings.tags).toList();
     excludeTags =
         getParsed(parsed, 'exclude-tags', () => settings.excludeTags).toList();
-    plainName = getParsed(parsed, 'plain-name', () => settings.plainName);
+    final rawPlainName =
+        getParsed(parsed, 'plain-name', () => settings.plainName);
+    plainName = _stripWrappingQuotes(rawPlainName);
 
     if (!atMostOne([
       menu,
@@ -285,4 +287,17 @@ tags, exclude-tags and plain-name all act as filters when running against
 selected directories or libraries and restrict the set of tests that are run.''');
   print(parser.usage);
   exit(1);
+}
+
+String _stripWrappingQuotes(String value) {
+  final trimmed = value.trim();
+  if (trimmed.length < 2) {
+    return trimmed;
+  }
+  final starts = trimmed[0];
+  final ends = trimmed[trimmed.length - 1];
+  if ((starts == '"' && ends == '"') || (starts == "'" && ends == "'")) {
+    return trimmed.substring(1, trimmed.length - 1);
+  }
+  return trimmed;
 }
