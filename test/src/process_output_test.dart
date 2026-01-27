@@ -81,7 +81,8 @@ void main() {
     processor.logPath = logPath;
 
     final tracker = FailedTracker.ignoreFailures();
-    const nestedJson = '{"name":"dcli_unit_tester","latest":{"version":"8.3.0"}}';
+    const nestedJson =
+        '{"name":"dcli_unit_tester","latest":{"version":"8.3.0"}}';
     processor.processOutput(nestedJson, tracker);
 
     expect(processor.lines.isNotEmpty, isTrue);

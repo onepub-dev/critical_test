@@ -71,6 +71,14 @@ class ProcessOutput {
         return;
       }
 
+      if (embeddedIndex > 0) {
+        final prefix = line0.substring(0, embeddedIndex);
+        lines.add(prefix);
+        if (showSuccess) {
+          print(prefix);
+        }
+        log(prefix);
+      }
       line0 = line0.substring(embeddedIndex);
     }
 
@@ -128,7 +136,11 @@ class ProcessOutput {
         // ignored
         break;
       default:
-        printerr(red('Unexpected type in $line'));
+        lines.add(line0);
+        if (showSuccess) {
+          print(line0);
+        }
+        log(line0);
     }
 
     // if (map.containsKey('testID')) {
