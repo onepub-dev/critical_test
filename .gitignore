@@ -7,3 +7,5 @@
 .failed_tracker.bak
 *.tmp
 custom_lint.log
+logs/analyzer.txt
+.mcp_logs/mcp_command_server.log
