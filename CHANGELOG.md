@@ -1,3 +1,8 @@
+# 8.4.1
+- fix for passing json from dart test to better handle odd types.
+- ignored logs.
+- updated the sponsored by.
+
 # 8.4.0
 Improved process of out of band json reducing noise on the cli ouput.
 
