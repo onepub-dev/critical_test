@@ -14,9 +14,16 @@ Critical Test then lets you re-run individual failed tests or re-run all failed 
 
 Critical Tests also provides an enhanced view of failed unit tests making it easier to review those tests.
 
-## Another Dart tool by Noojee
+---
 
-![Noojee](images/noojee-logo.png)
+## Sponsors
+
+Critical Test is built by [OnePub](https://onepub.dev), the private Dart package repository.  
+You can support Critical Test by supporting OnePub.
+
+<a href="https://onepub.dev">
+  <img src="https://raw.githubusercontent.com/onepub-dev/fixed/main/images/LogoAndByLine.png" alt="OnePub" width="300">
+</a>
 
 ## Run all tests
 
