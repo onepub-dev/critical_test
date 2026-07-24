@@ -78,6 +78,18 @@ When using Critical Test in a CI pipeline we recommend running with --no-progres
 
 In this mode you will only get a small intro message and a completion message. If any errors are generated they are still logged to the console in full.
 
+### concurrency
+
+By default Critical Test uses the Dart test runner's normal suite concurrency.
+Use `--concurrency` or `-j` to set an explicit limit. To run test suites
+serially:
+
+`critical_test --concurrency=1`
+
+or:
+
+`critical_test -j1`
+
 ### show
 
 When Critical Test runs it normally suppresses the output of any tests that succeed.

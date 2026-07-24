@@ -22,6 +22,7 @@ Future<void> runPackageTests({
   required String pathToProjectRoot,
   required UnitTestSelector selector,
   required bool coverage,
+  required int? concurrency,
   required bool warmup,
   required bool hooks,
   required String trackerFilename,
@@ -49,6 +50,7 @@ Future<void> runPackageTests({
       pathToPackageRoot: pathToProjectRoot,
       selector: selector,
       coverage: coverage,
+      concurrency: concurrency,
       tracker: tracker);
 
   print('');
@@ -66,6 +68,7 @@ void _runAllTests(
     required String pathToPackageRoot,
     required UnitTestSelector selector,
     required bool coverage,
+    required int? concurrency,
     required FailedTracker tracker}) {
   final pathToTestRoot = join(pathToPackageRoot, 'test');
 
@@ -83,6 +86,7 @@ void _runAllTests(
           tags: selector.tags,
           excludeTags: selector.excludeTags,
           coverage: coverage,
+          concurrency: concurrency,
           tracker: tracker);
     }
     processor.complete();
@@ -98,6 +102,7 @@ Future<void> runSingleTest({
   required List<String> tags,
   required List<String> excludeTags,
   required bool coverage,
+  required int? concurrency,
   required bool warmup,
   required FailedTracker tracker,
   required bool hooks,
@@ -125,6 +130,7 @@ Future<void> runSingleTest({
       tags: tags,
       excludeTags: excludeTags,
       coverage: coverage,
+      concurrency: concurrency,
       tracker: tracker);
   processor.complete();
 
@@ -142,6 +148,7 @@ Future<void> runFailedTests({
   required List<String> tags,
   required List<String> excludeTags,
   required bool coverage,
+  required int? concurrency,
   required bool warmup,
   required bool hooks,
   required String trackerFilename,
@@ -171,6 +178,7 @@ Future<void> runFailedTests({
           pathToPackageRoot: pathToProjectRoot,
           testName: failedTest.testName,
           coverage: coverage,
+          concurrency: concurrency,
           tracker: tracker,
           tags: [],
           excludeTags: []);
@@ -197,6 +205,7 @@ void _runTestScript({
   required List<String> tags,
   required List<String> excludeTags,
   required bool coverage,
+  required int? concurrency,
   required FailedTracker tracker,
   String? testName,
 }) {
@@ -206,7 +215,9 @@ void _runTestScript({
         args: [
           'test',
           ...[pathTo],
-          '-j1',
+          // Use the test runner's normal suite concurrency unless the user
+          // explicitly overrides it.
+          if (concurrency != null) '--concurrency=$concurrency',
           '-r',
           'json',
           if (coverage) '--coverage',

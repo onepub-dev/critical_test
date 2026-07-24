@@ -88,8 +88,49 @@ void main() {
     expect(processor.lines.isNotEmpty, isTrue);
     expect(processor.lines.first, equals(nestedJson));
   });
+
+  test('attributes interleaved parallel events to the correct test', () async {
+    final processor = ProcessOutput()
+      ..showProgress = false
+      ..logPath = join(createTempDir(), 'logfile.log');
+
+    await withTempFileAsync((trackerPath) async {
+      final tracker = FailedTracker.beginTestRun(trackerPath);
+      final firstPath = join(rootPath, 'first_test.dart');
+      final secondPath = join(rootPath, 'second_test.dart');
+
+      processor
+        ..processOutput(_testStart(1, 'first test', firstPath), tracker)
+        ..processOutput(_testStart(2, 'second test', secondPath), tracker)
+        ..processOutput(
+            '{"testID":1,"message":"first output","type":"print"}', tracker)
+        ..processOutput(
+            '{"testID":2,"message":"second output","type":"print"}', tracker)
+        ..processOutput(
+            '{"testID":1,"error":"failed","stackTrace":"trace",'
+            '"type":"error"}',
+            tracker)
+        ..processOutput(
+            '{"testID":1,"result":"failure","skipped":false,'
+            '"hidden":false,"type":"testDone"}',
+            tracker)
+        ..processOutput(
+            '{"testID":2,"result":"success","skipped":false,'
+            '"hidden":false,"type":"testDone"}',
+            tracker);
+
+      expect(tracker.failedTests, hasLength(1));
+      expect(tracker.failedTests.single.pathTo, equals(firstPath));
+      expect(tracker.failedTests.single.testName, equals('first test'));
+    });
+  });
 }
 
 void addOne(Counts counts) {
   counts.success++;
 }
+
+String _testStart(int id, String name, String path) =>
+    '{"test":{"id":$id,"name":"$name","suiteID":$id,'
+    '"line":1,"column":1,"url":"${Uri.file(path)}"},'
+    '"type":"testStart"}';

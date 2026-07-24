@@ -5,6 +5,7 @@
  */
 
 import 'package:critical_test/src/arg_handler.dart';
+import 'package:critical_test/src/exceptions/critical_test_exception.dart';
 import 'package:dcli/dcli.dart';
 import 'package:path/path.dart' hide equals;
 import 'package:test/test.dart';
@@ -225,6 +226,29 @@ coverage: true
         final parsedArgs = ParsedArgs.build()..parse(args);
         expect(parsedArgs.coverage, isFalse);
       });
+    });
+  });
+
+  group('concurrency', () {
+    test('defaults to the dart test runner default', () {
+      final parsedArgs = ParsedArgs.build()..parse([]);
+      expect(parsedArgs.concurrency, isNull);
+    });
+
+    test('long option', () {
+      final parsedArgs = ParsedArgs.build()..parse(['--concurrency=3']);
+      expect(parsedArgs.concurrency, equals(3));
+    });
+
+    test('short option', () {
+      final parsedArgs = ParsedArgs.build()..parse(['-j', '1']);
+      expect(parsedArgs.concurrency, equals(1));
+    });
+
+    test('must be positive', () {
+      expect(
+          () => ParsedArgs.build().parse(['--concurrency=0']),
+          throwsA(isA<CriticalTestException>()));
     });
   });
 

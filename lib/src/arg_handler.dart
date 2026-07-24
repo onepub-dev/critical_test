@@ -12,6 +12,7 @@ import 'package:dcli/dcli.dart' hide Settings;
 import 'package:path/path.dart';
 
 import 'critical_test_settings.dart';
+import 'exceptions/critical_test_exception.dart';
 import 'unit_tests/failed_tracker.dart';
 
 final defaultLogPath =
@@ -25,6 +26,8 @@ class ParsedArgs {
   late final String pathToProjectRoot;
 
   late final bool coverage;
+
+  late final int? concurrency;
 
   late final bool warmup;
 
@@ -100,6 +103,13 @@ class ParsedArgs {
         abbr: 'c',
         help: "Generates test coverage reports in the 'coverage' directory.",
       )
+      ..addOption(
+        'concurrency',
+        abbr: 'j',
+        valueHelp: 'threads',
+        help: 'The number of test suites to run concurrently. '
+            'Defaults to the dart test runner default.',
+      )
       ..addOption('log-path',
           abbr: 'g',
           help: 'Path to log all output. '
@@ -169,6 +179,7 @@ Unit tests will fail if pub get hasn't been run.''',
         getParsed(parsed, 'progress', () => settings.progress) || menu;
 
     coverage = getParsed(parsed, 'coverage', () => settings.coverage);
+    concurrency = _parseConcurrency(parsed['concurrency'] as String?);
     warmup = getParsed(parsed, 'warmup', () => settings.warmup);
     track = getParsed(parsed, 'track', () => settings.track);
     runHooks = !getParsed(parsed, 'no-hooks', () => settings.noHooks);
@@ -235,6 +246,18 @@ Unit tests will fail if pub get hasn't been run.''',
     }
 
     pathToProjectRoot = DartProject.fromPath(pwd).pathToProjectRoot;
+  }
+
+  int? _parseConcurrency(String? value) {
+    if (value == null) {
+      return null;
+    }
+    final parsedValue = int.tryParse(value);
+    if (parsedValue == null || parsedValue < 1) {
+      throw CriticalTestException(
+          '--concurrency must be a positive integer, got "$value".');
+    }
+    return parsedValue;
   }
 
   T getParsed<T>(ArgResults parsed, String name, T Function() defaultValue) {

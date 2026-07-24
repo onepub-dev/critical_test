@@ -18,8 +18,8 @@ import 'util/counts.dart';
 class ProcessOutput {
   var suite = '';
 
-  // late String activeScript;
-  var test = Test.empty();
+  final _testsById = <int, Test>{};
+  final _outputByTestId = <int, List<String>>{};
 
   /// Total tests to be processed.
   int? total;
@@ -103,8 +103,6 @@ class ProcessOutput {
 
     final type = map['type'] as String? ?? 'unknown';
 
-    final unitTest = UnitTest(pathTo: test.path, testName: test.name);
-
     switch (type) {
       case 'suite':
         processSuite(map);
@@ -116,13 +114,13 @@ class ProcessOutput {
         processTestStart(map);
 
       case 'testDone':
-        processTestDone(map, tracker, unitTest);
+        processTestDone(map, tracker);
 
       case 'print':
         processPrint(map);
 
       case 'error':
-        processError(map, tracker, group, unitTest);
+        processError(map, tracker);
 
       /// all tests are complete
       case 'done':
@@ -167,16 +165,23 @@ class ProcessOutput {
     // }
   }
 
-  void processError(Map<String, dynamic> map, FailedTracker tracker,
-      String group, UnitTest unitTest) {
+  void processError(Map<String, dynamic> map, FailedTracker tracker) {
     final stackTrace = map['stackTrace'] as String;
     final error = map['error'] as String;
-    printFailedTest(error, stackTrace, tracker, group, unitTest);
+    final testId = map['testID'] as int?;
+    final unitTest = _unitTestFor(testId);
+    final testOutput =
+        testId == null ? lines : _outputByTestId[testId] ?? const <String>[];
+    printFailedTest(error, stackTrace, tracker, unitTest, testOutput);
   }
 
   void processPrint(Map<String, dynamic> map) {
     final line = map['message'] as String;
     lines.add(line);
+    final testId = map['testID'] as int?;
+    if (testId != null) {
+      _outputByTestId.putIfAbsent(testId, () => <String>[]).add(line);
+    }
     if (showSuccess) {
       print(line);
     }
@@ -184,7 +189,9 @@ class ProcessOutput {
   }
 
   void processTestStart(Map<String, dynamic> map) {
-    test = Test.fromJson(_getNestedMap(map, 'test'));
+    final test = Test.fromJson(_getNestedMap(map, 'test'));
+    _testsById[test.id] = test;
+    _outputByTestId[test.id] = <String>[];
     if (test.name == 'Loading.') {
       printProgress(test.name);
     } else {
@@ -192,11 +199,13 @@ class ProcessOutput {
     }
   }
 
-  void processTestDone(
-      Map<String, dynamic> map, FailedTracker tracker, UnitTest unitTest) {
+  void processTestDone(Map<String, dynamic> map, FailedTracker tracker) {
     final result = map['result'] as String;
+    final testId = map['testID'] as int?;
+    final unitTest = _unitTestFor(testId);
 
     if (map['hidden'] == true) {
+      _forgetTest(testId);
       return;
     }
     // skipped is when the 'skipped' parameter is used
@@ -225,7 +234,22 @@ class ProcessOutput {
       }
     }
 
+    _forgetTest(testId);
+
     // printProgress('${test.path}: Completed: ${test.name}');
+  }
+
+  UnitTest _unitTestFor(int? testId) {
+    final test = _testsById[testId] ?? Test.empty();
+    return UnitTest(pathTo: test.path, testName: test.name);
+  }
+
+  void _forgetTest(int? testId) {
+    if (testId == null) {
+      return;
+    }
+    _testsById.remove(testId);
+    _outputByTestId.remove(testId);
   }
 
   var group = '';
@@ -250,7 +274,7 @@ class ProcessOutput {
   }
 
   void printFailedTest(String error, String stackTrace, FailedTracker tracker,
-      String group, UnitTest unitTest) {
+      UnitTest unitTest, List<String> testOutput) {
     printerr('');
     printerr(red(
         '${'*' * 34} BEGIN ERROR (${_counts.errors + 1}) '.padRight(80, '*')));
@@ -258,10 +282,10 @@ class ProcessOutput {
     printerr(red('Error: $error'));
 
     printerr(orange('${'*' * 36} OUTPUT '.padRight(80, '*')));
-    if (lines.isEmpty) {
+    if (testOutput.isEmpty) {
       printerr('No output.');
     } else {
-      lines.forEach(print);
+      testOutput.forEach(print);
     }
     printerr(orange('${'*' * 34} STACKTRACE '.padRight(80, '*')));
     printerr(stackTrace);

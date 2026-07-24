@@ -50,7 +50,7 @@ class Test {
       json['line'] as int? ?? 0,
       json['column'] as int? ?? 0,
       json['url'] as String? ?? '',
-      json['suiteid'] as int? ?? 0);
+      json['suiteID'] as int? ?? 0);
 
   String get path => Uri.parse(url).toFilePath();
 
