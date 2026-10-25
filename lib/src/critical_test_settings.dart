@@ -47,7 +47,10 @@ class Settings {
 
   bool get coverage => yaml.asBool('coverage', defaultValue: false);
 
-  String get logPath => yaml.asString('log-path', defaultValue: defaultLogPath);
+  String get logPath {
+    final configured = yaml.asString('log-path');
+    return configured.isEmpty ? defaultLogPath : configured;
+  }
 
   bool get noHooks => yaml.asBool('no-hooks', defaultValue: false);
 

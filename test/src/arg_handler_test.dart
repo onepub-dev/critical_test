@@ -4,9 +4,14 @@
  * Written by Brett Sutton <bsutton@onepub.dev>, Jan 2022
  */
 
+import 'dart:io';
+
+import 'package:critical_test/critical_test.dart';
 import 'package:critical_test/src/arg_handler.dart';
 import 'package:critical_test/src/exceptions/critical_test_exception.dart';
+import 'package:critical_test/src/paths.dart';
 import 'package:dcli/dcli.dart';
+import 'package:dcli/posix.dart' show chmod;
 import 'package:path/path.dart' hide equals;
 import 'package:test/test.dart';
 
@@ -364,6 +369,81 @@ track: false
     test('default', ()  {
       final parsedArgs = ParsedArgs.build()..parse([]);
       expect(parsedArgs.logPath, equals(defaultLogPath));
+      expect(ProcessOutput().logPath, equals(defaultLogPath));
+      final userBase = Platform.isWindows
+          ? Platform.environment['LOCALAPPDATA']!
+          : Platform.environment['HOME']!;
+      expect(isWithin(userBase, defaultLogPath), isTrue);
+      final logDirectory = Directory(dirname(defaultLogPath));
+      expect(logDirectory.existsSync(), isTrue);
+      if (!Platform.isWindows) {
+        expect(logDirectory.statSync().mode & 0x3f, 0,
+            reason: 'default log directory must be private');
+      }
+    });
+
+    test('rejects a symlink at the default log path', () {
+      if (Platform.isWindows) {
+        return; // Creating a symlink may require elevated Windows privileges.
+      }
+      final base = Directory.systemTemp.createTempSync('critical_test_case-');
+      addTearDown(() => base.deleteSync(recursive: true));
+      chmod(base.path, permission: '700');
+      final logPath = createLogPath(base);
+      expect(Directory(dirname(logPath)).statSync().mode & 0x3f, 0);
+      expect(createLogPath(base), logPath);
+      File(logPath).deleteSync();
+      final target = File(join(base.path, 'target'))..writeAsStringSync('keep');
+      Link(logPath).createSync(target.path);
+
+      expect(() => createLogPath(base), throwsStateError);
+      expect(target.readAsStringSync(), 'keep');
+    });
+
+    test('rejects a shared user base', () {
+      if (Platform.isWindows) {
+        return;
+      }
+      final base = Directory.systemTemp.createTempSync('critical_test_case-');
+      addTearDown(() => base.deleteSync(recursive: true));
+      chmod(base.path, permission: '777');
+      expect(() => createLogPath(base), throwsStateError);
+    });
+
+    test('help does not need a writable default log location', () async {
+      final environment = Map<String, String>.from(Platform.environment);
+      environment[Platform.isWindows ? 'LOCALAPPDATA' : 'HOME'] =
+          join(Directory.systemTemp.path, 'missing-critical-test-home');
+      final result = await Process.run(
+        Platform.resolvedExecutable,
+        ['bin/critical_test.dart', '--help'],
+        workingDirectory: Directory.current.path,
+        environment: environment,
+      );
+      expect(result.exitCode, 1);
+      expect(result.stdout, contains('critical_test 9.0.0'));
+      expect(result.stdout, contains('Usage: critical_test'));
+    });
+
+    test('explicit log path does not need a default log location', () async {
+      final base = Directory.systemTemp.createTempSync('critical_test_case-');
+      addTearDown(() => base.deleteSync(recursive: true));
+      final environment = Map<String, String>.from(Platform.environment);
+      environment[Platform.isWindows ? 'LOCALAPPDATA' : 'HOME'] =
+          join(base.path, 'missing-home');
+      final result = await Process.run(
+        Platform.resolvedExecutable,
+        [
+          'bin/critical_test.dart',
+          '--log-path=${join(base.path, 'chosen.log')}',
+          '--settings-path=${join(base.path, 'settings.yaml')}',
+          'missing-test-file.dart',
+        ],
+        workingDirectory: Directory.current.path,
+        environment: environment,
+      );
+      expect(result.exitCode, 1);
+      expect('${result.stdout}${result.stderr}', contains("doesn't exist"));
     });
 
     test('override', ()  {

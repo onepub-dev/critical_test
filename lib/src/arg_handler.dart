@@ -13,10 +13,10 @@ import 'package:path/path.dart';
 
 import 'critical_test_settings.dart';
 import 'exceptions/critical_test_exception.dart';
+import 'paths.dart';
 import 'unit_tests/failed_tracker.dart';
 
-final defaultLogPath =
-    '${Directory.systemTemp.path}/critical_test/unit_test.log';
+String get defaultLogPath => secureDefaultLogPath;
 
 class ParsedArgs {
   late final ArgParser parser;
@@ -114,7 +114,7 @@ class ParsedArgs {
           abbr: 'g',
           help: 'Path to log all output. '
               'If set, all tests are logged to the given path.\n'
-              'If not set, then all tests are logged to $defaultLogPath')
+              'Otherwise, the user log path is printed when tests start.')
       ..addFlag(
         'no-hooks',
         abbr: 'o',

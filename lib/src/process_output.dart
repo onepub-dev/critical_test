@@ -5,12 +5,12 @@
  */
 
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:dcli/dcli.dart';
 import 'package:path/path.dart';
 
 import 'json/test.dart';
+import 'paths.dart';
 import 'unit_tests/failed_tracker.dart';
 import 'unit_tests/unit_test.dart';
 import 'util/counts.dart';
@@ -24,8 +24,7 @@ class ProcessOutput {
   /// Total tests to be processed.
   int? total;
 
-  late String logPath =
-      join(Directory.systemTemp.path, 'critical_test', 'unit_tests.log');
+  late String logPath = secureDefaultLogPath;
 
   /// If true we show progress and failed tests
   var showProgress = true;

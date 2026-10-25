@@ -111,11 +111,11 @@ e.g. --tags="(chrome || firefox) && !slow" --exclude-tags=slow
 
 ### logPath
 
-By default critical\_tests logs both successful and failed tests to `<system temp dir>/critical_test/unit_tests.log`.
+By default, `critical_test` writes both successful and failed test output to a private `.critical_test_logs/unit_test.log` under your home directory (or Local AppData on Windows). It reuses this file on later runs. The command prints the full path when tests start.
 
 You can modify the file the unit tests are logged to via:
 
-`critical_test --logPath=<somepath>`
+`critical_test --log-path=<somepath>`
 
 ## Monitoring progress
 
@@ -134,7 +134,7 @@ The firsts four numbers in order are:
 
 You can also monitor the full output of the unit tests (including successful unit tests) by tailing the log file:
 
-`tail -f /<system temp dir>/critical_test/unit_tests.log`
+`tail -f <log path printed by critical_test>`
 
 ## Pre/Post test hooks.
 
